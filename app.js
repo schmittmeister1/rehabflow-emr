@@ -47,6 +47,253 @@ const ICD10_CODES = [
   { code:'S72.001A', desc:'Fracture of right femoral neck' },{ code:'M53.2X7', desc:'Spinal instability, lumbosacral' },
 ];
 
+// ==================== CLINICAL DATA GENERATOR ====================
+function generateClinicalData(patient) {
+  const seed = patient.id * 31 + 7;
+  const sRand = (n) => ((seed * (n+1) * 9301 + 49297) % 233280) / 233280;
+  const pick = (arr, n) => arr[Math.floor(sRand(n) * arr.length)];
+  const region = patient.bodyRegion || '';
+  const isSpine = region.includes('Spine') || region.includes('Lumbar') || region.includes('Cervical');
+  const isShoulder = region.includes('Shoulder');
+  const isKnee = region.includes('Knee');
+  const isHip = region.includes('Hip');
+  const isAnkle = region.includes('Ankle');
+  const isNeuro = region.includes('Neuro') || (patient.dx||'').includes('CVA') || (patient.dx||'').includes('Parkinson') || (patient.dx||'').includes('Hemiplegia');
+  const isBalance = region.includes('Balance') || region.includes('Generalized') || region.includes('Gait');
+  const side = region.includes('Right') ? 'right' : region.includes('Left') ? 'left' : 'bilateral';
+  const sideU = side.charAt(0).toUpperCase() + side.slice(1);
+  const age = patient.age || 55;
+  const pain = patient.initialPain || 7;
+  const stage = patient.careStage || 'Mid';
+  const dx = patient.dx || '';
+
+  // Chief complaints by region
+  const chiefComplaints = {
+    spine: [
+      `Patient reports ${pain >= 7 ? 'severe' : 'moderate'} ${region.includes('Cervical') ? 'neck' : 'low back'} pain rated ${pain}/10 with ${pain >= 7 ? 'constant aching and intermittent sharp pain' : 'intermittent aching'} that ${dx.includes('sciatica') || dx.includes('Radiculopathy') ? 'radiates into the ' + side + ' lower extremity to the knee' : 'is localized to the ' + (region.includes('Cervical') ? 'posterior cervical and upper trapezius region' : 'lumbar paraspinals')}. Pain worsens with ${region.includes('Cervical') ? 'prolonged computer work, looking up, and driving' : 'prolonged sitting, bending, and lifting'}. Reports difficulty with ${region.includes('Cervical') ? 'overhead reaching, turning head to check blind spots while driving, and sleeping' : 'putting on shoes/socks, getting in/out of car, and standing from sitting'}.`,
+    ],
+    shoulder: [
+      `Patient reports ${pain >= 7 ? 'severe' : 'moderate'} ${side} shoulder pain rated ${pain}/10 described as ${dx.includes('capsulitis') ? 'deep aching with significant stiffness, especially in the morning' : dx.includes('Rotator cuff') ? 'sharp pain with overhead movements and at night when lying on the affected side' : 'aching pain with overhead activities and reaching behind the back'}. Symptoms began ${dx.includes('init') ? 'acutely after a fall/injury' : 'gradually over the past several weeks'}. Reports difficulty with ${pick(['reaching overhead to get items from cabinets','combing hair and reaching behind back','dressing (putting on coat/bra)','sleeping on the affected side','lifting objects above shoulder height'],0)}.`,
+    ],
+    knee: [
+      `Patient reports ${pain >= 7 ? 'severe' : 'moderate'} ${side} knee pain rated ${pain}/10 described as ${dx.includes('OA') ? 'deep aching that worsens with activity and improves with rest. Reports morning stiffness lasting 20-30 minutes' : dx.includes('ACL') ? 'sharp pain with pivoting and feelings of instability. Reports episodes of the knee giving way' : dx.includes('Meniscus') ? 'catching and locking sensation with sharp pain on twisting movements' : dx.includes('TKA') ? 'post-surgical stiffness and moderate pain at the incision site' : 'diffuse aching around the knee joint'}. Reports difficulty with ${pick(['stair negotiation (especially descending)','prolonged walking > 15 minutes','transitioning from sit to stand','squatting and kneeling','getting in/out of car'],1)}.`,
+    ],
+    hip: [
+      `Patient reports ${pain >= 7 ? 'severe' : 'moderate'} ${side} hip pain rated ${pain}/10 described as ${dx.includes('OA') ? 'deep groin and lateral hip aching that worsens with weight bearing and ambulation' : dx.includes('THA') ? 'post-surgical soreness with stiffness. Following hip precautions per surgeon protocol' : 'deep aching in the ' + side + ' hip region'}. Reports difficulty with ${pick(['ambulation > 1 block','stair climbing','donning/doffing shoes and socks','getting in/out of bed','rising from low surfaces'],2)}.`,
+    ],
+    neuro: [
+      `Patient reports ${isNeuro ? 'functional limitations following neurological event' : 'generalized weakness and balance impairment'} with primary complaints of ${pick(['difficulty walking without assistance','impaired balance with frequent near-falls','weakness on the affected side limiting ADLs','difficulty with transfers and mobility tasks'],3)}. ${dx.includes('CVA') ? 'Patient is ' + pick(['3 weeks','6 weeks','2 months'],4) + ' post-CVA with ' + side + ' hemiparesis.' : dx.includes('Parkinson') ? 'Reports progressive difficulty with balance, gait initiation, and dual-task activities.' : 'Reports history of ' + pick(['multiple falls in the past 3 months','progressive deconditioning','generalized weakness affecting functional mobility'],5) + '.'}`,
+    ],
+    general: [
+      `Patient reports ${pain >= 7 ? 'significant' : 'moderate'} pain rated ${pain}/10 in the ${region} with functional limitations in daily activities. Symptoms have been present for ${pick(['2 weeks','1 month','6 weeks','3 months','several months'],6)} and are ${pick(['gradually worsening','intermittent but limiting function','constant with variable intensity'],7)}. Reports difficulty with ${pick(['work duties','household chores','recreational activities','sleeping comfortably','self-care tasks'],8)}.`,
+    ],
+  };
+
+  const cc = isSpine ? chiefComplaints.spine[0] : isShoulder ? chiefComplaints.shoulder[0] : isKnee ? chiefComplaints.knee[0] : isHip ? chiefComplaints.hip[0] : (isNeuro || isBalance) ? chiefComplaints.neuro[0] : chiefComplaints.general[0];
+
+  // HPI
+  const onsetType = dx.includes('init') || dx.includes('Sprain') || dx.includes('Fracture') ? 'acute' : (sRand(10) > 0.5 ? 'insidious' : 'gradual');
+  const duration = pick(['approximately 2 weeks ago','approximately 3 weeks ago','about 1 month ago','over the past 6 weeks','approximately 2 months ago','over the past 3 months'],11);
+  const mechanism = onsetType === 'acute' ? pick(['after a fall','following a motor vehicle accident','while lifting a heavy object','during athletic activity','after a twisting injury'],12) : pick(['without specific mechanism of injury','with gradual onset related to repetitive activities','following increased activity level','associated with occupational demands','without identifiable precipitating event'],13);
+  const aggravating = isSpine ? (region.includes('Cervical') ? 'prolonged sitting at computer, looking up/down, turning head' : 'prolonged sitting > 30 min, bending forward, lifting > 15 lbs') : isShoulder ? 'overhead reaching, reaching behind back, lying on affected side' : isKnee ? 'stair climbing (especially descending), prolonged standing, squatting' : isHip ? 'prolonged ambulation, stair climbing, sit-to-stand transitions' : 'prolonged activity, repetitive movements, sustained positions';
+  const easing = pick(['rest, ice application, and position change','heat application, gentle stretching, and OTC analgesics','activity modification and anti-inflammatory medication','lying down with support and avoiding aggravating activities'],14);
+  const priorTx = pick(['No prior physical therapy for this condition.','Patient received a course of physical therapy 1 year ago with moderate improvement.','Patient has tried chiropractic treatment with temporary relief.','No prior conservative treatment attempted.','Patient has been self-managing with stretching and OTC medications.'],15);
+  const hpi = `Onset: ${onsetType.charAt(0).toUpperCase() + onsetType.slice(1)} onset ${duration} ${mechanism}. Duration: Symptoms have been ${onsetType === 'acute' ? 'present since the injury' : 'progressively worsening'}. Aggravating factors: ${aggravating}. Easing factors: ${easing}. ${priorTx} Patient was referred by ${patient.referringMD || 'primary care physician'} for physical therapy evaluation and treatment.`;
+
+  // Prior level of function
+  const plof = age >= 65 ?
+    pick(['Independent with all ADLs and IADLs. Ambulatory in community without assistive device. Active in daily walks (30 min/day) and light gardening.','Independent with all ADLs. Uses no assistive device for ambulation. Active in senior exercise classes 2x/week.','Modified independent with ADLs. Ambulatory with straight cane for community distances. Lives with spouse in single-story home.','Independent with all functional mobility. Active in golf 2x/week and daily walking program.'],16) :
+    pick(['Independent with all ADLs and IADLs. Works full-time as ' + (patient.socialHistory?.occupation || 'office worker') + '. Active in recreational exercise 3x/week including jogging and gym workouts.','Fully independent at home and work. Enjoys running, cycling, and strength training. No prior functional limitations.','Independent with all activities. Works as ' + (patient.socialHistory?.occupation || 'teacher') + '. Active in yoga and walking. Primary caregiver for children.','High-level function at baseline. Participates in regular exercise program. No prior mobility limitations.'],17);
+
+  // Patient goals
+  const patientGoals = isSpine ? 'Return to work duties without pain. Able to sit for > 1 hour comfortably. Able to sleep through the night. Resume exercise routine.' : isShoulder ? 'Full use of ' + side + ' arm without pain. Able to reach overhead for daily tasks. Return to exercise program. Able to sleep on affected side.' : isKnee ? 'Walk without a limp. Go up and down stairs normally. Return to recreational activities. Stand for prolonged periods without pain.' : isHip ? 'Walk independently for community distances. Return to exercise program. Perform all ADLs without difficulty.' : 'Return to prior level of function. Resume all daily activities without limitation. Pain-free with normal activities.';
+
+  // ROM data based on region
+  const romData = {};
+  const ROM_JOINTS = ['Cervical Flexion','Cervical Extension','Cervical Rotation','Shoulder Flexion','Shoulder Abduction','Shoulder ER','Shoulder IR','Elbow Flexion','Hip Flexion','Hip Extension','Hip Abduction','Knee Flexion','Knee Extension','Ankle DF','Ankle PF'];
+  ROM_JOINTS.forEach((j, idx) => {
+    const isAffectedRegion = (isSpine && j.includes('Cervical') && region.includes('Cervical')) ||
+      (isSpine && (j.includes('Hip') || j.includes('Knee')) && region.includes('Lumbar')) ||
+      (isShoulder && j.includes('Shoulder')) ||
+      (isKnee && (j.includes('Knee') || j.includes('Hip'))) ||
+      (isHip && (j.includes('Hip') || j.includes('Knee'))) ||
+      (isAnkle && (j.includes('Ankle') || j.includes('Knee')));
+
+    const norms = { 'Cervical Flexion': 50, 'Cervical Extension': 60, 'Cervical Rotation': 80, 'Shoulder Flexion': 180, 'Shoulder Abduction': 180, 'Shoulder ER': 90, 'Shoulder IR': 70, 'Elbow Flexion': 150, 'Hip Flexion': 120, 'Hip Extension': 30, 'Hip Abduction': 45, 'Knee Flexion': 135, 'Knee Extension': 0, 'Ankle DF': 20, 'Ankle PF': 50 };
+    const norm = norms[j] || 90;
+    if (isAffectedRegion) {
+      const deficit = Math.floor(norm * (0.15 + sRand(idx*3+1) * 0.35));
+      const affSide = side === 'bilateral' ? 'R' : (side === 'right' ? 'R' : 'L');
+      const unaffSide = affSide === 'R' ? 'L' : 'R';
+      if (j === 'Knee Extension') {
+        romData[j] = { aR: affSide==='R' ? '-' + Math.floor(deficit*0.3) : '0', aL: affSide==='L' ? '-' + Math.floor(deficit*0.3) : '0', pR: affSide==='R' ? '-' + Math.max(Math.floor(deficit*0.2),0) : '0', pL: affSide==='L' ? '-' + Math.max(Math.floor(deficit*0.2),0) : '0', wnl: false };
+      } else {
+        romData[j] = { aR: affSide==='R' ? ''+(norm - deficit) : ''+norm, aL: affSide==='L' ? ''+(norm - deficit) : ''+norm, pR: affSide==='R' ? ''+(norm - Math.floor(deficit*0.7)) : ''+norm, pL: affSide==='L' ? ''+(norm - Math.floor(deficit*0.7)) : ''+norm, wnl: false };
+      }
+    } else {
+      romData[j] = { aR: '', aL: '', pR: '', pL: '', wnl: true };
+    }
+  });
+
+  // MMT data
+  const MMT_GROUPS = ['Shoulder Flexors','Shoulder Abductors','Elbow Flexors','Elbow Extensors','Wrist Extensors','Hip Flexors','Hip Extensors','Hip Abductors','Knee Extensors','Knee Flexors','Ankle DF','Ankle PF'];
+  const mmtData = {};
+  MMT_GROUPS.forEach((m, idx) => {
+    const isAffectedMuscle = (isShoulder && (m.includes('Shoulder') || m.includes('Elbow'))) ||
+      (isKnee && (m.includes('Knee') || m.includes('Hip'))) ||
+      (isHip && (m.includes('Hip') || m.includes('Knee'))) ||
+      (isAnkle && (m.includes('Ankle') || m.includes('Knee'))) ||
+      (isNeuro || isBalance);
+    if (isAffectedMuscle) {
+      const grades = ['3+/5','4-/5','4/5','3/5','4+/5'];
+      const g = grades[Math.floor(sRand(idx*5+2) * grades.length)];
+      const affSide = side === 'bilateral' ? g : (side === 'right' ? g : '5/5');
+      const unaffSide = side === 'bilateral' ? g : (side === 'right' ? '5/5' : g);
+      mmtData[m] = { R: side!=='left'?g:'5/5', L: side!=='right'?g:'5/5', notes: sRand(idx*7) > 0.6 ? 'Pain-limited' : '' };
+    } else {
+      mmtData[m] = { R: '5/5', L: '5/5', notes: '' };
+    }
+  });
+
+  // Special tests
+  const specialTests = isSpine ? (region.includes('Lumbar') ?
+    `SLR: ${side === 'right' || side === 'bilateral' ? 'Positive R at ' + (30 + Math.floor(sRand(20)*30)) + '°' : 'Negative R'}, ${side === 'left' || side === 'bilateral' ? 'Positive L at ' + (30 + Math.floor(sRand(21)*30)) + '°' : 'Negative L'}. Slump test: ${pick(['Positive reproducing concordant symptoms','Positive for neural tension','Negative bilaterally'],22)}. Prone instability test: ${pick(['Positive','Negative'],23)}. Lumbar spring test: ${pick(['Hypomobile L4-L5','Hypomobile L5-S1','Pain provocation at L4-L5','WNL'],24)}.` :
+    `Spurling test: ${pick(['Positive R reproducing radicular symptoms','Positive L reproducing concordant pain','Negative bilaterally'],25)}. Distraction test: ${pick(['Positive — symptoms relieved','Negative'],26)}. Upper limb tension test: ${pick(['Positive R for median nerve bias','Positive L for median nerve bias','Negative bilaterally'],27)}. Cervical rotation: ${pick(['Limited and painful R','Limited and painful L','Limited bilaterally'],28)}.`) :
+    isShoulder ? `Neer impingement: ${pick(['Positive','Negative'],29)}. Hawkins-Kennedy: ${pick(['Positive','Negative'],30)}. Empty can test: ${pick(['Positive — weakness and pain','Positive — pain only','Negative'],31)}. Speed test: ${pick(['Positive','Negative'],32)}. Cross-body adduction: ${pick(['Positive for AC joint pain','Negative'],33)}. ${dx.includes('capsulitis') ? 'Significant capsular pattern noted with ER > ABD > IR limitation.' : ''}` :
+    isKnee ? `Lachman test: ${dx.includes('ACL') ? 'Positive with soft end-feel' : 'Negative'}. Anterior drawer: ${dx.includes('ACL') ? 'Positive' : 'Negative'}. McMurray test: ${dx.includes('Meniscus') ? 'Positive medial with click and pain' : 'Negative'}. Valgus/varus stress: ${pick(['Stable at 0° and 30°','Mild laxity at 30° valgus','Stable bilaterally'],34)}. Patellar grind: ${dx.includes('OA') ? 'Positive with crepitus' : pick(['Mild crepitus','Negative'],35)}.` :
+    isHip ? `FABER test: ${pick(['Positive ' + side + ' for groin pain','Positive ' + side + ' for SI joint pain','Positive bilaterally'],36)}. Log roll: ${pick(['Positive — pain with IR','Negative'],37)}. Thomas test: ${pick(['Positive — ' + side + ' hip flexor tightness','Negative'],38)}. Ober test: ${pick(['Positive — ITB tightness ' + side,'Negative bilaterally'],39)}. Trendelenburg: ${pick(['Positive ' + side,'Negative'],40)}.` :
+    'Appropriate special tests performed per clinical indication. See objective findings above.';
+
+  // Posture/alignment
+  const posture = isSpine ? (region.includes('Cervical') ?
+    'Forward head posture noted. Rounded shoulders bilaterally. Upper crossed syndrome pattern. Increased thoracic kyphosis.' :
+    'Lumbar lordosis ' + pick(['decreased','increased','flattened'],41) + '. ' + pick(['Lateral shift noted to the ' + side,'No lateral shift noted','Slight ' + side + ' pelvic obliquity'],42) + '. ' + pick(['Bilateral hamstring tightness noted','Hip flexor tightness noted bilaterally','Core stabilizer weakness evident with single-leg stance'],43) + '.') :
+    isShoulder ? sideU + ' shoulder ' + pick(['protracted and elevated compared to uninvolved side','depressed compared to uninvolved side','anteriorly tilted scapula noted'],44) + '. ' + pick(['Scapular winging noted with forward flexion','Scapular dyskinesis observed during overhead movement','Scapulohumeral rhythm disrupted on affected side'],45) + '.' :
+    isKnee ? pick(['Genu valgum noted ' + side,'Mild genu varum ' + side,'Alignment WNL in standing'],46) + '. ' + pick(['Quadriceps atrophy noted ' + side + ' compared to uninvolved side','Visible swelling noted ' + side + ' knee','Mild effusion palpated ' + side + ' knee'],47) + '.' :
+    'Postural assessment reveals ' + pick(['generally good alignment with minor asymmetries','mild forward head posture and rounded shoulders','age-appropriate postural changes'],48) + '.';
+
+  // Palpation
+  const palpation = isSpine ? (region.includes('Cervical') ?
+    'Tenderness to palpation: ' + pick(['bilateral upper trapezius, levator scapulae, and suboccipital muscles','right SCM, right upper trapezius, and cervical paraspinals C4-C6','bilateral cervical paraspinals with trigger points in upper trapezius'],49) + '. ' + pick(['Muscle guarding noted','Hypertonicity noted in cervical paraspinals','Myofascial restrictions palpated'],50) + '.' :
+    'Tenderness to palpation: ' + pick(['bilateral lumbar paraspinals L3-S1 with increased tone','right QL, bilateral multifidi L4-L5, and SI joint region','left piriformis, bilateral lumbar erector spinae, and L5-S1 segmental level'],51) + '. ' + pick(['Muscle spasm noted in lumbar paraspinals','Trigger points identified in QL and piriformis','Segmental hypomobility at L4-L5'],52) + '.') :
+    isShoulder ? 'Tenderness to palpation: ' + pick(['anterior joint line, bicipital groove, and supraspinatus insertion','greater tuberosity, posterior capsule, and upper trapezius','subacromial space, AC joint, and deltoid insertion'],53) + '. ' + pick(['No warmth or erythema','Mild crepitus with passive ROM','Muscle guarding with palpation of rotator cuff'],54) + '.' :
+    isKnee ? 'Tenderness to palpation: ' + pick(['medial joint line and pes anserine region','lateral joint line and ITB','patellar tendon and peripatellar tissues'],55) + '. ' + pick(['Mild effusion present','No warmth or erythema noted','Crepitus noted with passive flexion/extension'],56) + '.' :
+    'Palpation reveals localized tenderness in the ' + region + ' region with associated soft tissue restrictions.';
+
+  // Gait analysis
+  const gait = isKnee || isHip || isBalance || isNeuro ?
+    pick(['Antalgic gait pattern noted with decreased stance phase on ' + side + ' lower extremity. Decreased step length and cadence. ' + (age >= 65 ? 'Using straight cane for community ambulation.' : 'No assistive device used currently.'),'Gait deviations include ' + pick(['decreased ' + side + ' knee flexion in swing phase','Trendelenburg sign noted during ' + side + ' single-leg stance','decreased push-off ' + side + ' with reduced stride length'],57) + '. Ambulating independently ' + (age >= 65 ? 'with single-point cane' : 'without assistive device') + '.','Mild antalgic pattern with compensatory strategies. Decreased cadence and self-selected walking speed. Independent with ambulation on level surfaces.'],58) :
+    isSpine ? pick(['Gait assessment reveals mildly decreased cadence and guarded posture with ambulation. No significant deviations noted. Independent and safe.','Gait: Independent, mildly reduced stride length and increased time in double support. No assistive device.'],59) :
+    'Gait pattern within functional limits for age. No significant deviations noted. Safe and independent with ambulation.';
+
+  // Balance
+  const balance = (isBalance || isNeuro || age >= 65) ?
+    'Single-leg stance: R ' + (5 + Math.floor(sRand(60)*15)) + ' sec, L ' + (5 + Math.floor(sRand(61)*15)) + ' sec (norm >30 sec). Romberg: ' + pick(['Positive with eyes closed','Mild sway with eyes closed','Negative'],62) + '. Tandem stance: ' + pick(['Unable to maintain > 5 seconds','Maintained 10 seconds with UE support','Maintained 15 seconds independently'],63) + '. Berg Balance Scale: ' + (30 + Math.floor(sRand(64)*16)) + '/56 (' + pick(['moderate fall risk','low fall risk','high fall risk'],65) + '). Timed Up and Go: ' + (10 + Math.floor(sRand(66)*10)) + ' seconds.' :
+    'Balance: ' + pick(['Within functional limits for age. Single-leg stance maintained > 15 seconds bilaterally.','Mildly decreased with eyes closed but adequate for functional activities.','WNL — no impairments noted during functional testing.'],67);
+
+  // Functional mobility
+  const funcMobility = (isBalance || isNeuro || age >= 65) ?
+    'Sit-to-stand: ' + pick(['Independent with use of armrests','Modified independent — slow but safe','Requires verbal cues for proper body mechanics'],68) + '. Transfers: ' + pick(['Independent all surfaces','Modified independent bed mobility','Supervision with tub transfers'],69) + '. Stair negotiation: ' + pick(['Step-over-step with railing','Step-to-step pattern with bilateral rail','Independent ascending, rail descending'],70) + '.' :
+    'Functional mobility: ' + pick(['Independent with all transfers and mobility tasks. Reports difficulty with ' + (isSpine ? 'floor transfers and prolonged positional changes' : 'sport-specific movements and high-level activities') + '.','Independent with all functional mobility. Limitations noted with sustained and repetitive activities.'],71);
+
+  // Assessment text
+  const assessment = `${age}-year-old ${patient.gender?.toLowerCase() || 'patient'} presents with ${dx} affecting the ${region}. Patient demonstrates ${pick(['impaired ROM, decreased strength, and functional limitations','movement system impairment with associated pain and functional deficit','neuromuscular and musculoskeletal deficits affecting functional performance'],72)} consistent with the referring diagnosis. ${pain >= 7 ? 'Moderate to severe' : 'Mild to moderate'} impairment level. ${pick(['Patient is a good candidate for skilled physical therapy intervention.','Patient would benefit from a structured rehabilitation program.','Skilled PT intervention is indicated to address identified impairments and functional limitations.'],73)} Rehabilitation potential: ${pick(['Good','Good to excellent','Fair to good'],74)} based on patient motivation, prior level of function, and clinical presentation.`;
+
+  // PT diagnosis
+  const ptDiagnosis = isSpine ? pick(['Lumbar movement coordination impairment with associated radiculopathy','Lumbar regional pain syndrome with mobility deficit','Cervical movement coordination impairment with associated headaches','Lumbar segmental instability with movement coordination impairment','Cervical mobility deficit with associated radiculopathy'],75) :
+    isShoulder ? pick(['Shoulder mobility deficit with associated rotator cuff dysfunction','Shoulder adhesive capsulitis with movement restriction','Shoulder impingement syndrome with rotator cuff tendinopathy','Shoulder post-surgical recovery with mobility and strength deficits'],76) :
+    isKnee ? pick(['Knee mobility deficit with associated strength impairment','Knee osteoarthritis with functional decline','Post-surgical knee rehabilitation with ROM and strength deficits','Knee ligamentous instability with functional impairment'],77) :
+    'Movement system impairment of the ' + region + ' with associated pain and functional limitations';
+
+  // Problem list
+  const problemList = `1. Decreased ROM in the ${region} — limited ${isSpine ? 'flexion, extension, and rotation' : isShoulder ? 'flexion, abduction, and external rotation' : isKnee ? 'flexion and extension' : 'functional ROM'}
+2. Decreased strength in ${isSpine ? 'core stabilizers and hip musculature' : isShoulder ? 'rotator cuff and scapular stabilizers' : isKnee ? 'quadriceps and hamstrings' : isHip ? 'hip flexors, abductors, and extensors' : 'involved musculature'} — ${pick(['3+/5 to 4/5','4-/5 to 4/5','3/5 to 4-/5'],78)}
+3. Pain ${pain}/10 limiting functional activities
+4. Impaired ${pick(['posture and body mechanics','neuromuscular control','balance and coordination','functional mobility'],79)}
+5. Decreased functional independence with ${pick(['ADLs and work duties','ambulation and stair negotiation','overhead activities and self-care','transfers and mobility tasks'],80)}`;
+
+  // Goals
+  const stg = isSpine ? [
+    `Patient will demonstrate ${region.includes('Cervical') ? 'cervical' : 'lumbar'} AROM to within 80% of normal in all planes within 4 weeks to improve functional mobility.`,
+    `Patient will report pain level of ≤${Math.max(pain-3,2)}/10 with daily activities within 3 weeks.`,
+    `Patient will demonstrate independent ${pick(['lumbar stabilization exercise program','cervical postural correction exercises','core activation with functional movements'],81)} within 2 weeks.`,
+  ] : isShoulder ? [
+    `Patient will demonstrate ${side} shoulder AROM flexion to ≥${dx.includes('capsulitis')?'140':'160'}° within 4 weeks.`,
+    `Patient will report pain level of ≤${Math.max(pain-3,2)}/10 with reaching activities within 3 weeks.`,
+    `Patient will demonstrate ${side} shoulder strength of ≥4/5 in rotator cuff musculature within 4 weeks.`,
+  ] : isKnee ? [
+    `Patient will demonstrate ${side} knee AROM ${dx.includes('TKA')?'0-110°':'0-125°'} within 4 weeks.`,
+    `Patient will ambulate independently on level surfaces without antalgic gait pattern within 3 weeks.`,
+    `Patient will ascend/descend 12 stairs step-over-step with railing within 4 weeks.`,
+  ] : [
+    `Patient will demonstrate improved ROM in the ${region} to within 80% of normal within 4 weeks.`,
+    `Patient will report pain ≤${Math.max(pain-3,2)}/10 with daily activities within 3 weeks.`,
+    `Patient will perform ${pick(['home exercise program independently','functional activities with proper mechanics','balance activities safely'],82)} within 2 weeks.`,
+  ];
+
+  const ltg = [
+    `Patient will return to ${age >= 65 ? 'prior level of function including independent community ambulation and all ADLs' : 'full work duties and recreational activities without limitation'} within ${pick(['8','10','12'],83)} weeks.`,
+    `Patient will report pain level of ≤${Math.max(pain-5,1)}/10 and ODI/functional score improved by MCID within ${pick(['8','10','12'],84)} weeks.`,
+  ];
+
+  // Progress note data
+  const painImproved = patient.currentPain || Math.max(pain - 3, 1);
+  const progressSubjective = stage === 'Early' ?
+    `Patient reports ${pick(['some improvement','mild improvement','no significant change'],85)} since initiating physical therapy. Current pain ${painImproved}/10 (initial ${pain}/10). ${pick(['Reports exercises are helping but still has difficulty with prolonged activities.','Able to tolerate HEP with minimal increase in symptoms.','Notices less stiffness in the morning but pain persists with activity.'],86)}` :
+    stage === 'Mid' ?
+    `Patient reports ${pick(['good progress','moderate improvement','steady improvement'],87)} with physical therapy. Current pain ${painImproved}/10 (initial ${pain}/10). ${pick(['Able to perform daily activities with less difficulty than at initial evaluation.','HEP compliance is good — reports feeling stronger and more mobile.','Functional gains noted with stair negotiation and prolonged walking tolerance.','Reports sleeping better and able to tolerate work duties with fewer breaks.'],88)}` :
+    stage === 'Late' || stage === 'Nearing DC' ?
+    `Patient reports ${pick(['significant improvement','substantial functional gains','near-complete resolution of symptoms'],89)}. Current pain ${painImproved}/10 (initial ${pain}/10). ${pick(['Able to return to most prior activities including exercise program.','Reports minimal limitations with ADLs and work. Tolerating progressive strengthening well.','Goals largely met — patient reports high satisfaction with progress.'],90)}` :
+    `Patient reports ${pick(['some functional improvement since last assessment','ongoing symptoms but better management strategies','variable progress with good and bad days'],91)}. Current pain ${painImproved}/10 (initial ${pain}/10).`;
+
+  const progressObjective = `Key objective measures (current vs initial):\n- ROM: ${isSpine ? (region.includes('Cervical') ? 'Cervical flexion improved from 30° to 42°, rotation from 55° to 70°' : 'Lumbar flexion improved, SLR improved from 35° to 55°') : isShoulder ? 'Shoulder flexion improved from 120° to 155°, ER from 40° to 65°' : isKnee ? 'Knee flexion improved from 95° to 120°, extension from -8° to -2°' : 'ROM improved in all limited planes toward functional range'}\n- Strength: ${pick(['Improved 0.5-1 grade in key muscle groups','Quad and hip strength improved from 3+/5 to 4/5','Rotator cuff strength improved from 3+/5 to 4/5','Core stability improved — able to maintain neutral spine with UE/LE challenges'],92)}\n- Function: ${pick(['Gait improved — normalized cadence and stride length','Stair negotiation improved to step-over-step pattern','Overhead reaching now functional for daily tasks','Transfer and mobility skills improved to independent level'],93)}`;
+
+  const progressClinicalReasoning = `Patient has demonstrated ${pick(['measurable improvement','clinically significant gains','steady progress'],94)} in ROM, strength, and functional mobility since initial evaluation. ${pick(['Continued skilled PT is warranted to achieve remaining goals and ensure safe return to full function.','Patient continues to benefit from skilled intervention — further progression of therapeutic exercise and manual therapy is indicated.','Skilled care remains necessary to address remaining deficits and prevent recurrence.'],95)} ${stage === 'Late' || stage === 'Nearing DC' ? 'Discharge planning initiated — patient transitioning to independent HEP maintenance program.' : 'Plan to continue current frequency with progression of therapeutic interventions.'}`;
+
+  const goalStatusData = {};
+  if (stage === 'Early') {
+    goalStatusData['STG 1'] = { status: 'In Progress', notes: 'Progressing' };
+    goalStatusData['STG 2'] = { status: 'In Progress', notes: 'Improving' };
+    goalStatusData['STG 3'] = { status: 'In Progress', notes: '' };
+    goalStatusData['LTG 1'] = { status: 'In Progress', notes: '' };
+    goalStatusData['LTG 2'] = { status: 'In Progress', notes: '' };
+  } else if (stage === 'Mid') {
+    goalStatusData['STG 1'] = { status: 'Partially Met', notes: 'ROM improving, not yet at target' };
+    goalStatusData['STG 2'] = { status: 'Met', notes: 'Pain goal achieved' };
+    goalStatusData['STG 3'] = { status: 'In Progress', notes: 'Progressing well' };
+    goalStatusData['LTG 1'] = { status: 'In Progress', notes: 'On track' };
+    goalStatusData['LTG 2'] = { status: 'In Progress', notes: '' };
+  } else if (stage === 'Late' || stage === 'Nearing DC') {
+    goalStatusData['STG 1'] = { status: 'Met', notes: 'ROM at target' };
+    goalStatusData['STG 2'] = { status: 'Met', notes: 'Pain at goal level' };
+    goalStatusData['STG 3'] = { status: 'Met', notes: 'HEP independent' };
+    goalStatusData['LTG 1'] = { status: stage==='Nearing DC'?'Met':'Partially Met', notes: stage==='Nearing DC'?'Returning to all activities':'Near goal' };
+    goalStatusData['LTG 2'] = { status: 'In Progress', notes: 'MCID achieved for ODI' };
+  } else {
+    goalStatusData['STG 1'] = { status: 'In Progress', notes: '' };
+    goalStatusData['STG 2'] = { status: 'In Progress', notes: '' };
+    goalStatusData['STG 3'] = { status: 'In Progress', notes: '' };
+    goalStatusData['LTG 1'] = { status: 'In Progress', notes: '' };
+    goalStatusData['LTG 2'] = { status: 'In Progress', notes: '' };
+  }
+
+  return {
+    chiefComplaint: cc,
+    hpi, plof: plof, patientGoals,
+    painQuality: pick(['Sharp','Dull/Aching','Burning','Throbbing','Radiating','Stabbing'],96),
+    romData, mmtData,
+    specialTests, posture, palpation, gait, balance, funcMobility,
+    assessment, ptDiagnosis, problemList,
+    stg, ltg,
+    lefs: isKnee || isHip || isAnkle ? '' + (25 + Math.floor(sRand(97)*30)) : '',
+    ndi: region.includes('Cervical') ? '' + (25 + Math.floor(sRand(98)*35)) : '',
+    dash: isShoulder ? '' + (30 + Math.floor(sRand(99)*35)) : '',
+    progressSubjective, progressObjective, progressClinicalReasoning, goalStatusData,
+    overallProgress: stage==='Early'?'Progressing well toward goals':stage==='Mid'?'Progressing well toward goals':stage==='Late'?'Progressing well toward goals':stage==='Nearing DC'?'Goals met — discharge planning':'Progressing slower than expected',
+    updatedPlan: stage === 'Nearing DC' ? 'Transition to independent HEP. Discharge at next visit if patient demonstrates independent management of condition.' : 'Continue current POC at ' + pick(['2x/week','3x/week'],100) + '. Progress therapeutic exercise intensity and complexity. Continue manual therapy as indicated. Update HEP.',
+  };
+}
+
 // ==================== LOGIN ====================
 function LoginPage({ onLogin }) {
   const [username, setUsername] = useState('');
@@ -533,6 +780,8 @@ function InitialEvalNote({ patient, user }) {
   const handleUnlock = () => { setNoteStatus('signed'); setLockedAt(null); };
 
   const ROM_JOINTS = ['Cervical Flexion','Cervical Extension','Cervical Rotation','Shoulder Flexion','Shoulder Abduction','Shoulder ER','Shoulder IR','Elbow Flexion','Hip Flexion','Hip Extension','Hip Abduction','Knee Flexion','Knee Extension','Ankle DF','Ankle PF'];
+  const MMT_GROUPS = ['Shoulder Flexors','Shoulder Abductors','Elbow Flexors','Elbow Extensors','Wrist Extensors','Hip Flexors','Hip Extensors','Hip Abductors','Knee Extensors','Knee Flexors','Ankle DF','Ankle PF'];
+  const cd = useMemo(() => generateClinicalData(patient), [patient.id]);
 
   return (
     <div>
@@ -548,15 +797,15 @@ function InitialEvalNote({ patient, user }) {
 
       <fieldset disabled={isLocked} style={{border:'none',padding:0}}>
       <div className="card"><div className="card-header">Subjective</div><div className="card-body">
-        <div className="form-group"><label>Chief Complaint</label><textarea placeholder="Patient's primary complaint in their own words..." /></div>
-        <div className="form-group"><label>History of Present Illness</label><textarea rows={4} placeholder="Onset, mechanism, duration, aggravating/easing factors, prior treatment..." /></div>
+        <div className="form-group"><label>Chief Complaint</label><textarea defaultValue={cd.chiefComplaint} /></div>
+        <div className="form-group"><label>History of Present Illness</label><textarea rows={4} defaultValue={cd.hpi} /></div>
         <div className="form-row" style={{gridTemplateColumns:'1fr 1fr 1fr'}}>
           <div className="form-group"><label>Pain Level (0-10)</label><select defaultValue={patient.initialPain}><option value="">Select</option>{[...Array(11)].map((_,i)=><option key={i} value={i}>{i}/10</option>)}</select></div>
-          <div className="form-group"><label>Pain Location</label><input placeholder="e.g., Low back, bilateral" defaultValue={patient.bodyRegion}/></div>
-          <div className="form-group"><label>Pain Quality</label><select><option value="">Select</option><option>Sharp</option><option>Dull/Aching</option><option>Burning</option><option>Throbbing</option><option>Stabbing</option><option>Radiating</option></select></div>
+          <div className="form-group"><label>Pain Location</label><input defaultValue={patient.bodyRegion}/></div>
+          <div className="form-group"><label>Pain Quality</label><select defaultValue={cd.painQuality}><option value="">Select</option><option>Sharp</option><option>Dull/Aching</option><option>Burning</option><option>Throbbing</option><option>Stabbing</option><option>Radiating</option></select></div>
         </div>
-        <div className="form-group"><label>Prior Level of Function</label><textarea placeholder="Describe patient's functional level before onset..." /></div>
-        <div className="form-group"><label>Patient Goals</label><textarea placeholder="What does the patient want to achieve with therapy?" /></div>
+        <div className="form-group"><label>Prior Level of Function</label><textarea defaultValue={cd.plof} /></div>
+        <div className="form-group"><label>Patient Goals</label><textarea defaultValue={cd.patientGoals} /></div>
       </div></div>
 
       <div className="card"><div className="card-header">Objective — Physical Examination</div><div className="card-body">
@@ -564,48 +813,48 @@ function InitialEvalNote({ patient, user }) {
         <div style={{overflowX:'auto',marginBottom:16}}>
           <table className="assessment-table">
             <thead><tr><th>Joint Motion</th><th>Active R</th><th>Active L</th><th>Passive R</th><th>Passive L</th><th>WNL</th></tr></thead>
-            <tbody>{ROM_JOINTS.map(j=>(<tr key={j}><td style={{textAlign:'left',fontWeight:500}}>{j}</td><td><input disabled={isLocked}/></td><td><input disabled={isLocked}/></td><td><input disabled={isLocked}/></td><td><input disabled={isLocked}/></td><td><input type="checkbox" disabled={isLocked}/></td></tr>))}</tbody>
+            <tbody>{ROM_JOINTS.map(j=>{const r=cd.romData[j]||{};return(<tr key={j}><td style={{textAlign:'left',fontWeight:500}}>{j}</td><td><input defaultValue={r.aR} disabled={isLocked}/></td><td><input defaultValue={r.aL} disabled={isLocked}/></td><td><input defaultValue={r.pR} disabled={isLocked}/></td><td><input defaultValue={r.pL} disabled={isLocked}/></td><td><input type="checkbox" defaultChecked={r.wnl} disabled={isLocked}/></td></tr>);})}</tbody>
           </table>
         </div>
         <h4 style={{marginBottom:8}}>Manual Muscle Testing</h4>
         <div style={{overflowX:'auto',marginBottom:16}}>
           <table className="assessment-table">
             <thead><tr><th>Muscle Group</th><th>Right</th><th>Left</th><th>Notes</th></tr></thead>
-            <tbody>{['Shoulder Flexors','Shoulder Abductors','Elbow Flexors','Elbow Extensors','Wrist Extensors','Hip Flexors','Hip Extensors','Hip Abductors','Knee Extensors','Knee Flexors','Ankle DF','Ankle PF'].map(m=>(<tr key={m}><td style={{textAlign:'left',fontWeight:500}}>{m}</td><td><select disabled={isLocked} style={{width:60}}><option></option><option>5/5</option><option>4+/5</option><option>4/5</option><option>4-/5</option><option>3+/5</option><option>3/5</option><option>3-/5</option><option>2+/5</option><option>2/5</option><option>2-/5</option><option>1/5</option><option>0/5</option></select></td><td><select disabled={isLocked} style={{width:60}}><option></option><option>5/5</option><option>4+/5</option><option>4/5</option><option>4-/5</option><option>3+/5</option><option>3/5</option><option>3-/5</option><option>2+/5</option><option>2/5</option><option>2-/5</option><option>1/5</option><option>0/5</option></select></td><td><input disabled={isLocked} style={{width:120}}/></td></tr>))}</tbody>
+            <tbody>{MMT_GROUPS.map(m=>{const d=cd.mmtData[m]||{};return(<tr key={m}><td style={{textAlign:'left',fontWeight:500}}>{m}</td><td><select defaultValue={d.R||''} disabled={isLocked} style={{width:60}}><option></option><option>5/5</option><option>4+/5</option><option>4/5</option><option>4-/5</option><option>3+/5</option><option>3/5</option><option>3-/5</option><option>2+/5</option><option>2/5</option><option>2-/5</option><option>1/5</option><option>0/5</option></select></td><td><select defaultValue={d.L||''} disabled={isLocked} style={{width:60}}><option></option><option>5/5</option><option>4+/5</option><option>4/5</option><option>4-/5</option><option>3+/5</option><option>3/5</option><option>3-/5</option><option>2+/5</option><option>2/5</option><option>2-/5</option><option>1/5</option><option>0/5</option></select></td><td><input defaultValue={d.notes||''} disabled={isLocked} style={{width:120}}/></td></tr>);})}</tbody>
           </table>
         </div>
         <div className="form-row" style={{gridTemplateColumns:'1fr 1fr'}}>
-          <div className="form-group"><label>Special Tests</label><textarea rows={3} placeholder="e.g., SLR positive R at 45°..." disabled={isLocked}/></div>
-          <div className="form-group"><label>Posture/Alignment</label><textarea rows={3} placeholder="e.g., Forward head posture..." disabled={isLocked}/></div>
+          <div className="form-group"><label>Special Tests</label><textarea rows={3} defaultValue={cd.specialTests} disabled={isLocked}/></div>
+          <div className="form-group"><label>Posture/Alignment</label><textarea rows={3} defaultValue={cd.posture} disabled={isLocked}/></div>
         </div>
         <div className="form-row" style={{gridTemplateColumns:'1fr 1fr'}}>
-          <div className="form-group"><label>Palpation Findings</label><textarea rows={3} disabled={isLocked}/></div>
-          <div className="form-group"><label>Gait Analysis</label><textarea rows={3} disabled={isLocked}/></div>
+          <div className="form-group"><label>Palpation Findings</label><textarea rows={3} defaultValue={cd.palpation} disabled={isLocked}/></div>
+          <div className="form-group"><label>Gait Analysis</label><textarea rows={3} defaultValue={cd.gait} disabled={isLocked}/></div>
         </div>
         <div className="form-row" style={{gridTemplateColumns:'1fr 1fr'}}>
-          <div className="form-group"><label>Balance Assessment</label><textarea rows={2} disabled={isLocked}/></div>
-          <div className="form-group"><label>Functional Mobility</label><textarea rows={2} disabled={isLocked}/></div>
+          <div className="form-group"><label>Balance Assessment</label><textarea rows={2} defaultValue={cd.balance} disabled={isLocked}/></div>
+          <div className="form-group"><label>Functional Mobility</label><textarea rows={2} defaultValue={cd.funcMobility} disabled={isLocked}/></div>
         </div>
         <h4 style={{margin:'12px 0 8px'}}>Outcome Measures</h4>
         <div className="form-row" style={{gridTemplateColumns:'1fr 1fr 1fr 1fr'}}>
           <div className="form-group"><label>Oswestry (ODI) %</label><input type="number" defaultValue={patient.initialODI} disabled={isLocked}/></div>
-          <div className="form-group"><label>LEFS Score</label><input type="number" placeholder="0-80" disabled={isLocked}/></div>
-          <div className="form-group"><label>NDI %</label><input type="number" placeholder="0-100" disabled={isLocked}/></div>
-          <div className="form-group"><label>DASH Score</label><input type="number" placeholder="0-100" disabled={isLocked}/></div>
+          <div className="form-group"><label>LEFS Score</label><input type="number" defaultValue={cd.lefs} placeholder="0-80" disabled={isLocked}/></div>
+          <div className="form-group"><label>NDI %</label><input type="number" defaultValue={cd.ndi} placeholder="0-100" disabled={isLocked}/></div>
+          <div className="form-group"><label>DASH Score</label><input type="number" defaultValue={cd.dash} placeholder="0-100" disabled={isLocked}/></div>
         </div>
       </div></div>
 
       <div className="card"><div className="card-header">Assessment</div><div className="card-body">
-        <div className="form-group"><label>Clinical Assessment</label><textarea rows={4} placeholder="Summarize findings..." disabled={isLocked}/></div>
-        <div className="form-group"><label>PT Diagnosis</label><input placeholder="e.g., Lumbar movement coordination impairment" disabled={isLocked}/></div>
-        <div className="form-group"><label>Problem List</label><textarea rows={3} placeholder="1. Decreased ROM&#10;2. Decreased strength&#10;3. Impaired function..." disabled={isLocked}/></div>
+        <div className="form-group"><label>Clinical Assessment</label><textarea rows={4} defaultValue={cd.assessment} disabled={isLocked}/></div>
+        <div className="form-group"><label>PT Diagnosis</label><input defaultValue={cd.ptDiagnosis} disabled={isLocked}/></div>
+        <div className="form-group"><label>Problem List</label><textarea rows={3} defaultValue={cd.problemList} disabled={isLocked}/></div>
       </div></div>
 
       <div className="card"><div className="card-header">Plan of Care / Goals</div><div className="card-body">
         <h4 style={{marginBottom:8}}>Short-Term Goals (2-4 weeks)</h4>
-        {[1,2,3].map(i=><div key={i} className="form-group"><label>STG {i}</label><input placeholder={`Short-term goal ${i}...`} disabled={isLocked}/></div>)}
+        {[0,1,2].map(i=><div key={i} className="form-group"><label>STG {i+1}</label><input defaultValue={cd.stg[i]||''} disabled={isLocked}/></div>)}
         <h4 style={{margin:'12px 0 8px'}}>Long-Term Goals (8-12 weeks)</h4>
-        {[1,2].map(i=><div key={i} className="form-group"><label>LTG {i}</label><input placeholder={`Long-term goal ${i}...`} disabled={isLocked}/></div>)}
+        {[0,1].map(i=><div key={i} className="form-group"><label>LTG {i+1}</label><input defaultValue={cd.ltg[i]||''} disabled={isLocked}/></div>)}
         <div className="form-row" style={{gridTemplateColumns:'1fr 1fr 1fr'}}>
           <div className="form-group"><label>Frequency</label><select disabled={isLocked}><option>2x/week</option><option>3x/week</option><option>1x/week</option><option>Daily</option></select></div>
           <div className="form-group"><label>Duration</label><select disabled={isLocked}><option>4 weeks</option><option>6 weeks</option><option>8 weeks</option><option>12 weeks</option></select></div>
@@ -706,6 +955,7 @@ function ProgressNote({ patient, user }) {
   const [cosignNeeded, setCosignNeeded] = useState(false);
   const [lockedAt, setLockedAt] = useState(null);
   const isLocked = noteStatus === 'locked';
+  const cd = useMemo(() => generateClinicalData(patient), [patient.id]);
 
   const handleSign = () => {
     if (user.role === 'PTA') { setNoteStatus('cosign-needed'); setCosignNeeded(true); setSignedBy({ name:user.displayName, role:'PTA', date:new Date().toLocaleString() }); }
@@ -729,21 +979,21 @@ function ProgressNote({ patient, user }) {
       </div></div>
 
       <div className="card"><div className="card-header">Subjective Update</div><div className="card-body">
-        <div className="form-group"><label>Patient Report / Functional Changes</label><textarea rows={3} placeholder="Progress since initial eval..." disabled={isLocked}/></div>
+        <div className="form-group"><label>Patient Report / Functional Changes</label><textarea rows={3} defaultValue={cd.progressSubjective} disabled={isLocked}/></div>
         <div className="form-row" style={{gridTemplateColumns:'1fr 1fr'}}>
-          <div className="form-group"><label>Current Pain Level</label><select disabled={isLocked}><option value="">Select</option>{[...Array(11)].map((_,i)=><option key={i}>{i}/10</option>)}</select></div>
+          <div className="form-group"><label>Current Pain Level</label><select defaultValue={patient.currentPain+'/10'} disabled={isLocked}><option value="">Select</option>{[...Array(11)].map((_,i)=><option key={i}>{i}/10</option>)}</select></div>
           <div className="form-group"><label>Initial Pain Level</label><input readOnly value={`${patient.initialPain}/10`} style={{background:'#f1f5f9'}}/></div>
         </div>
       </div></div>
 
       <div className="card"><div className="card-header">Objective Re-assessment</div><div className="card-body">
-        <div className="form-group"><label>Key Objective Measures (Current vs Initial)</label><textarea rows={4} placeholder="ROM, strength, function compared to eval..." disabled={isLocked}/></div>
+        <div className="form-group"><label>Key Objective Measures (Current vs Initial)</label><textarea rows={4} defaultValue={cd.progressObjective} disabled={isLocked}/></div>
         <h4 style={{margin:'8px 0'}}>Outcome Measures Comparison</h4>
         <table className="assessment-table">
           <thead><tr><th>Measure</th><th>Initial</th><th>Current</th><th>Change</th><th>MCID Met?</th></tr></thead>
           <tbody>
-            {[['ODI (%)',patient.initialODI,patient.currentODI],['LEFS','',''],['NDI (%)','',''],['DASH','','']].map(([m,init,curr],i)=>(
-              <tr key={i}><td style={{textAlign:'left'}}>{m}</td><td><input defaultValue={init} style={{width:60}} disabled={isLocked}/></td><td><input defaultValue={curr} style={{width:60}} disabled={isLocked}/></td><td><input defaultValue={init&&curr?init-curr:''} style={{width:60}} disabled={isLocked}/></td><td><select disabled={isLocked} style={{width:60}}><option></option><option>Yes</option><option>No</option></select></td></tr>
+            {[['ODI (%)',patient.initialODI,patient.currentODI],['LEFS',cd.lefs,cd.lefs?Math.min(parseInt(cd.lefs)+12,80):''],['NDI (%)',cd.ndi,cd.ndi?Math.max(parseInt(cd.ndi)-10,5):''],['DASH',cd.dash,cd.dash?Math.max(parseInt(cd.dash)-12,8):'']].map(([m,init,curr],i)=>(
+              <tr key={i}><td style={{textAlign:'left'}}>{m}</td><td><input defaultValue={init} style={{width:60}} disabled={isLocked}/></td><td><input defaultValue={curr} style={{width:60}} disabled={isLocked}/></td><td><input defaultValue={init&&curr?Math.abs(init-curr):''} style={{width:60}} disabled={isLocked}/></td><td><select defaultValue={init&&curr&&Math.abs(init-curr)>=6?'Yes':''} disabled={isLocked} style={{width:60}}><option></option><option>Yes</option><option>No</option></select></td></tr>
             ))}
           </tbody>
         </table>
@@ -752,18 +1002,18 @@ function ProgressNote({ patient, user }) {
       <div className="card"><div className="card-header">Goal Status Review</div><div className="card-body">
         <table className="data-table">
           <thead><tr><th>Goal</th><th>Status</th><th>Notes</th></tr></thead>
-          <tbody>{['STG 1','STG 2','STG 3','LTG 1','LTG 2'].map(g=>(<tr key={g}><td style={{fontWeight:600}}>{g}</td><td><select disabled={isLocked}><option>In Progress</option><option>Met</option><option>Partially Met</option><option>Not Met</option><option>Revised</option><option>Discontinued</option></select></td><td><input placeholder="Notes..." disabled={isLocked}/></td></tr>))}</tbody>
+          <tbody>{['STG 1','STG 2','STG 3','LTG 1','LTG 2'].map(g=>{const gs=cd.goalStatusData[g]||{};return(<tr key={g}><td style={{fontWeight:600}}>{g}</td><td><select defaultValue={gs.status||'In Progress'} disabled={isLocked}><option>In Progress</option><option>Met</option><option>Partially Met</option><option>Not Met</option><option>Revised</option><option>Discontinued</option></select></td><td><input defaultValue={gs.notes||''} disabled={isLocked}/></td></tr>);})}</tbody>
         </table>
       </div></div>
 
       <div className="card"><div className="card-header">Assessment & Updated Plan</div><div className="card-body">
-        <div className="form-group"><label>Overall Progress</label><select disabled={isLocked}><option value="">Select</option><option>Progressing well toward goals</option><option>Progressing slower than expected</option><option>Plateau — requires plan modification</option><option>Regressed — reassess plan of care</option><option>Goals met — discharge planning</option></select></div>
-        <div className="form-group"><label>Clinical Reasoning</label><textarea rows={3} placeholder="Justify continued skilled care..." disabled={isLocked}/></div>
-        <div className="form-group"><label>Updated Plan of Care</label><textarea rows={3} disabled={isLocked}/></div>
+        <div className="form-group"><label>Overall Progress</label><select defaultValue={cd.overallProgress} disabled={isLocked}><option value="">Select</option><option>Progressing well toward goals</option><option>Progressing slower than expected</option><option>Plateau — requires plan modification</option><option>Regressed — reassess plan of care</option><option>Goals met — discharge planning</option></select></div>
+        <div className="form-group"><label>Clinical Reasoning</label><textarea rows={3} defaultValue={cd.progressClinicalReasoning} disabled={isLocked}/></div>
+        <div className="form-group"><label>Updated Plan of Care</label><textarea rows={3} defaultValue={cd.updatedPlan} disabled={isLocked}/></div>
         <div className="form-row" style={{gridTemplateColumns:'1fr 1fr 1fr'}}>
           <div className="form-group"><label>Frequency</label><select disabled={isLocked}><option>2x/week</option><option>3x/week</option><option>1x/week</option></select></div>
           <div className="form-group"><label>Duration</label><select disabled={isLocked}><option>4 weeks</option><option>6 weeks</option><option>8 weeks</option></select></div>
-          <div className="form-group"><label>Additional Visits Requested</label><input type="number" placeholder="0" disabled={isLocked}/></div>
+          <div className="form-group"><label>Additional Visits Requested</label><input type="number" defaultValue={patient.authVisits - patient.usedVisits < 5 ? '8' : ''} disabled={isLocked}/></div>
         </div>
       </div></div>
       </fieldset>
