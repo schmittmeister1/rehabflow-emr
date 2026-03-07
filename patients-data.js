@@ -182,7 +182,7 @@ const DIAGNOSES = [
   { code:'M62.81', desc:'Muscle weakness (generalized)', bodyRegion:'Generalized', category:'TMJ/Other' },
   { code:'R53.1', desc:'Weakness', bodyRegion:'Generalized', category:'TMJ/Other' },
   { code:'Z96.1', desc:'Presence of intraocular lens (post-fall rehab)', bodyRegion:'Generalized', category:'TMJ/Other' },
-
+];
 
 const INSURANCES = [
   { name:'Blue Cross Blue Shield', prefix:'BCB' },
