@@ -434,29 +434,120 @@ function Dashboard({ setCurrentPage, setSelectedPatient, patients }) {
 }
 
 // ==================== SCHEDULE ====================
-function SchedulePage({ setCurrentPage, setSelectedPatient, patients }) {
-  const times = [...new Set(SCHEDULE_DATA.map(s=>s.time))];
+function NewAppointmentModal({ onClose, onSave, patients }) {
+  const today = new Date().toISOString().split('T')[0];
+  const [form, setForm] = useState({patientId:'',date:today,time:'8:00 AM',type:'Follow-up',therapist:'PT'});
+  const set = (k,v) => setForm({...form,[k]:v});
+  const timeSlots = ['7:00 AM','7:30 AM','8:00 AM','8:30 AM','9:00 AM','9:30 AM','10:00 AM','10:30 AM','11:00 AM','11:30 AM','12:00 PM','12:30 PM','1:00 PM','1:30 PM','2:00 PM','2:30 PM','3:00 PM','3:30 PM','4:00 PM','4:30 PM'];
+  const types = ['Follow-up','Initial Eval','Re-evaluation','Discharge','Progress Check'];
+  const sorted = [...patients].filter(p=>p.status==='Active').sort((a,b)=>a.lastName.localeCompare(b.lastName));
+  return (
+    <div style={{position:'fixed',top:0,left:0,right:0,bottom:0,background:'rgba(0,0,0,0.5)',zIndex:1000,display:'flex',alignItems:'center',justifyContent:'center'}} onClick={onClose}>
+      <div style={{background:'white',borderRadius:8,padding:24,width:480,boxShadow:'0 20px 60px rgba(0,0,0,0.3)'}} onClick={e=>e.stopPropagation()}>
+        <h3 style={{marginBottom:16,borderBottom:'2px solid var(--primary)',paddingBottom:8}}>New Appointment</h3>
+        <div style={{display:'grid',gap:12}}>
+          <div><label style={{fontSize:11,fontWeight:600,textTransform:'uppercase',color:'var(--text-muted)'}}>Patient *</label><select value={form.patientId} onChange={e=>set('patientId',e.target.value)} style={{width:'100%',padding:'8px 10px',border:'1px solid var(--border)',borderRadius:4}}><option value="">Select patient...</option>{sorted.map(p=><option key={p.id} value={p.id}>{p.lastName}, {p.firstName} — {p.dx}</option>)}</select></div>
+          <div style={{display:'grid',gridTemplateColumns:'1fr 1fr',gap:12}}>
+            <div><label style={{fontSize:11,fontWeight:600,textTransform:'uppercase',color:'var(--text-muted)'}}>Date</label><input type="date" value={form.date} onChange={e=>set('date',e.target.value)} style={{width:'100%',padding:'8px 10px',border:'1px solid var(--border)',borderRadius:4}}/></div>
+            <div><label style={{fontSize:11,fontWeight:600,textTransform:'uppercase',color:'var(--text-muted)'}}>Time</label><select value={form.time} onChange={e=>set('time',e.target.value)} style={{width:'100%',padding:'8px 10px',border:'1px solid var(--border)',borderRadius:4}}>{timeSlots.map(t=><option key={t} value={t}>{t}</option>)}</select></div>
+          </div>
+          <div style={{display:'grid',gridTemplateColumns:'1fr 1fr',gap:12}}>
+            <div><label style={{fontSize:11,fontWeight:600,textTransform:'uppercase',color:'var(--text-muted)'}}>Appointment Type</label><select value={form.type} onChange={e=>set('type',e.target.value)} style={{width:'100%',padding:'8px 10px',border:'1px solid var(--border)',borderRadius:4}}>{types.map(t=><option key={t} value={t}>{t}</option>)}</select></div>
+            <div><label style={{fontSize:11,fontWeight:600,textTransform:'uppercase',color:'var(--text-muted)'}}>Therapist</label><select value={form.therapist} onChange={e=>set('therapist',e.target.value)} style={{width:'100%',padding:'8px 10px',border:'1px solid var(--border)',borderRadius:4}}><option value="PT">PT — Dr. Mitchell</option><option value="PTA">PTA — A. Rivera</option></select></div>
+          </div>
+        </div>
+        <div style={{display:'flex',justifyContent:'flex-end',gap:8,marginTop:20}}>
+          <button className="btn btn-outline" onClick={onClose}>Cancel</button>
+          <button className="btn btn-primary" onClick={()=>{
+            if(!form.patientId){alert('Please select a patient.');return;}
+            onSave(form);
+          }}>Schedule Appointment</button>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function SchedulePage({ setCurrentPage, setSelectedPatient, patients, appointments, setAppointments }) {
+  const [selectedDate, setSelectedDate] = useState(new Date());
+  const [showNewAppt, setShowNewAppt] = useState(false);
+  const changeDate = (days) => { const d = new Date(selectedDate); d.setDate(d.getDate()+days); setSelectedDate(d); };
+  const dateStr = selectedDate.toLocaleDateString('en-US',{weekday:'long',year:'numeric',month:'long',day:'numeric'});
+  const isToday = selectedDate.toDateString() === new Date().toDateString();
+
+  // Generate schedule for selected date using seeded random from date
+  const dateSeed = selectedDate.getFullYear()*10000 + (selectedDate.getMonth()+1)*100 + selectedDate.getDate();
+  const dayOfWeek = selectedDate.getDay();
+  const isWeekend = dayOfWeek === 0 || dayOfWeek === 6;
+
+  const scheduleForDate = useMemo(() => {
+    if (isToday) return appointments;
+    if (isWeekend) return [];
+    // Generate deterministic schedule for other weekdays
+    const timeSlots = ['7:00 AM','7:30 AM','8:00 AM','8:30 AM','9:00 AM','9:30 AM','10:00 AM','10:30 AM','11:00 AM','11:30 AM','12:00 PM','12:30 PM','1:00 PM','1:30 PM','2:00 PM','2:30 PM','3:00 PM','3:30 PM','4:00 PM','4:30 PM'];
+    const types = ['Follow-up','Follow-up','Follow-up','Follow-up','Follow-up','Initial Eval','Re-evaluation','Discharge','Follow-up','Follow-up'];
+    const statuses = ['Scheduled','Checked In','Completed','Scheduled','Scheduled'];
+    const activePatients = patients.filter(p=>p.status==='Active');
+    const generated = [];
+    timeSlots.forEach((time, i) => {
+      const seed1 = ((dateSeed * (i+1) * 9301 + 49297) % 233280);
+      const seed2 = ((dateSeed * (i+1) * 7919 + 15485863) % 233280);
+      // PT column - ~70% filled
+      if (seed1 % 100 < 70 && activePatients.length > 0) {
+        const pIdx = seed1 % activePatients.length;
+        const p = activePatients[pIdx];
+        generated.push({time, therapist:'PT', patientId:p.id, patient:`${p.lastName}, ${p.firstName}`, type:types[seed1 % types.length], status:statuses[seed1 % statuses.length]});
+      } else {
+        generated.push({time, therapist:'PT', patientId:null, patient:'', type:'', status:''});
+      }
+      // PTA column - ~40% filled
+      if (seed2 % 100 < 40 && activePatients.length > 0) {
+        const pIdx = seed2 % activePatients.length;
+        const p = activePatients[pIdx];
+        generated.push({time, therapist:'PTA', patientId:p.id, patient:`${p.lastName}, ${p.firstName}`, type:'Follow-up', status:statuses[seed2 % statuses.length]});
+      } else {
+        generated.push({time, therapist:'PTA', patientId:null, patient:'', type:'', status:''});
+      }
+    });
+    return generated;
+  }, [selectedDate, isToday, appointments, patients, isWeekend]);
+
+  const times = [...new Set(scheduleForDate.map(s=>s.time))];
+  const filledCount = scheduleForDate.filter(s=>s.patientId).length;
+
   return (
     <div className="fade-in">
       <div style={{display:'flex',justifyContent:'space-between',marginBottom:16,alignItems:'center'}}>
         <div style={{display:'flex',gap:8,alignItems:'center'}}>
-          <button className="btn btn-outline">◀</button>
-          <h3>Friday, March 6, 2026</h3>
-          <button className="btn btn-outline">▶</button>
+          <button className="btn btn-outline" onClick={()=>changeDate(-1)}>◀</button>
+          <h3 style={{minWidth:280,textAlign:'center'}}>{dateStr}</h3>
+          <button className="btn btn-outline" onClick={()=>changeDate(1)}>▶</button>
+          {!isToday && <button className="btn btn-sm btn-outline" style={{marginLeft:8}} onClick={()=>setSelectedDate(new Date())}>Today</button>}
         </div>
         <div style={{display:'flex',gap:8}}>
-          <span style={{fontSize:12,color:'var(--text-muted)',alignSelf:'center'}}>{SCHEDULE_DATA.filter(s=>s.patientId).length} appointments today</span>
-          <button className="btn btn-primary">+ New Appointment</button>
+          <span style={{fontSize:12,color:'var(--text-muted)',alignSelf:'center'}}>{isWeekend ? 'Clinic closed' : `${filledCount} appointments`}</span>
+          <button className="btn btn-primary" onClick={()=>setShowNewAppt(true)}>+ New Appointment</button>
         </div>
       </div>
+      {showNewAppt && <NewAppointmentModal patients={patients} onClose={()=>setShowNewAppt(false)} onSave={(form)=>{
+        const p = patients.find(pt=>pt.id===parseInt(form.patientId));
+        if(p){
+          const newAppt = {time:form.time, therapist:form.therapist, patientId:p.id, patient:`${p.lastName}, ${p.firstName}`, type:form.type, status:'Scheduled'};
+          if(form.date === new Date().toISOString().split('T')[0]) { setAppointments([...appointments, newAppt]); }
+        }
+        setShowNewAppt(false);
+      }}/>}
+      {isWeekend ? (
+        <div className="card"><div className="card-body" style={{textAlign:'center',padding:40,color:'var(--text-muted)'}}><h3>Clinic Closed</h3><p>No appointments scheduled on weekends.</p></div></div>
+      ) : (
       <div className="card">
         <div className="card-body" style={{padding:0,overflowX:'auto'}}>
           <table className="data-table">
             <thead><tr><th style={{width:80}}>Time</th><th>PT — Dr. Mitchell</th><th>PTA — A. Rivera</th></tr></thead>
             <tbody>
               {times.map(t => {
-                const ptAppt = SCHEDULE_DATA.find(s=>s.time===t && s.therapist==='PT');
-                const ptaAppt = SCHEDULE_DATA.find(s=>s.time===t && s.therapist==='PTA');
+                const ptAppt = scheduleForDate.find(s=>s.time===t && s.therapist==='PT');
+                const ptaAppt = scheduleForDate.find(s=>s.time===t && s.therapist==='PTA');
                 return (
                   <tr key={t}>
                     <td style={{fontWeight:600,background:'#f8fafc'}}>{t}</td>
@@ -485,12 +576,51 @@ function SchedulePage({ setCurrentPage, setSelectedPatient, patients }) {
           </table>
         </div>
       </div>
+      )}
     </div>
   );
 }
 
 // ==================== PATIENT LIST ====================
-function PatientList({ patients, setSelectedPatient, setCurrentPage }) {
+function NewPatientModal({ onClose, onSave }) {
+  const [form, setForm] = useState({firstName:'',lastName:'',dob:'',gender:'Male',phone:'',email:'',address:'',
+    referringDoc:'',referralDate:new Date().toISOString().split('T')[0],dxCode:'M79.604',dx:'Pain in right leg',
+    bodyRegion:'Right LE',insurance:'Anthem',authVisits:21,precautions:[]});
+  const set = (k,v) => setForm({...form,[k]:v});
+  const regions = ['Right LE','Left LE','Bilateral LE','Right Shoulder','Left Shoulder','Lumbar Spine','Cervical Spine','Right Knee','Left Knee','Right Hip','Left Hip','Right Ankle','Left Ankle','Gait/Balance','Generalized','Neurological'];
+  const insurances = ['Anthem','UnitedHealthcare','Aetna','Cigna','Humana','Blue Cross Blue Shield','Medicare','Medicaid','Kaiser Permanente','Molina Healthcare','Tricare','Workers Comp'];
+  return (
+    <div style={{position:'fixed',top:0,left:0,right:0,bottom:0,background:'rgba(0,0,0,0.5)',zIndex:1000,display:'flex',alignItems:'center',justifyContent:'center'}} onClick={onClose}>
+      <div style={{background:'white',borderRadius:8,padding:24,width:680,maxHeight:'85vh',overflow:'auto',boxShadow:'0 20px 60px rgba(0,0,0,0.3)'}} onClick={e=>e.stopPropagation()}>
+        <h3 style={{marginBottom:16,borderBottom:'2px solid var(--primary)',paddingBottom:8}}>New Patient Registration</h3>
+        <div style={{display:'grid',gridTemplateColumns:'1fr 1fr',gap:12}}>
+          <div><label style={{fontSize:11,fontWeight:600,textTransform:'uppercase',color:'var(--text-muted)'}}>First Name *</label><input value={form.firstName} onChange={e=>set('firstName',e.target.value)} style={{width:'100%',padding:'8px 10px',border:'1px solid var(--border)',borderRadius:4}} placeholder="First name"/></div>
+          <div><label style={{fontSize:11,fontWeight:600,textTransform:'uppercase',color:'var(--text-muted)'}}>Last Name *</label><input value={form.lastName} onChange={e=>set('lastName',e.target.value)} style={{width:'100%',padding:'8px 10px',border:'1px solid var(--border)',borderRadius:4}} placeholder="Last name"/></div>
+          <div><label style={{fontSize:11,fontWeight:600,textTransform:'uppercase',color:'var(--text-muted)'}}>Date of Birth *</label><input type="date" value={form.dob} onChange={e=>set('dob',e.target.value)} style={{width:'100%',padding:'8px 10px',border:'1px solid var(--border)',borderRadius:4}}/></div>
+          <div><label style={{fontSize:11,fontWeight:600,textTransform:'uppercase',color:'var(--text-muted)'}}>Gender</label><select value={form.gender} onChange={e=>set('gender',e.target.value)} style={{width:'100%',padding:'8px 10px',border:'1px solid var(--border)',borderRadius:4}}><option>Male</option><option>Female</option></select></div>
+          <div><label style={{fontSize:11,fontWeight:600,textTransform:'uppercase',color:'var(--text-muted)'}}>Phone</label><input value={form.phone} onChange={e=>set('phone',e.target.value)} style={{width:'100%',padding:'8px 10px',border:'1px solid var(--border)',borderRadius:4}} placeholder="(555) 000-0000"/></div>
+          <div><label style={{fontSize:11,fontWeight:600,textTransform:'uppercase',color:'var(--text-muted)'}}>Email</label><input value={form.email} onChange={e=>set('email',e.target.value)} style={{width:'100%',padding:'8px 10px',border:'1px solid var(--border)',borderRadius:4}} placeholder="email@example.com"/></div>
+          <div style={{gridColumn:'1/3'}}><label style={{fontSize:11,fontWeight:600,textTransform:'uppercase',color:'var(--text-muted)'}}>Address</label><input value={form.address} onChange={e=>set('address',e.target.value)} style={{width:'100%',padding:'8px 10px',border:'1px solid var(--border)',borderRadius:4}} placeholder="Street, City, State ZIP"/></div>
+          <div><label style={{fontSize:11,fontWeight:600,textTransform:'uppercase',color:'var(--text-muted)'}}>Referring Physician</label><input value={form.referringDoc} onChange={e=>set('referringDoc',e.target.value)} style={{width:'100%',padding:'8px 10px',border:'1px solid var(--border)',borderRadius:4}} placeholder="Dr. Name"/></div>
+          <div><label style={{fontSize:11,fontWeight:600,textTransform:'uppercase',color:'var(--text-muted)'}}>Referral Date</label><input type="date" value={form.referralDate} onChange={e=>set('referralDate',e.target.value)} style={{width:'100%',padding:'8px 10px',border:'1px solid var(--border)',borderRadius:4}}/></div>
+          <div><label style={{fontSize:11,fontWeight:600,textTransform:'uppercase',color:'var(--text-muted)'}}>ICD-10 Dx Code</label><select value={form.dxCode} onChange={e=>{const c=ICD10_CODES.find(c=>c.code===e.target.value);set('dxCode',e.target.value);if(c)set('dx',c.desc);}} style={{width:'100%',padding:'8px 10px',border:'1px solid var(--border)',borderRadius:4}}>{ICD10_CODES.map(c=><option key={c.code} value={c.code}>{c.code} - {c.desc}</option>)}</select></div>
+          <div><label style={{fontSize:11,fontWeight:600,textTransform:'uppercase',color:'var(--text-muted)'}}>Body Region</label><select value={form.bodyRegion} onChange={e=>set('bodyRegion',e.target.value)} style={{width:'100%',padding:'8px 10px',border:'1px solid var(--border)',borderRadius:4}}>{regions.map(r=><option key={r} value={r}>{r}</option>)}</select></div>
+          <div><label style={{fontSize:11,fontWeight:600,textTransform:'uppercase',color:'var(--text-muted)'}}>Insurance</label><select value={form.insurance} onChange={e=>set('insurance',e.target.value)} style={{width:'100%',padding:'8px 10px',border:'1px solid var(--border)',borderRadius:4}}>{insurances.map(i=><option key={i} value={i}>{i}</option>)}</select></div>
+          <div><label style={{fontSize:11,fontWeight:600,textTransform:'uppercase',color:'var(--text-muted)'}}>Authorized Visits</label><input type="number" value={form.authVisits} onChange={e=>set('authVisits',parseInt(e.target.value)||0)} style={{width:'100%',padding:'8px 10px',border:'1px solid var(--border)',borderRadius:4}}/></div>
+        </div>
+        <div style={{display:'flex',justifyContent:'flex-end',gap:8,marginTop:20}}>
+          <button className="btn btn-outline" onClick={onClose}>Cancel</button>
+          <button className="btn btn-primary" onClick={()=>{
+            if(!form.firstName||!form.lastName||!form.dob){alert('Please fill in First Name, Last Name, and Date of Birth.');return;}
+            onSave(form);
+          }}>Register Patient</button>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function PatientList({ patients, setPatients, setSelectedPatient, setCurrentPage }) {
   const [search, setSearch] = useState('');
   const [statusFilter, setStatusFilter] = useState('All');
   const [stageFilter, setStageFilter] = useState('All');
@@ -499,6 +629,7 @@ function PatientList({ patients, setSelectedPatient, setCurrentPage }) {
   const [sortBy, setSortBy] = useState('name');
   const [sortDir, setSortDir] = useState('asc');
   const [page, setPage] = useState(0);
+  const [showNewPatient, setShowNewPatient] = useState(false);
   const perPage = 20;
 
   const bodyRegions = [...new Set(patients.map(p=>p.bodyRegion).filter(Boolean))].sort();
@@ -559,9 +690,27 @@ function PatientList({ patients, setSelectedPatient, setCurrentPage }) {
         </div>
         <div style={{display:'flex',justifyContent:'space-between',alignItems:'center'}}>
           <span style={{fontSize:12,color:'var(--text-muted)'}}>{filtered.length} patients found • Page {page+1} of {totalPages}</span>
-          <button className="btn btn-primary">+ New Patient</button>
+          <button className="btn btn-primary" onClick={()=>setShowNewPatient(true)}>+ New Patient</button>
         </div>
       </div>
+      {showNewPatient && <NewPatientModal onClose={()=>setShowNewPatient(false)} onSave={(form)=>{
+        const newId = Math.max(...patients.map(p=>p.id)) + 1;
+        const dobDate = new Date(form.dob);
+        const age = Math.floor((Date.now() - dobDate.getTime()) / (365.25*24*60*60*1000));
+        const newPatient = {
+          id: newId, firstName: form.firstName, lastName: form.lastName, dob: form.dob, age: age,
+          gender: form.gender, phone: form.phone, email: form.email, address: form.address,
+          referringDoc: form.referringDoc || 'Dr. Pending', referralDate: form.referralDate,
+          dxCode: form.dxCode, dx: form.dx, bodyRegion: form.bodyRegion,
+          insurance: form.insurance, authVisits: form.authVisits, usedVisits: 0,
+          initialPain: 7, currentPain: 7, status: 'Active', careStage: 'New Eval',
+          precautions: [], alerts: [], medHistory: [], medications: []
+        };
+        setPatients([...patients, newPatient]);
+        setShowNewPatient(false);
+        setSelectedPatient(newPatient);
+        setCurrentPage('chart');
+      }}/>}
       <div className="card">
         <div className="card-body" style={{padding:0}}>
           <table className="data-table">
@@ -1355,7 +1504,8 @@ function App() {
   const [user, setUser] = useState(null);
   const [currentPage, setCurrentPage] = useState('dashboard');
   const [selectedPatient, setSelectedPatient] = useState(null);
-  const patients = SAMPLE_PATIENTS; // from patients-data.js
+  const [patients, setPatients] = useState(SAMPLE_PATIENTS);
+  const [appointments, setAppointments] = useState(SCHEDULE_DATA);
 
   if (!user) return <LoginPage onLogin={setUser} />;
 
@@ -1379,8 +1529,8 @@ function App() {
         </div>
         <div className="content-area">
           {currentPage==='dashboard' && <Dashboard setCurrentPage={setCurrentPage} setSelectedPatient={setSelectedPatient} patients={patients}/>}
-          {currentPage==='schedule' && <SchedulePage setCurrentPage={setCurrentPage} setSelectedPatient={setSelectedPatient} patients={patients}/>}
-          {currentPage==='patients' && <PatientList patients={patients} setSelectedPatient={setSelectedPatient} setCurrentPage={setCurrentPage}/>}
+          {currentPage==='schedule' && <SchedulePage setCurrentPage={setCurrentPage} setSelectedPatient={setSelectedPatient} patients={patients} appointments={appointments} setAppointments={setAppointments}/>}
+          {currentPage==='patients' && <PatientList patients={patients} setPatients={setPatients} setSelectedPatient={setSelectedPatient} setCurrentPage={setCurrentPage}/>}
           {currentPage==='chart' && selectedPatient && <PatientChart patient={selectedPatient} user={user} setCurrentPage={setCurrentPage}/>}
           {currentPage==='documentation' && <DocumentationPage patients={patients} user={user}/>}
           {currentPage==='billing' && <BillingPage patients={patients}/>}
