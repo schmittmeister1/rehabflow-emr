@@ -18,74 +18,171 @@ const FIRST_NAMES_M = ['James','Robert','Michael','David','William','Richard','J
 const LAST_NAMES = ['Thompson','Rodriguez','Williams','Chen','Baker','Johnson','Martinez','Garcia','Brown','Davis','Wilson','Moore','Taylor','Anderson','Thomas','Jackson','White','Harris','Martin','Robinson','Clark','Lewis','Lee','Walker','Hall','Allen','Young','King','Wright','Scott','Green','Adams','Nelson','Hill','Campbell','Mitchell','Roberts','Carter','Phillips','Evans','Turner','Torres','Parker','Collins','Edwards','Stewart','Flores','Morris','Murphy','Rivera','Cook','Rogers','Reed','Morgan','Bell','Cooper','Richardson','Cox','Howard','Ward','Peterson','Gray','Ramirez','James','Watson','Brooks','Kelly','Sanders','Price','Bennett','Wood','Barnes','Ross','Henderson','Coleman','Jenkins','Perry','Butler','Foster','Simmons','Gonzalez','Bryant','Alexander','Russell','Griffin','Hayes','Myers','Ford','Hamilton','Graham','Sullivan','Wallace'];
 
 const DIAGNOSES = [
-  // Spine
-  { code:'M54.5', desc:'Low back pain', bodyRegion:'Lumbar Spine', complexity:'moderate' },
-  { code:'M54.2', desc:'Cervicalgia', bodyRegion:'Cervical Spine', complexity:'low' },
-  { code:'M54.41', desc:'Lumbago with sciatica, right side', bodyRegion:'Lumbar Spine', complexity:'high' },
-  { code:'M54.42', desc:'Lumbago with sciatica, left side', bodyRegion:'Lumbar Spine', complexity:'high' },
-  { code:'M54.16', desc:'Radiculopathy, lumbar region', bodyRegion:'Lumbar Spine', complexity:'high' },
-  { code:'M54.12', desc:'Radiculopathy, cervical region', bodyRegion:'Cervical Spine', complexity:'high' },
-  { code:'M50.320', desc:'Cervical disc degeneration C4-C5', bodyRegion:'Cervical Spine', complexity:'moderate' },
-  { code:'M51.16', desc:'Lumbar disc degeneration with radiculopathy', bodyRegion:'Lumbar Spine', complexity:'high' },
-  { code:'M47.816', desc:'Spondylosis w/o myelopathy, lumbar', bodyRegion:'Lumbar Spine', complexity:'moderate' },
-  { code:'M47.812', desc:'Spondylosis w/o myelopathy, cervical', bodyRegion:'Cervical Spine', complexity:'moderate' },
-  { code:'M53.2X7', desc:'Spinal instability, lumbosacral', bodyRegion:'Lumbar Spine', complexity:'high' },
-  // Shoulder
-  { code:'M75.110', desc:'Adhesive capsulitis, right shoulder', bodyRegion:'Right Shoulder', complexity:'high' },
-  { code:'M75.120', desc:'Adhesive capsulitis, left shoulder', bodyRegion:'Left Shoulder', complexity:'high' },
-  { code:'M75.100', desc:'Rotator cuff tear, right shoulder', bodyRegion:'Right Shoulder', complexity:'high' },
-  { code:'M75.101', desc:'Rotator cuff tear, left shoulder', bodyRegion:'Left Shoulder', complexity:'high' },
-  { code:'M25.511', desc:'Pain in right shoulder', bodyRegion:'Right Shoulder', complexity:'low' },
-  { code:'M25.512', desc:'Pain in left shoulder', bodyRegion:'Left Shoulder', complexity:'low' },
-  { code:'S43.401A', desc:'Sprain of right shoulder joint, init', bodyRegion:'Right Shoulder', complexity:'moderate' },
-  { code:'M75.40', desc:'Impingement syndrome, right shoulder', bodyRegion:'Right Shoulder', complexity:'moderate' },
-  { code:'M75.41', desc:'Impingement syndrome, left shoulder', bodyRegion:'Left Shoulder', complexity:'moderate' },
-  // Knee
-  { code:'M17.11', desc:'Primary OA, right knee', bodyRegion:'Right Knee', complexity:'moderate' },
-  { code:'M17.12', desc:'Primary OA, left knee', bodyRegion:'Left Knee', complexity:'moderate' },
-  { code:'S83.511A', desc:'Sprain of ACL, right knee, init', bodyRegion:'Right Knee', complexity:'high' },
-  { code:'S83.512A', desc:'Sprain of ACL, left knee, init', bodyRegion:'Left Knee', complexity:'high' },
-  { code:'M23.311', desc:'Meniscus derangement, right knee', bodyRegion:'Right Knee', complexity:'moderate' },
-  { code:'M23.312', desc:'Meniscus derangement, left knee', bodyRegion:'Left Knee', complexity:'moderate' },
-  { code:'M25.561', desc:'Pain in right knee', bodyRegion:'Right Knee', complexity:'low' },
-  { code:'M25.562', desc:'Pain in left knee', bodyRegion:'Left Knee', complexity:'low' },
-  { code:'Z96.651', desc:'Status post right TKA', bodyRegion:'Right Knee', complexity:'high' },
-  { code:'Z96.652', desc:'Status post left TKA', bodyRegion:'Left Knee', complexity:'high' },
-  // Hip
-  { code:'M16.11', desc:'Primary OA, right hip', bodyRegion:'Right Hip', complexity:'moderate' },
-  { code:'M16.12', desc:'Primary OA, left hip', bodyRegion:'Left Hip', complexity:'moderate' },
-  { code:'Z96.641', desc:'Status post right THA', bodyRegion:'Right Hip', complexity:'high' },
-  { code:'Z96.642', desc:'Status post left THA', bodyRegion:'Left Hip', complexity:'high' },
-  { code:'M25.551', desc:'Pain in right hip', bodyRegion:'Right Hip', complexity:'low' },
-  { code:'M79.604', desc:'Pain in right leg', bodyRegion:'Right LE', complexity:'low' },
-  // Ankle/Foot
-  { code:'S93.401A', desc:'Sprain of right ankle, init', bodyRegion:'Right Ankle', complexity:'moderate' },
-  { code:'S93.402A', desc:'Sprain of left ankle, init', bodyRegion:'Left Ankle', complexity:'moderate' },
-  { code:'S82.001A', desc:'Fracture of right patella, init', bodyRegion:'Right Knee', complexity:'high' },
-  { code:'M77.10', desc:'Lateral epicondylitis, right elbow', bodyRegion:'Right Elbow', complexity:'low' },
-  { code:'M77.11', desc:'Lateral epicondylitis, left elbow', bodyRegion:'Left Elbow', complexity:'low' },
-  { code:'M72.0', desc:'Plantar fasciitis, right foot', bodyRegion:'Right Foot', complexity:'low' },
-  // Post-surgical
-  { code:'S42.001A', desc:'Fracture of clavicle, right, init', bodyRegion:'Right Shoulder', complexity:'moderate' },
-  { code:'S42.002A', desc:'Fracture of clavicle, left, init', bodyRegion:'Left Shoulder', complexity:'moderate' },
-  { code:'S72.001A', desc:'Fracture of right femoral neck, init', bodyRegion:'Right Hip', complexity:'high' },
-  // Neuro / Balance
-  { code:'G81.94', desc:'Hemiplegia, unspecified, affecting right side', bodyRegion:'Neurological', complexity:'high' },
-  { code:'I63.9', desc:'Cerebral infarction, unspecified (CVA)', bodyRegion:'Neurological', complexity:'high' },
-  { code:'G20', desc:'Parkinson disease', bodyRegion:'Neurological', complexity:'high' },
-  { code:'R26.89', desc:'Other abnormalities of gait and mobility', bodyRegion:'Gait/Balance', complexity:'moderate' },
-  { code:'R26.2', desc:'Difficulty in walking, not elsewhere classified', bodyRegion:'Gait/Balance', complexity:'moderate' },
-  { code:'M62.81', desc:'Muscle weakness (generalized)', bodyRegion:'Generalized', complexity:'moderate' },
-  { code:'R29.6', desc:'Repeated falls', bodyRegion:'Gait/Balance', complexity:'high' },
-  // Wrist/Hand
-  { code:'M65.311', desc:'Trigger finger, right index', bodyRegion:'Right Hand', complexity:'low' },
-  { code:'G56.00', desc:'Carpal tunnel syndrome, right', bodyRegion:'Right Wrist', complexity:'moderate' },
-  { code:'G56.01', desc:'Carpal tunnel syndrome, left', bodyRegion:'Left Wrist', complexity:'moderate' },
-  { code:'S62.001A', desc:'Fracture of right scaphoid, init', bodyRegion:'Right Wrist', complexity:'moderate' },
-  // TMJ/Other
-  { code:'M26.60', desc:'TMJ disorder, unspecified', bodyRegion:'TMJ', complexity:'moderate' },
-  { code:'G89.29', desc:'Other chronic pain', bodyRegion:'Generalized', complexity:'moderate' },
-];
+  // ============== LUMBAR SPINE ==============
+  { code:'M54.5', desc:'Low back pain', bodyRegion:'Lumbar Spine', category:'Spine' },
+  { code:'M54.51', desc:'Vertebrogenic low back pain', bodyRegion:'Lumbar Spine', category:'Spine' },
+  { code:'M54.41', desc:'Lumbago with sciatica, right side', bodyRegion:'Lumbar Spine', category:'Spine' },
+  { code:'M54.42', desc:'Lumbago with sciatica, left side', bodyRegion:'Lumbar Spine', category:'Spine' },
+  { code:'M51.16', desc:'Intervertebral disc disorders with radiculopathy, lumbar region', bodyRegion:'Lumbar Spine', category:'Spine' },
+  { code:'M51.17', desc:'Intervertebral disc disorders with radiculopathy, lumbosacral region', bodyRegion:'Lumbar Spine', category:'Spine' },
+  { code:'M47.816', desc:'Spondylosis without myelopathy, lumbar region', bodyRegion:'Lumbar Spine', category:'Spine' },
+  { code:'M47.817', desc:'Spondylosis without myelopathy, lumbosacral region', bodyRegion:'Lumbar Spine', category:'Spine' },
+  { code:'M48.06', desc:'Spinal stenosis, lumbar region', bodyRegion:'Lumbar Spine', category:'Spine' },
+  { code:'M48.07', desc:'Spinal stenosis, lumbosacral region', bodyRegion:'Lumbar Spine', category:'Spine' },
+  { code:'M54.89', desc:'Other dorsalgia', bodyRegion:'Lumbar Spine', category:'Spine' },
+  { code:'M99.03', desc:'Segmental and somatic dysfunction of lumbar region', bodyRegion:'Lumbar Spine', category:'Spine' },
+  { code:'M53.3', desc:'Sacrococcygeal disorders, NEC', bodyRegion:'Lumbar Spine', category:'Spine' },
+  { code:'M43.06', desc:'Spondylolysis, lumbar region', bodyRegion:'Lumbar Spine', category:'Spine' },
+
+  // ============== CERVICAL SPINE ==============
+  { code:'M54.2', desc:'Cervicalgia', bodyRegion:'Cervical Spine', category:'Spine' },
+  { code:'M54.12', desc:'Radiculopathy, cervical region', bodyRegion:'Cervical Spine', category:'Spine' },
+  { code:'M50.120', desc:'Cervical disc disorder with radiculopathy, mid-cervical region', bodyRegion:'Cervical Spine', category:'Spine' },
+  { code:'M50.121', desc:'Cervical disc disorder with radiculopathy, C4-C5', bodyRegion:'Cervical Spine', category:'Spine' },
+  { code:'M50.122', desc:'Cervical disc disorder with radiculopathy, C5-C6', bodyRegion:'Cervical Spine', category:'Spine' },
+  { code:'M50.123', desc:'Cervical disc disorder with radiculopathy, C6-C7', bodyRegion:'Cervical Spine', category:'Spine' },
+  { code:'M47.812', desc:'Spondylosis without myelopathy, cervical region', bodyRegion:'Cervical Spine', category:'Spine' },
+  { code:'M48.02', desc:'Spinal stenosis, cervical region', bodyRegion:'Cervical Spine', category:'Spine' },
+  { code:'M54.11', desc:'Radiculopathy, occipito-atlanto-axial region', bodyRegion:'Cervical Spine', category:'Spine' },
+  { code:'S13.4XXA', desc:'Sprain of ligaments of cervical spine, initial encounter', bodyRegion:'Cervical Spine', category:'Spine' },
+
+  // ============== THORACIC SPINE ==============
+  { code:'M54.6', desc:'Pain in thoracic spine', bodyRegion:'Thoracic Spine', category:'Spine' },
+  { code:'M54.14', desc:'Radiculopathy, thoracic region', bodyRegion:'Thoracic Spine', category:'Spine' },
+  { code:'M51.14', desc:'Intervertebral disc disorders with radiculopathy, thoracic region', bodyRegion:'Thoracic Spine', category:'Spine' },
+  { code:'M47.814', desc:'Spondylosis without myelopathy, thoracic region', bodyRegion:'Thoracic Spine', category:'Spine' },
+  { code:'M41.24', desc:'Other idiopathic scoliosis, thoracic region', bodyRegion:'Thoracic Spine', category:'Spine' },
+
+  // ============== RIGHT SHOULDER ==============
+  { code:'M75.111', desc:'Incomplete rotator cuff tear of right shoulder', bodyRegion:'Right Shoulder', category:'Shoulder' },
+  { code:'M75.121', desc:'Complete rotator cuff tear of right shoulder', bodyRegion:'Right Shoulder', category:'Shoulder' },
+  { code:'M75.01', desc:'Adhesive capsulitis of right shoulder', bodyRegion:'Right Shoulder', category:'Shoulder' },
+  { code:'M25.511', desc:'Pain in right shoulder', bodyRegion:'Right Shoulder', category:'Shoulder' },
+  { code:'M75.41', desc:'Impingement syndrome of right shoulder', bodyRegion:'Right Shoulder', category:'Shoulder' },
+  { code:'S43.401A', desc:'Unspecified sprain of right shoulder joint, initial', bodyRegion:'Right Shoulder', category:'Shoulder' },
+  { code:'M19.011', desc:'Primary osteoarthritis, right shoulder', bodyRegion:'Right Shoulder', category:'Shoulder' },
+  { code:'M75.81', desc:'Other shoulder lesions, right shoulder', bodyRegion:'Right Shoulder', category:'Shoulder' },
+  { code:'S42.201A', desc:'Unspecified fracture of upper end of right humerus, initial', bodyRegion:'Right Shoulder', category:'Shoulder' },
+  { code:'M75.31', desc:'Calcific tendinitis of right shoulder', bodyRegion:'Right Shoulder', category:'Shoulder' },
+
+  // ============== LEFT SHOULDER ==============
+  { code:'M75.112', desc:'Incomplete rotator cuff tear of left shoulder', bodyRegion:'Left Shoulder', category:'Shoulder' },
+  { code:'M75.122', desc:'Complete rotator cuff tear of left shoulder', bodyRegion:'Left Shoulder', category:'Shoulder' },
+  { code:'M75.02', desc:'Adhesive capsulitis of left shoulder', bodyRegion:'Left Shoulder', category:'Shoulder' },
+  { code:'M25.512', desc:'Pain in left shoulder', bodyRegion:'Left Shoulder', category:'Shoulder' },
+  { code:'M75.42', desc:'Impingement syndrome of left shoulder', bodyRegion:'Left Shoulder', category:'Shoulder' },
+  { code:'S43.402A', desc:'Unspecified sprain of left shoulder joint, initial', bodyRegion:'Left Shoulder', category:'Shoulder' },
+  { code:'M19.012', desc:'Primary osteoarthritis, left shoulder', bodyRegion:'Left Shoulder', category:'Shoulder' },
+  { code:'M75.32', desc:'Calcific tendinitis of left shoulder', bodyRegion:'Left Shoulder', category:'Shoulder' },
+
+  // ============== RIGHT KNEE ==============
+  { code:'M17.11', desc:'Primary osteoarthritis, right knee', bodyRegion:'Right Knee', category:'Knee' },
+  { code:'M23.211', desc:'Derangement of anterior horn of medial meniscus, right knee', bodyRegion:'Right Knee', category:'Knee' },
+  { code:'M23.311', desc:'Other meniscus derangements, anterior horn of medial meniscus, right knee', bodyRegion:'Right Knee', category:'Knee' },
+  { code:'M76.41', desc:'Patellar tendinitis, right knee', bodyRegion:'Right Knee', category:'Knee' },
+  { code:'S83.511A', desc:'Sprain of anterior cruciate ligament of right knee, initial', bodyRegion:'Right Knee', category:'Knee' },
+  { code:'S83.521A', desc:'Sprain of posterior cruciate ligament of right knee, initial', bodyRegion:'Right Knee', category:'Knee' },
+  { code:'M25.561', desc:'Pain in right knee', bodyRegion:'Right Knee', category:'Knee' },
+  { code:'M22.2X1', desc:'Patellofemoral disorder, right knee', bodyRegion:'Right Knee', category:'Knee' },
+  { code:'S83.011A', desc:'Lateral subluxation of patella, right knee, initial', bodyRegion:'Right Knee', category:'Knee' },
+  { code:'M22.41', desc:'Chondromalacia patellae, right knee', bodyRegion:'Right Knee', category:'Knee' },
+
+  // ============== LEFT KNEE ==============
+  { code:'M17.12', desc:'Primary osteoarthritis, left knee', bodyRegion:'Left Knee', category:'Knee' },
+  { code:'M23.212', desc:'Derangement of anterior horn of medial meniscus, left knee', bodyRegion:'Left Knee', category:'Knee' },
+  { code:'M76.42', desc:'Patellar tendinitis, left knee', bodyRegion:'Left Knee', category:'Knee' },
+  { code:'S83.512A', desc:'Sprain of anterior cruciate ligament of left knee, initial', bodyRegion:'Left Knee', category:'Knee' },
+  { code:'M25.562', desc:'Pain in left knee', bodyRegion:'Left Knee', category:'Knee' },
+  { code:'M22.2X2', desc:'Patellofemoral disorder, left knee', bodyRegion:'Left Knee', category:'Knee' },
+  { code:'M22.42', desc:'Chondromalacia patellae, left knee', bodyRegion:'Left Knee', category:'Knee' },
+  { code:'M23.312', desc:'Other meniscus derangements, anterior horn of medial meniscus, left knee', bodyRegion:'Left Knee', category:'Knee' },
+
+  // ============== RIGHT HIP ==============
+  { code:'M16.11', desc:'Primary osteoarthritis, right hip', bodyRegion:'Right Hip', category:'Hip' },
+  { code:'M25.551', desc:'Pain in right hip', bodyRegion:'Right Hip', category:'Hip' },
+  { code:'M70.61', desc:'Trochanteric bursitis, right hip', bodyRegion:'Right Hip', category:'Hip' },
+  { code:'M76.11', desc:'Psoas tendinitis, right hip', bodyRegion:'Right Hip', category:'Hip' },
+  { code:'S73.101A', desc:'Unspecified sprain of right hip, initial encounter', bodyRegion:'Right Hip', category:'Hip' },
+  { code:'M24.851', desc:'Other specific joint derangement of right hip', bodyRegion:'Right Hip', category:'Hip' },
+  { code:'M25.851', desc:'Other specified joint disorders, right hip', bodyRegion:'Right Hip', category:'Hip' },
+
+  // ============== LEFT HIP ==============
+  { code:'M16.12', desc:'Primary osteoarthritis, left hip', bodyRegion:'Left Hip', category:'Hip' },
+  { code:'M25.552', desc:'Pain in left hip', bodyRegion:'Left Hip', category:'Hip' },
+  { code:'M70.62', desc:'Trochanteric bursitis, left hip', bodyRegion:'Left Hip', category:'Hip' },
+  { code:'M76.12', desc:'Psoas tendinitis, left hip', bodyRegion:'Left Hip', category:'Hip' },
+  { code:'S73.102A', desc:'Unspecified sprain of left hip, initial encounter', bodyRegion:'Left Hip', category:'Hip' },
+  { code:'M25.852', desc:'Other specified joint disorders, left hip', bodyRegion:'Left Hip', category:'Hip' },
+
+  // ============== RIGHT ANKLE/FOOT ==============
+  { code:'S93.401A', desc:'Sprain of unspecified ligament of right ankle, initial', bodyRegion:'Right Ankle', category:'Ankle/Foot' },
+  { code:'M25.571', desc:'Pain in right ankle and joints of right foot', bodyRegion:'Right Ankle', category:'Ankle/Foot' },
+  { code:'M77.11', desc:'Lateral epicondylitis, right elbow', bodyRegion:'Right Ankle', category:'Ankle/Foot' },
+  { code:'M76.61', desc:'Achilles tendinitis, right leg', bodyRegion:'Right Ankle', category:'Ankle/Foot' },
+  { code:'M72.2', desc:'Plantar fascial fibromatosis (plantar fasciitis)', bodyRegion:'Right Foot', category:'Ankle/Foot' },
+  { code:'S92.001A', desc:'Unspecified fracture of right calcaneus, initial', bodyRegion:'Right Foot', category:'Ankle/Foot' },
+
+  // ============== LEFT ANKLE/FOOT ==============
+  { code:'S93.402A', desc:'Sprain of unspecified ligament of left ankle, initial', bodyRegion:'Left Ankle', category:'Ankle/Foot' },
+  { code:'M25.572', desc:'Pain in left ankle and joints of left foot', bodyRegion:'Left Ankle', category:'Ankle/Foot' },
+  { code:'M76.62', desc:'Achilles tendinitis, left leg', bodyRegion:'Left Ankle', category:'Ankle/Foot' },
+  { code:'S82.891A', desc:'Other fracture of right lower leg (ankle fracture), initial', bodyRegion:'Right Ankle', category:'Ankle/Foot' },
+  { code:'S82.892A', desc:'Other fracture of left lower leg (ankle fracture), initial', bodyRegion:'Left Ankle', category:'Ankle/Foot' },
+
+  // ============== POST-SURGICAL ==============
+  { code:'Z96.641', desc:'Presence of right artificial hip joint (s/p R THA)', bodyRegion:'Right Hip', category:'Post-Surgical' },
+  { code:'Z96.642', desc:'Presence of left artificial hip joint (s/p L THA)', bodyRegion:'Left Hip', category:'Post-Surgical' },
+  { code:'Z96.651', desc:'Presence of right artificial knee joint (s/p R TKA)', bodyRegion:'Right Knee', category:'Post-Surgical' },
+  { code:'Z96.652', desc:'Presence of left artificial knee joint (s/p L TKA)', bodyRegion:'Left Knee', category:'Post-Surgical' },
+  { code:'M96.611', desc:'Fracture of humerus following insertion of orthopedic implant, right arm', bodyRegion:'Right Shoulder', category:'Post-Surgical' },
+  { code:'Z87.39', desc:'Personal history of other musculoskeletal disorders (s/p spinal fusion)', bodyRegion:'Lumbar Spine', category:'Post-Surgical' },
+  { code:'Z98.1', desc:'Arthrodesis status (s/p spinal fusion)', bodyRegion:'Lumbar Spine', category:'Post-Surgical' },
+  { code:'M97.11XA', desc:'Periprosthetic fracture around internal prosthetic right knee joint, initial', bodyRegion:'Right Knee', category:'Post-Surgical' },
+  { code:'Z96.611', desc:'Presence of right artificial shoulder joint (s/p R TSA)', bodyRegion:'Right Shoulder', category:'Post-Surgical' },
+  { code:'T84.84XA', desc:'Pain due to internal orthopedic prosthetic devices, implants and grafts, initial', bodyRegion:'Generalized', category:'Post-Surgical' },
+
+  // ============== ELBOW ==============
+  { code:'M77.11', desc:'Lateral epicondylitis, right elbow', bodyRegion:'Right Elbow', category:'Elbow' },
+  { code:'M77.12', desc:'Lateral epicondylitis, left elbow', bodyRegion:'Left Elbow', category:'Elbow' },
+  { code:'M77.01', desc:'Medial epicondylitis, right elbow', bodyRegion:'Right Elbow', category:'Elbow' },
+  { code:'M77.02', desc:'Medial epicondylitis, left elbow', bodyRegion:'Left Elbow', category:'Elbow' },
+  { code:'M25.521', desc:'Pain in right elbow', bodyRegion:'Right Elbow', category:'Elbow' },
+  { code:'M25.522', desc:'Pain in left elbow', bodyRegion:'Left Elbow', category:'Elbow' },
+
+  // ============== WRIST/HAND ==============
+  { code:'M25.531', desc:'Pain in right wrist', bodyRegion:'Right Wrist', category:'Wrist/Hand' },
+  { code:'M25.532', desc:'Pain in left wrist', bodyRegion:'Left Wrist', category:'Wrist/Hand' },
+  { code:'G56.01', desc:'Carpal tunnel syndrome, right upper limb', bodyRegion:'Right Wrist', category:'Wrist/Hand' },
+  { code:'G56.02', desc:'Carpal tunnel syndrome, left upper limb', bodyRegion:'Left Wrist', category:'Wrist/Hand' },
+  { code:'M65.311', desc:'Trigger finger, right ring finger', bodyRegion:'Right Hand', category:'Wrist/Hand' },
+  { code:'M65.312', desc:'Trigger finger, left ring finger', bodyRegion:'Left Hand', category:'Wrist/Hand' },
+  { code:'S62.001A', desc:'Unspecified fracture of navicular bone of right wrist, initial', bodyRegion:'Right Wrist', category:'Wrist/Hand' },
+  { code:'M18.11', desc:'Primary osteoarthritis, right first carpometacarpal joint', bodyRegion:'Right Hand', category:'Wrist/Hand' },
+  { code:'M65.841', desc:'Other synovitis and tenosynovitis, right hand (De Quervain)', bodyRegion:'Right Wrist', category:'Wrist/Hand' },
+
+  // ============== NEUROLOGICAL/BALANCE ==============
+  { code:'R26.81', desc:'Unsteadiness on feet', bodyRegion:'Neurological', category:'Neuro/Balance' },
+  { code:'R26.2', desc:'Difficulty in walking, not elsewhere classified', bodyRegion:'Neurological', category:'Neuro/Balance' },
+  { code:'R26.89', desc:'Other abnormalities of gait and mobility', bodyRegion:'Gait/Balance', category:'Neuro/Balance' },
+  { code:'R29.6', desc:'Repeated falls', bodyRegion:'Gait/Balance', category:'Neuro/Balance' },
+  { code:'G82.20', desc:'Paraplegia, unspecified', bodyRegion:'Neurological', category:'Neuro/Balance' },
+  { code:'G81.91', desc:'Hemiplegia, unspecified affecting right dominant side', bodyRegion:'Neurological', category:'Neuro/Balance' },
+  { code:'G81.92', desc:'Hemiplegia, unspecified affecting left dominant side', bodyRegion:'Neurological', category:'Neuro/Balance' },
+  { code:'G35', desc:'Multiple sclerosis', bodyRegion:'Neurological', category:'Neuro/Balance' },
+  { code:'G20', desc:'Parkinson disease', bodyRegion:'Neurological', category:'Neuro/Balance' },
+  { code:'I63.9', desc:'Cerebral infarction, unspecified (CVA rehab)', bodyRegion:'Neurological', category:'Neuro/Balance' },
+  { code:'H81.10', desc:'Benign paroxysmal vertigo, unspecified ear (BPPV)', bodyRegion:'Gait/Balance', category:'Neuro/Balance' },
+  { code:'H81.13', desc:'Benign paroxysmal vertigo, bilateral (BPPV)', bodyRegion:'Gait/Balance', category:'Neuro/Balance' },
+  { code:'R42', desc:'Dizziness and giddiness (vestibular rehab)', bodyRegion:'Gait/Balance', category:'Neuro/Balance' },
+
+  // ============== TMJ / OTHER ==============
+  { code:'M26.60', desc:'Temporomandibular joint disorder, unspecified', bodyRegion:'TMJ', category:'TMJ/Other' },
+  { code:'M26.62', desc:'Arthralgia of temporomandibular joint', bodyRegion:'TMJ', category:'TMJ/Other' },
+  { code:'M79.3', desc:'Panniculitis, unspecified', bodyRegion:'Generalized', category:'TMJ/Other' },
+  { code:'M62.81', desc:'Muscle weakness (generalized)', bodyRegion:'Generalized', category:'TMJ/Other' },
+  { code:'R53.1', desc:'Weakness', bodyRegion:'Generalized', category:'TMJ/Other' },
+  { code:'Z96.1', desc:'Presence of intraocular lens (post-fall rehab)', bodyRegion:'Generalized', category:'TMJ/Other' },
+
 
 const INSURANCES = [
   { name:'Blue Cross Blue Shield', prefix:'BCB' },
