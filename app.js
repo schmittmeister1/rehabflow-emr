@@ -1227,23 +1227,221 @@ function ExerciseRx({ patient }) {
 }
 
 // ==================== DOCUMENTS TAB ====================
+function generateNoteContent(note, patient) {
+  const p = patient;
+  const subjectives = ["Patient reports feeling better since last visit.","Patient reports mild soreness after exercises.","Patient tolerated treatment well today.","Patient reports increased pain with activity.","Patient is motivated and progressing well.","Patient reports difficulty with home exercises.","Patient notes gradual improvement in daily activities."];
+  const gaitDescs = ["Ambulated independently on level surfaces with normal gait pattern.","Gait assessment reveals slight antalgic pattern, favoring involved side.","Ambulated with steady gait, no assistive device needed.","Gait shows improved cadence and step length compared to initial eval."];
+  const progressNotes = ["Patient demonstrating steady progress toward functional goals.","Patient showing gradual improvement in ROM and strength.","Patient making good progress, responding well to interventions.","Patient progressing slower than expected, may need plan modification."];
+  const subj = subjectives[Math.floor(Math.random()*subjectives.length)];
+  const gait = gaitDescs[Math.floor(Math.random()*gaitDescs.length)];
+  const prog = progressNotes[Math.floor(Math.random()*progressNotes.length)];
+  const exList = (p.exercises||[]).join(", ")||"Therapeutic exercises per POC";
+
+  if(note.type==="Initial Evaluation"||note.type==="Initial Eval") {
+    return `PHYSICAL THERAPY INITIAL EVALUATION
+==========================================
+Date: ${note.date}
+Therapist: ${note.author}
+Status: ${note.status}
+
+PATIENT INFORMATION:
+  Name: ${p.firstName} ${p.lastName}
+  DOB: ${p.dob}   Age: ${p.age}   Gender: ${p.gender}
+  Phone: ${p.phone||"N/A"}   Email: ${p.email||"N/A"}
+  Address: ${p.address||"On file"}
+  Insurance: ${p.insurance||"N/A"}   Member ID: ${p.memberId||"N/A"}   Group: ${p.groupNum||"N/A"}
+  Referring MD: ${p.referringMD||"N/A"}
+  Referral Date: ${p.referralDate||"N/A"}
+  Diagnosis: ${p.dx} (${p.dxCode})
+  Body Region: ${p.bodyRegion||"N/A"}
+  Complexity: ${p.complexity||"Moderate"}
+
+AUTHORIZATION:
+  Auth #: ${p.authNum||"N/A"}
+  Authorized Visits: ${p.authVisits||"N/A"}
+  Visits Used: ${p.usedVisits||0}
+
+PAST MEDICAL HISTORY:
+  ${(p.pmh||[]).join(", ")||"None reported"}
+
+SURGICAL HISTORY:
+  ${(p.surgicalHistory||[]).join(", ")||"None reported"}
+
+SOCIAL HISTORY:
+  ${(p.socialHistory||[]).join(", ")||"Non-contributory"}
+
+MEDICATIONS:
+  ${(p.meds||[]).join(", ")||"See chart"}
+
+OBJECTIVE FINDINGS:
+  Pain Level: ${p.initialPain||p.currentPain||"N/A"}/10
+  ODI Score: ${p.initialODI||p.currentODI||"N/A"}%
+  Gait: ${gait}
+
+ASSESSMENT:
+  Patient is a ${p.age} y/o ${p.gender} referred for PT for ${p.dx}. Patient presents with pain, functional limitations, and impaired mobility in the ${p.bodyRegion||"involved region"}. Patient would benefit from skilled PT to improve ROM, strength, pain management, and functional mobility.
+
+PLAN:
+  - PT 2-3x/week for 4-6 weeks
+  - Focus: pain management, ROM, strengthening, functional training
+  - Home exercise program to be provided
+  - Re-evaluate in 4 weeks or 10 visits`;
+  }
+
+  if(note.type==="Daily SOAP"||note.type==="SOAP Note"||note.type==="Daily Note") {
+    return `PHYSICAL THERAPY DAILY SOAP NOTE
+==========================================
+Date: ${note.date}
+Therapist: ${note.author}
+Status: ${note.status}
+
+Patient: ${p.firstName} ${p.lastName}
+Diagnosis: ${p.dx} (${p.dxCode})
+Visit #: ${p.usedVisits||"N/A"} of ${p.authVisits||"N/A"} authorized
+
+SUBJECTIVE: ${subj}
+  Current Pain: ${p.currentPain||"N/A"}/10
+
+OBJECTIVE:
+  Treatment Provided:
+  - Therapeutic Exercise: ${exList}
+  - Manual Therapy: Soft tissue mobilization to ${p.bodyRegion||"involved region"}
+  - Neuromuscular Re-education: Balance and proprioceptive training
+  - Gait: ${gait}
+
+  CPT Codes Billed: 97110 x 2 units, 97140 x 1 unit, 97530 x 1 unit
+
+ASSESSMENT:
+  Patient tolerated treatment well. ${prog}
+
+PLAN:
+  Continue POC. Next visit: continue current interventions, progress as tolerated.`;
+  }
+
+  if(note.type==="Progress Note"||note.type==="Progress Report") {
+    return `PHYSICAL THERAPY PROGRESS NOTE
+==========================================
+Date: ${note.date}
+Therapist: ${note.author}
+Status: ${note.status}
+
+Patient: ${p.firstName} ${p.lastName}
+Diagnosis: ${p.dx} (${p.dxCode})
+Visits Used: ${p.usedVisits||"N/A"} of ${p.authVisits||"N/A"} authorized
+
+PROGRESS SUMMARY:
+  ${prog}
+
+CURRENT STATUS:
+  Pain Level: ${p.currentPain||"N/A"}/10 (Initial: ${p.initialPain||"N/A"}/10)
+  ODI Score: ${p.currentODI||"N/A"}% (Initial: ${p.initialODI||"N/A"}%)
+
+GOALS STATUS:
+  1. Decrease pain to 3/10 or less - IN PROGRESS
+  2. Improve ROM to functional range - IN PROGRESS
+  3. Return to prior level of function - IN PROGRESS
+  4. Independent with HEP - IN PROGRESS
+
+PLAN:
+  Continue PT 2-3x/week. Progress exercises and functional activities as tolerated.`;
+  }
+
+  if(note.type==="Discharge Summary"||note.type==="Discharge Note"||note.type==="Discharge") {
+    return `PHYSICAL THERAPY DISCHARGE SUMMARY
+==========================================
+Date: ${note.date}
+Therapist: ${note.author}
+Status: ${note.status}
+
+Patient: ${p.firstName} ${p.lastName}
+Diagnosis: ${p.dx} (${p.dxCode})
+Total Visits: ${p.usedVisits||"N/A"} of ${p.authVisits||"N/A"} authorized
+Care Stage: ${p.careStage||"Discharged"}
+
+DISCHARGE STATUS:
+  Pain Level: ${p.currentPain||"N/A"}/10 (Initial: ${p.initialPain||"N/A"}/10)
+  ODI Score: ${p.currentODI||"N/A"}% (Initial: ${p.initialODI||"N/A"}%)
+
+DISCHARGE DISPOSITION: Goals met / Patient discharged from PT services
+
+RECOMMENDATIONS:
+  - Continue home exercise program as instructed
+  - Follow up with ${p.referringMD||"referring physician"} as needed
+  - Return to PT if symptoms recur or worsen
+  - Maintain active lifestyle and ergonomic modifications`;
+  }
+
+  return `CLINICAL NOTE
+==========================================
+Date: ${note.date}
+Type: ${note.type}
+Author: ${note.author}
+Status: ${note.status}
+
+Patient: ${p.firstName} ${p.lastName}
+Diagnosis: ${p.dx} (${p.dxCode})`,
+}
+
 function DocumentsTab({ patient }) {
+  const [viewingNote, setViewingNote] = React.useState(null);
   const docs = patient.noteHistory || [];
   return (
     <div>
-      <h4 style={{marginBottom:12}}>Document History — {patient.lastName}, {patient.firstName} ({docs.length} documents)</h4>
-      {docs.length > 0 ? (
-        <table className="data-table">
-          <thead><tr><th>Date</th><th>Type</th><th>Author</th><th>Status</th><th>Actions</th></tr></thead>
+      <h4 style={{fontSize:"16px",fontWeight:"600",marginBottom:"12px",color:"#1e293b"}}>Documents & Notes</h4>
+      {docs.length === 0 ? (
+        <div style={{padding:"40px",textAlign:"center",color:"#94a3b8",background:"#f8fafc",borderRadius:"8px"}}>
+          <p style={{fontSize:"32px",marginBottom:"8px"}}>📄</p>
+          <p>No notes documented yet.</p>
+        </div>
+      ) : (
+        <table style={{width:"100%",borderCollapse:"collapse",background:"#fff",borderRadius:"8px",overflow:"hidden",boxShadow:"0 1px 3px rgba(0,0,0,0.1)"}}>
+          <thead>
+            <tr style={{background:"#f1f5f9"}}>
+              <th style={{padding:"10px 12px",textAlign:"left",fontWeight:"600",color:"#475569"}}>Type</th>
+              <th style={{padding:"10px 12px",textAlign:"left",fontWeight:"600",color:"#475569"}}>Date</th>
+              <th style={{padding:"10px 12px",textAlign:"left",fontWeight:"600",color:"#475569"}}>Author</th>
+              <th style={{padding:"10px 12px",textAlign:"left",fontWeight:"600",color:"#475569"}}>Status</th>
+              <th style={{padding:"10px 12px",textAlign:"left",fontWeight:"600",color:"#475569"}}>Action</th>
+            </tr>
+          </thead>
           <tbody>
-            {docs.map((d,i)=>(
-              <tr key={i}><td>{d.date}</td><td style={{fontWeight:600}}>{d.type}</td><td>{d.author}</td>
-                <td><span className={`badge ${d.status.includes('Locked')||d.status==='Co-signed'?'badge-green':d.status==='Draft'?'badge-yellow':d.status.includes('Awaiting')?'badge-red':'badge-blue'}`}>{d.status}</span></td>
-                <td><button className="btn btn-sm btn-outline">View</button></td></tr>
+            {docs.map((n, i) => (
+              <tr key={i} style={{borderBottom:"1px solid #e2e8f0"}}>
+                <td style={{padding:"10px 12px",fontWeight:"500"}}>{n.type}</td>
+                <td style={{padding:"10px 12px",color:"#64748b"}}>{n.date}</td>
+                <td style={{padding:"10px 12px",color:"#64748b"}}>{n.author}</td>
+                <td style={{padding:"10px 12px"}}>
+                  <span style={{padding:"2px 8px",borderRadius:"12px",fontSize:"11px",fontWeight:"500",
+                    background: n.status==="Signed"?"#dcfce7":n.status==="Co-Signed"?"#dbeafe":"#fef9c3",
+                    color: n.status==="Signed"?"#166534":n.status==="Co-Signed"?"#1e40af":"#854d0e"}}>{n.status}</span>
+                </td>
+                <td style={{padding:"10px 12px"}}>
+                  <button onClick={()=>setViewingNote(n)} style={{padding:"4px 12px",fontSize:"12px",border:"1px solid #3b82f6",borderRadius:"6px",background:"#fff",color:"#3b82f6",cursor:"pointer",fontWeight:"500"}}>View</button>
+                </td>
+              </tr>
             ))}
           </tbody>
         </table>
-      ) : <p style={{color:'var(--text-muted)'}}>No documents yet — Initial Evaluation pending</p>}
+      )}
+      {viewingNote && (
+        <div style={{position:"fixed",top:0,left:0,right:0,bottom:0,background:"rgba(0,0,0,0.5)",zIndex:10000,display:"flex",alignItems:"center",justifyContent:"center",padding:"20px"}} onClick={()=>setViewingNote(null)}>
+          <div style={{background:"#fff",borderRadius:"12px",width:"100%",maxWidth:"800px",maxHeight:"90vh",display:"flex",flexDirection:"column",boxShadow:"0 25px 50px rgba(0,0,0,0.25)"}} onClick={e=>e.stopPropagation()}>
+            <div style={{padding:"20px 24px",borderBottom:"1px solid #e2e8f0",display:"flex",justifyContent:"space-between",alignItems:"center",background:"#f8fafc",borderRadius:"12px 12px 0 0"}}>
+              <h3 style={{margin:0,fontSize:"18px",fontWeight:"700",color:"#1e293b"}}>{viewingNote.type}</h3>
+              <div style={{display:"flex",gap:"8px"}}>
+                <button onClick={()=>{var w=window.open("","_blank");w.document.write("<pre style=\"font-family:Consolas,monospace;padding:40px;max-width:800px;margin:auto;line-height:1.6\">"+generateNoteContent(viewingNote,patient)+"</pre>");w.document.title=viewingNote.type;}} style={{padding:"6px 14px",fontSize:"12px",border:"none",borderRadius:"6px",background:"#3b82f6",color:"#fff",cursor:"pointer",fontWeight:"500"}}>Print</button>
+                <button onClick={()=>setViewingNote(null)} style={{padding:"6px 14px",fontSize:"12px",border:"none",borderRadius:"6px",background:"#ef4444",color:"#fff",cursor:"pointer",fontWeight:"500"}}>Close</button>
+              </div>
+            </div>
+            <div style={{padding:"20px 24px",borderBottom:"1px solid #e2e8f0"}}>
+              <p style={{margin:"4px 0",fontSize:"13px",color:"#64748b"}}>{viewingNote.date} | {viewingNote.author} | {viewingNote.status}</p>
+            </div>
+            <div style={{padding:"24px",overflowY:"auto",flex:1}}>
+              <pre style={{fontFamily:"Consolas,Monaco,monospace",fontSize:"13px",lineHeight:"1.7",whiteSpace:"pre-wrap",wordWrap:"break-word",color:"#1e293b",margin:0,background:"#fafafa",padding:"20px",borderRadius:"8px",border:"1px solid #e2e8f0"}}>{generateNoteContent(viewingNote,patient)}</pre>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
