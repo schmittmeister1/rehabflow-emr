@@ -157,11 +157,11 @@ function generateClinicalData(patient) {
 
   // Special tests
   const specialTests = isSpine ? (region.includes('Lumbar') ?
-    `SLR: ${side === 'right' || side === 'bilateral' ? 'Positive R at ' + (30 + Math.floor(sRand(20)*30)) + '°' : 'Negative R'}, ${side === 'left' || side === 'bilateral' ? 'Positive L at ' + (30 + Math.floor(sRand(21)*30)) + '°' : 'Negative L'}. Slump test: ${pick(['Positive reproducing concordant symptoms','Positive for neural tension','Negative bilaterally'],22)}. Prone instability test: ${pick(['Positive','Negative'],23)}. Lumbar spring test: ${pick(['Hypomobile L4-L5','Hypomobile L5-S1','Pain provocation at L4-L5','WNL'],24)}.` :
-    `Spurling test: ${pick(['Positive R reproducing radicular symptoms','Positive L reproducing concordant pain','Negative bilaterally'],25)}. Distraction test: ${pick(['Positive — symptoms relieved','Negative'],26)}. Upper limb tension test: ${pick(['Positive R for median nerve bias','Positive L for median nerve bias','Negative bilaterally'],27)}. Cervical rotation: ${pick(['Limited and painful R','Limited and painful L','Limited bilaterally'],28)}.`) :
-    isShoulder ? `Neer impingement: ${pick(['Positive','Negative'],29)}. Hawkins-Kennedy: ${pick(['Positive','Negative'],30)}. Empty can test: ${pick(['Positive — weakness and pain','Positive — pain only','Negative'],31)}. Speed test: ${pick(['Positive','Negative'],32)}. Cross-body adduction: ${pick(['Positive for AC joint pain','Negative'],33)}. ${dx.includes('capsulitis') ? 'Significant capsular pattern noted with ER > ABD > IR limitation.' : ''}` :
-    isKnee ? `Lachman test: ${dx.includes('ACL') ? 'Positive with soft end-feel' : 'Negative'}. Anterior drawer: ${dx.includes('ACL') ? 'Positive' : 'Negative'}. McMurray test: ${dx.includes('Meniscus') ? 'Positive medial with click and pain' : 'Negative'}. Valgus/varus stress: ${pick(['Stable at 0° and 30°','Mild laxity at 30° valgus','Stable bilaterally'],34)}. Patellar grind: ${dx.includes('OA') ? 'Positive with crepitus' : pick(['Mild crepitus','Negative'],35)}.` :
-    isHip ? `FABER test: ${pick(['Positive ' + side + ' for groin pain','Positive ' + side + ' for SI joint pain','Positive bilaterally'],36)}. Log roll: ${pick(['Positive — pain with IR','Negative'],37)}. Thomas test: ${pick(['Positive — ' + side + ' hip flexor tightness','Negative'],38)}. Ober test: ${pick(['Positive — ITB tightness ' + side,'Negative bilaterally'],39)}. Trendelenburg: ${pick(['Positive ' + side,'Negative'],40)}.` :
+    `SLR: ${side === 'right' || side === 'bilateral' ? 'Positive R at ' + (30 + Math.floor(sRand(20)*30)) + 'Â°' : 'Negative R'}, ${side === 'left' || side === 'bilateral' ? 'Positive L at ' + (30 + Math.floor(sRand(21)*30)) + 'Â°' : 'Negative L'}. Slump test: ${pick(['Positive reproducing concordant symptoms','Positive for neural tension','Negative bilaterally'],22)}. Prone instability test: ${pick(['Positive','Negative'],23)}. Lumbar spring test: ${pick(['Hypomobile L4-L5','Hypomobile L5-S1','Pain provocation at L4-L5','WNL'],24)}.` :
+    `Spurling test: ${pick(['Positive R reproducing radicular symptoms','Positive L reproducing concordant pain','Negative bilaterally'],25)}. Distraction test: ${pick(['Positive â symptoms relieved','Negative'],26)}. Upper limb tension test: ${pick(['Positive R for median nerve bias','Positive L for median nerve bias','Negative bilaterally'],27)}. Cervical rotation: ${pick(['Limited and painful R','Limited and painful L','Limited bilaterally'],28)}.`) :
+    isShoulder ? `Neer impingement: ${pick(['Positive','Negative'],29)}. Hawkins-Kennedy: ${pick(['Positive','Negative'],30)}. Empty can test: ${pick(['Positive â weakness and pain','Positive â pain only','Negative'],31)}. Speed test: ${pick(['Positive','Negative'],32)}. Cross-body adduction: ${pick(['Positive for AC joint pain','Negative'],33)}. ${dx.includes('capsulitis') ? 'Significant capsular pattern noted with ER > ABD > IR limitation.' : ''}` :
+    isKnee ? `Lachman test: ${dx.includes('ACL') ? 'Positive with soft end-feel' : 'Negative'}. Anterior drawer: ${dx.includes('ACL') ? 'Positive' : 'Negative'}. McMurray test: ${dx.includes('Meniscus') ? 'Positive medial with click and pain' : 'Negative'}. Valgus/varus stress: ${pick(['Stable at 0Â° and 30Â°','Mild laxity at 30Â° valgus','Stable bilaterally'],34)}. Patellar grind: ${dx.includes('OA') ? 'Positive with crepitus' : pick(['Mild crepitus','Negative'],35)}.` :
+    isHip ? `FABER test: ${pick(['Positive ' + side + ' for groin pain','Positive ' + side + ' for SI joint pain','Positive bilaterally'],36)}. Log roll: ${pick(['Positive â pain with IR','Negative'],37)}. Thomas test: ${pick(['Positive â ' + side + ' hip flexor tightness','Negative'],38)}. Ober test: ${pick(['Positive â ITB tightness ' + side,'Negative bilaterally'],39)}. Trendelenburg: ${pick(['Positive ' + side,'Negative'],40)}.` :
     'Appropriate special tests performed per clinical indication. See objective findings above.';
 
   // Posture/alignment
@@ -189,11 +189,11 @@ function generateClinicalData(patient) {
   // Balance
   const balance = (isBalance || isNeuro || age >= 65) ?
     'Single-leg stance: R ' + (5 + Math.floor(sRand(60)*15)) + ' sec, L ' + (5 + Math.floor(sRand(61)*15)) + ' sec (norm >30 sec). Romberg: ' + pick(['Positive with eyes closed','Mild sway with eyes closed','Negative'],62) + '. Tandem stance: ' + pick(['Unable to maintain > 5 seconds','Maintained 10 seconds with UE support','Maintained 15 seconds independently'],63) + '. Berg Balance Scale: ' + (30 + Math.floor(sRand(64)*16)) + '/56 (' + pick(['moderate fall risk','low fall risk','high fall risk'],65) + '). Timed Up and Go: ' + (10 + Math.floor(sRand(66)*10)) + ' seconds.' :
-    'Balance: ' + pick(['Within functional limits for age. Single-leg stance maintained > 15 seconds bilaterally.','Mildly decreased with eyes closed but adequate for functional activities.','WNL — no impairments noted during functional testing.'],67);
+    'Balance: ' + pick(['Within functional limits for age. Single-leg stance maintained > 15 seconds bilaterally.','Mildly decreased with eyes closed but adequate for functional activities.','WNL â no impairments noted during functional testing.'],67);
 
   // Functional mobility
   const funcMobility = (isBalance || isNeuro || age >= 65) ?
-    'Sit-to-stand: ' + pick(['Independent with use of armrests','Modified independent — slow but safe','Requires verbal cues for proper body mechanics'],68) + '. Transfers: ' + pick(['Independent all surfaces','Modified independent bed mobility','Supervision with tub transfers'],69) + '. Stair negotiation: ' + pick(['Step-over-step with railing','Step-to-step pattern with bilateral rail','Independent ascending, rail descending'],70) + '.' :
+    'Sit-to-stand: ' + pick(['Independent with use of armrests','Modified independent â slow but safe','Requires verbal cues for proper body mechanics'],68) + '. Transfers: ' + pick(['Independent all surfaces','Modified independent bed mobility','Supervision with tub transfers'],69) + '. Stair negotiation: ' + pick(['Step-over-step with railing','Step-to-step pattern with bilateral rail','Independent ascending, rail descending'],70) + '.' :
     'Functional mobility: ' + pick(['Independent with all transfers and mobility tasks. Reports difficulty with ' + (isSpine ? 'floor transfers and prolonged positional changes' : 'sport-specific movements and high-level activities') + '.','Independent with all functional mobility. Limitations noted with sustained and repetitive activities.'],71);
 
   // Assessment text
@@ -206,8 +206,8 @@ function generateClinicalData(patient) {
     'Movement system impairment of the ' + region + ' with associated pain and functional limitations';
 
   // Problem list
-  const problemList = `1. Decreased ROM in the ${region} — limited ${isSpine ? 'flexion, extension, and rotation' : isShoulder ? 'flexion, abduction, and external rotation' : isKnee ? 'flexion and extension' : 'functional ROM'}
-2. Decreased strength in ${isSpine ? 'core stabilizers and hip musculature' : isShoulder ? 'rotator cuff and scapular stabilizers' : isKnee ? 'quadriceps and hamstrings' : isHip ? 'hip flexors, abductors, and extensors' : 'involved musculature'} — ${pick(['3+/5 to 4/5','4-/5 to 4/5','3/5 to 4-/5'],78)}
+  const problemList = `1. Decreased ROM in the ${region} â limited ${isSpine ? 'flexion, extension, and rotation' : isShoulder ? 'flexion, abduction, and external rotation' : isKnee ? 'flexion and extension' : 'functional ROM'}
+2. Decreased strength in ${isSpine ? 'core stabilizers and hip musculature' : isShoulder ? 'rotator cuff and scapular stabilizers' : isKnee ? 'quadriceps and hamstrings' : isHip ? 'hip flexors, abductors, and extensors' : 'involved musculature'} â ${pick(['3+/5 to 4/5','4-/5 to 4/5','3/5 to 4-/5'],78)}
 3. Pain ${pain}/10 limiting functional activities
 4. Impaired ${pick(['posture and body mechanics','neuromuscular control','balance and coordination','functional mobility'],79)}
 5. Decreased functional independence with ${pick(['ADLs and work duties','ambulation and stair negotiation','overhead activities and self-care','transfers and mobility tasks'],80)}`;
@@ -215,25 +215,25 @@ function generateClinicalData(patient) {
   // Goals
   const stg = isSpine ? [
     `Patient will demonstrate ${region.includes('Cervical') ? 'cervical' : 'lumbar'} AROM to within 80% of normal in all planes within 4 weeks to improve functional mobility.`,
-    `Patient will report pain level of ≤${Math.max(pain-3,2)}/10 with daily activities within 3 weeks.`,
+    `Patient will report pain level of â¤${Math.max(pain-3,2)}/10 with daily activities within 3 weeks.`,
     `Patient will demonstrate independent ${pick(['lumbar stabilization exercise program','cervical postural correction exercises','core activation with functional movements'],81)} within 2 weeks.`,
   ] : isShoulder ? [
-    `Patient will demonstrate ${side} shoulder AROM flexion to ≥${dx.includes('capsulitis')?'140':'160'}° within 4 weeks.`,
-    `Patient will report pain level of ≤${Math.max(pain-3,2)}/10 with reaching activities within 3 weeks.`,
-    `Patient will demonstrate ${side} shoulder strength of ≥4/5 in rotator cuff musculature within 4 weeks.`,
+    `Patient will demonstrate ${side} shoulder AROM flexion to â¥${dx.includes('capsulitis')?'140':'160'}Â° within 4 weeks.`,
+    `Patient will report pain level of â¤${Math.max(pain-3,2)}/10 with reaching activities within 3 weeks.`,
+    `Patient will demonstrate ${side} shoulder strength of â¥4/5 in rotator cuff musculature within 4 weeks.`,
   ] : isKnee ? [
-    `Patient will demonstrate ${side} knee AROM ${dx.includes('TKA')?'0-110°':'0-125°'} within 4 weeks.`,
+    `Patient will demonstrate ${side} knee AROM ${dx.includes('TKA')?'0-110Â°':'0-125Â°'} within 4 weeks.`,
     `Patient will ambulate independently on level surfaces without antalgic gait pattern within 3 weeks.`,
     `Patient will ascend/descend 12 stairs step-over-step with railing within 4 weeks.`,
   ] : [
     `Patient will demonstrate improved ROM in the ${region} to within 80% of normal within 4 weeks.`,
-    `Patient will report pain ≤${Math.max(pain-3,2)}/10 with daily activities within 3 weeks.`,
+    `Patient will report pain â¤${Math.max(pain-3,2)}/10 with daily activities within 3 weeks.`,
     `Patient will perform ${pick(['home exercise program independently','functional activities with proper mechanics','balance activities safely'],82)} within 2 weeks.`,
   ];
 
   const ltg = [
     `Patient will return to ${age >= 65 ? 'prior level of function including independent community ambulation and all ADLs' : 'full work duties and recreational activities without limitation'} within ${pick(['8','10','12'],83)} weeks.`,
-    `Patient will report pain level of ≤${Math.max(pain-5,1)}/10 and ODI/functional score improved by MCID within ${pick(['8','10','12'],84)} weeks.`,
+    `Patient will report pain level of â¤${Math.max(pain-5,1)}/10 and ODI/functional score improved by MCID within ${pick(['8','10','12'],84)} weeks.`,
   ];
 
   // Progress note data
@@ -241,14 +241,14 @@ function generateClinicalData(patient) {
   const progressSubjective = stage === 'Early' ?
     `Patient reports ${pick(['some improvement','mild improvement','no significant change'],85)} since initiating physical therapy. Current pain ${painImproved}/10 (initial ${pain}/10). ${pick(['Reports exercises are helping but still has difficulty with prolonged activities.','Able to tolerate HEP with minimal increase in symptoms.','Notices less stiffness in the morning but pain persists with activity.'],86)}` :
     stage === 'Mid' ?
-    `Patient reports ${pick(['good progress','moderate improvement','steady improvement'],87)} with physical therapy. Current pain ${painImproved}/10 (initial ${pain}/10). ${pick(['Able to perform daily activities with less difficulty than at initial evaluation.','HEP compliance is good — reports feeling stronger and more mobile.','Functional gains noted with stair negotiation and prolonged walking tolerance.','Reports sleeping better and able to tolerate work duties with fewer breaks.'],88)}` :
+    `Patient reports ${pick(['good progress','moderate improvement','steady improvement'],87)} with physical therapy. Current pain ${painImproved}/10 (initial ${pain}/10). ${pick(['Able to perform daily activities with less difficulty than at initial evaluation.','HEP compliance is good â reports feeling stronger and more mobile.','Functional gains noted with stair negotiation and prolonged walking tolerance.','Reports sleeping better and able to tolerate work duties with fewer breaks.'],88)}` :
     stage === 'Late' || stage === 'Nearing DC' ?
-    `Patient reports ${pick(['significant improvement','substantial functional gains','near-complete resolution of symptoms'],89)}. Current pain ${painImproved}/10 (initial ${pain}/10). ${pick(['Able to return to most prior activities including exercise program.','Reports minimal limitations with ADLs and work. Tolerating progressive strengthening well.','Goals largely met — patient reports high satisfaction with progress.'],90)}` :
+    `Patient reports ${pick(['significant improvement','substantial functional gains','near-complete resolution of symptoms'],89)}. Current pain ${painImproved}/10 (initial ${pain}/10). ${pick(['Able to return to most prior activities including exercise program.','Reports minimal limitations with ADLs and work. Tolerating progressive strengthening well.','Goals largely met â patient reports high satisfaction with progress.'],90)}` :
     `Patient reports ${pick(['some functional improvement since last assessment','ongoing symptoms but better management strategies','variable progress with good and bad days'],91)}. Current pain ${painImproved}/10 (initial ${pain}/10).`;
 
-  const progressObjective = `Key objective measures (current vs initial):\n- ROM: ${isSpine ? (region.includes('Cervical') ? 'Cervical flexion improved from 30° to 42°, rotation from 55° to 70°' : 'Lumbar flexion improved, SLR improved from 35° to 55°') : isShoulder ? 'Shoulder flexion improved from 120° to 155°, ER from 40° to 65°' : isKnee ? 'Knee flexion improved from 95° to 120°, extension from -8° to -2°' : 'ROM improved in all limited planes toward functional range'}\n- Strength: ${pick(['Improved 0.5-1 grade in key muscle groups','Quad and hip strength improved from 3+/5 to 4/5','Rotator cuff strength improved from 3+/5 to 4/5','Core stability improved — able to maintain neutral spine with UE/LE challenges'],92)}\n- Function: ${pick(['Gait improved — normalized cadence and stride length','Stair negotiation improved to step-over-step pattern','Overhead reaching now functional for daily tasks','Transfer and mobility skills improved to independent level'],93)}`;
+  const progressObjective = `Key objective measures (current vs initial):\n- ROM: ${isSpine ? (region.includes('Cervical') ? 'Cervical flexion improved from 30Â° to 42Â°, rotation from 55Â° to 70Â°' : 'Lumbar flexion improved, SLR improved from 35Â° to 55Â°') : isShoulder ? 'Shoulder flexion improved from 120Â° to 155Â°, ER from 40Â° to 65Â°' : isKnee ? 'Knee flexion improved from 95Â° to 120Â°, extension from -8Â° to -2Â°' : 'ROM improved in all limited planes toward functional range'}\n- Strength: ${pick(['Improved 0.5-1 grade in key muscle groups','Quad and hip strength improved from 3+/5 to 4/5','Rotator cuff strength improved from 3+/5 to 4/5','Core stability improved â able to maintain neutral spine with UE/LE challenges'],92)}\n- Function: ${pick(['Gait improved â normalized cadence and stride length','Stair negotiation improved to step-over-step pattern','Overhead reaching now functional for daily tasks','Transfer and mobility skills improved to independent level'],93)}`;
 
-  const progressClinicalReasoning = `Patient has demonstrated ${pick(['measurable improvement','clinically significant gains','steady progress'],94)} in ROM, strength, and functional mobility since initial evaluation. ${pick(['Continued skilled PT is warranted to achieve remaining goals and ensure safe return to full function.','Patient continues to benefit from skilled intervention — further progression of therapeutic exercise and manual therapy is indicated.','Skilled care remains necessary to address remaining deficits and prevent recurrence.'],95)} ${stage === 'Late' || stage === 'Nearing DC' ? 'Discharge planning initiated — patient transitioning to independent HEP maintenance program.' : 'Plan to continue current frequency with progression of therapeutic interventions.'}`;
+  const progressClinicalReasoning = `Patient has demonstrated ${pick(['measurable improvement','clinically significant gains','steady progress'],94)} in ROM, strength, and functional mobility since initial evaluation. ${pick(['Continued skilled PT is warranted to achieve remaining goals and ensure safe return to full function.','Patient continues to benefit from skilled intervention â further progression of therapeutic exercise and manual therapy is indicated.','Skilled care remains necessary to address remaining deficits and prevent recurrence.'],95)} ${stage === 'Late' || stage === 'Nearing DC' ? 'Discharge planning initiated â patient transitioning to independent HEP maintenance program.' : 'Plan to continue current frequency with progression of therapeutic interventions.'}`;
 
   const goalStatusData = {};
   if (stage === 'Early') {
@@ -289,7 +289,7 @@ function generateClinicalData(patient) {
     ndi: region.includes('Cervical') ? '' + (25 + Math.floor(sRand(98)*35)) : '',
     dash: isShoulder ? '' + (30 + Math.floor(sRand(99)*35)) : '',
     progressSubjective, progressObjective, progressClinicalReasoning, goalStatusData,
-    overallProgress: stage==='Early'?'Progressing well toward goals':stage==='Mid'?'Progressing well toward goals':stage==='Late'?'Progressing well toward goals':stage==='Nearing DC'?'Goals met — discharge planning':'Progressing slower than expected',
+    overallProgress: stage==='Early'?'Progressing well toward goals':stage==='Mid'?'Progressing well toward goals':stage==='Late'?'Progressing well toward goals':stage==='Nearing DC'?'Goals met â discharge planning':'Progressing slower than expected',
     updatedPlan: stage === 'Nearing DC' ? 'Transition to independent HEP. Discharge at next visit if patient demonstrates independent management of condition.' : 'Continue current POC at ' + pick(['2x/week','3x/week'],100) + '. Progress therapeutic exercise intensity and complexity. Continue manual therapy as indicated. Update HEP.',
   };
 }
@@ -326,7 +326,7 @@ function LoginPage({ onLogin }) {
           <input type="password" value={password} onChange={e=>setPassword(e.target.value)} placeholder="Enter password" />
           <button type="submit">Sign In</button>
         </form>
-        <p style={{textAlign:'center',marginTop:16,fontSize:11,color:'var(--text-muted)'}}>Training Environment — No Real Patient Data<br/>Use any credentials to log in • 120 sample cases loaded</p>
+        <p style={{textAlign:'center',marginTop:16,fontSize:11,color:'var(--text-muted)'}}>Training Environment â No Real Patient Data<br/>Use any credentials to log in â¢ 120 sample cases loaded</p>
       </div>
     </div>
   );
@@ -335,13 +335,13 @@ function LoginPage({ onLogin }) {
 // ==================== SIDEBAR ====================
 function Sidebar({ currentPage, setCurrentPage, user, onLogout }) {
   const navItems = [
-    { id:'dashboard', icon:'📊', label:'Dashboard' },
-    { id:'schedule', icon:'📅', label:'Schedule' },
-    { id:'patients', icon:'👥', label:'Patients' },
-    { id:'documentation', icon:'📋', label:'Documentation' },
-    { id:'billing', icon:'💰', label:'Billing/Coding' },
-    { id:'messages', icon:'✉️', label:'Messages' },
-    { id:'reports', icon:'📈', label:'Reports' },
+    { id:'dashboard', icon:'ð', label:'Dashboard' },
+    { id:'schedule', icon:'ð', label:'Schedule' },
+    { id:'patients', icon:'ð¥', label:'Patients' },
+    { id:'documentation', icon:'ð', label:'Documentation' },
+    { id:'billing', icon:'ð°', label:'Billing/Coding' },
+    { id:'messages', icon:'âï¸', label:'Messages' },
+    { id:'reports', icon:'ð', label:'Reports' },
   ];
   return (
     <div className="sidebar">
@@ -355,7 +355,7 @@ function Sidebar({ currentPage, setCurrentPage, user, onLogout }) {
       </div>
       <div className="sidebar-user">
         <div className="name">{user.displayName}</div>
-        <div className="role">{user.role} — Logged In</div>
+        <div className="role">{user.role} â Logged In</div>
         <button className="btn btn-outline" style={{marginTop:8,width:'100%',color:'#fff',borderColor:'rgba(255,255,255,0.2)'}} onClick={onLogout}>Sign Out</button>
       </div>
     </div>
@@ -375,10 +375,10 @@ function Dashboard({ setCurrentPage, setSelectedPatient, patients }) {
   return (
     <div className="fade-in">
       <div className="dash-stats">
-        <div className="stat-card"><div className="stat-icon">👥</div><div className="stat-value">{active.length}</div><div className="stat-label">Active Patients</div></div>
-        <div className="stat-card"><div className="stat-icon">🆕</div><div className="stat-value">{newEvals.length}</div><div className="stat-label">Pending Evals</div></div>
-        <div className="stat-card"><div className="stat-icon">📅</div><div className="stat-value">{SCHEDULE_DATA.filter(s=>s.patientId).length}</div><div className="stat-label">Today's Appointments</div></div>
-        <div className="stat-card"><div className="stat-icon">⚠️</div><div className="stat-value">{lowAuth.length}</div><div className="stat-label">Low Auth Alerts</div></div>
+        <div className="stat-card"><div className="stat-icon">ð¥</div><div className="stat-value">{active.length}</div><div className="stat-label">Active Patients</div></div>
+        <div className="stat-card"><div className="stat-icon">ð</div><div className="stat-value">{newEvals.length}</div><div className="stat-label">Pending Evals</div></div>
+        <div className="stat-card"><div className="stat-icon">ð</div><div className="stat-value">{SCHEDULE_DATA.filter(s=>s.patientId).length}</div><div className="stat-label">Today's Appointments</div></div>
+        <div className="stat-card"><div className="stat-icon">â ï¸</div><div className="stat-value">{lowAuth.length}</div><div className="stat-label">Low Auth Alerts</div></div>
       </div>
       <div className="dash-stats" style={{gridTemplateColumns:'repeat(4,1fr)',marginTop:0}}>
         <div className="stat-card"><div className="stat-value" style={{fontSize:22,color:'var(--success)'}}>{nearingDC.length}</div><div className="stat-label">Nearing Discharge</div></div>
@@ -411,7 +411,7 @@ function Dashboard({ setCurrentPage, setSelectedPatient, patients }) {
             <div className="card-body" style={{maxHeight:160,overflowY:'auto'}}>
               {lowAuth.slice(0,6).map(p=>(
                 <div key={p.id} className="alert alert-warning" style={{marginBottom:6,padding:'6px 10px',fontSize:12}} onClick={()=>{setSelectedPatient(p);setCurrentPage('chart');}}>
-                  ⚠️ <strong>{p.lastName}, {p.firstName}</strong> — {p.authVisits-p.usedVisits} visit(s) remaining of {p.authVisits}
+                  â ï¸ <strong>{p.lastName}, {p.firstName}</strong> â {p.authVisits-p.usedVisits} visit(s) remaining of {p.authVisits}
                 </div>
               ))}
             </div>
@@ -446,14 +446,14 @@ function NewAppointmentModal({ onClose, onSave, patients }) {
       <div style={{background:'white',borderRadius:8,padding:24,width:480,boxShadow:'0 20px 60px rgba(0,0,0,0.3)'}} onClick={e=>e.stopPropagation()}>
         <h3 style={{marginBottom:16,borderBottom:'2px solid var(--primary)',paddingBottom:8}}>New Appointment</h3>
         <div style={{display:'grid',gap:12}}>
-          <div><label style={{fontSize:11,fontWeight:600,textTransform:'uppercase',color:'var(--text-muted)'}}>Patient *</label><select value={form.patientId} onChange={e=>set('patientId',e.target.value)} style={{width:'100%',padding:'8px 10px',border:'1px solid var(--border)',borderRadius:4}}><option value="">Select patient...</option>{sorted.map(p=><option key={p.id} value={p.id}>{p.lastName}, {p.firstName} — {p.dx}</option>)}</select></div>
+          <div><label style={{fontSize:11,fontWeight:600,textTransform:'uppercase',color:'var(--text-muted)'}}>Patient *</label><select value={form.patientId} onChange={e=>set('patientId',e.target.value)} style={{width:'100%',padding:'8px 10px',border:'1px solid var(--border)',borderRadius:4}}><option value="">Select patient...</option>{sorted.map(p=><option key={p.id} value={p.id}>{p.lastName}, {p.firstName} â {p.dx}</option>)}</select></div>
           <div style={{display:'grid',gridTemplateColumns:'1fr 1fr',gap:12}}>
             <div><label style={{fontSize:11,fontWeight:600,textTransform:'uppercase',color:'var(--text-muted)'}}>Date</label><input type="date" value={form.date} onChange={e=>set('date',e.target.value)} style={{width:'100%',padding:'8px 10px',border:'1px solid var(--border)',borderRadius:4}}/></div>
             <div><label style={{fontSize:11,fontWeight:600,textTransform:'uppercase',color:'var(--text-muted)'}}>Time</label><select value={form.time} onChange={e=>set('time',e.target.value)} style={{width:'100%',padding:'8px 10px',border:'1px solid var(--border)',borderRadius:4}}>{timeSlots.map(t=><option key={t} value={t}>{t}</option>)}</select></div>
           </div>
           <div style={{display:'grid',gridTemplateColumns:'1fr 1fr',gap:12}}>
             <div><label style={{fontSize:11,fontWeight:600,textTransform:'uppercase',color:'var(--text-muted)'}}>Appointment Type</label><select value={form.type} onChange={e=>set('type',e.target.value)} style={{width:'100%',padding:'8px 10px',border:'1px solid var(--border)',borderRadius:4}}>{types.map(t=><option key={t} value={t}>{t}</option>)}</select></div>
-            <div><label style={{fontSize:11,fontWeight:600,textTransform:'uppercase',color:'var(--text-muted)'}}>Therapist</label><select value={form.therapist} onChange={e=>set('therapist',e.target.value)} style={{width:'100%',padding:'8px 10px',border:'1px solid var(--border)',borderRadius:4}}><option value="PT">PT — Dr. Mitchell</option><option value="PTA">PTA — A. Rivera</option></select></div>
+            <div><label style={{fontSize:11,fontWeight:600,textTransform:'uppercase',color:'var(--text-muted)'}}>Therapist</label><select value={form.therapist} onChange={e=>set('therapist',e.target.value)} style={{width:'100%',padding:'8px 10px',border:'1px solid var(--border)',borderRadius:4}}><option value="PT">PT â Dr. Mitchell</option><option value="PTA">PTA â A. Rivera</option></select></div>
           </div>
         </div>
         <div style={{display:'flex',justifyContent:'flex-end',gap:8,marginTop:20}}>
@@ -519,9 +519,9 @@ function SchedulePage({ setCurrentPage, setSelectedPatient, patients, appointmen
     <div className="fade-in">
       <div style={{display:'flex',justifyContent:'space-between',marginBottom:16,alignItems:'center'}}>
         <div style={{display:'flex',gap:8,alignItems:'center'}}>
-          <button className="btn btn-outline" onClick={()=>changeDate(-1)}>◀</button>
+          <button className="btn btn-outline" onClick={()=>changeDate(-1)}>â</button>
           <h3 style={{minWidth:280,textAlign:'center'}}>{dateStr}</h3>
-          <button className="btn btn-outline" onClick={()=>changeDate(1)}>▶</button>
+          <button className="btn btn-outline" onClick={()=>changeDate(1)}>â¶</button>
           {!isToday && <button className="btn btn-sm btn-outline" style={{marginLeft:8}} onClick={()=>setSelectedDate(new Date())}>Today</button>}
         </div>
         <div style={{display:'flex',gap:8}}>
@@ -543,7 +543,7 @@ function SchedulePage({ setCurrentPage, setSelectedPatient, patients, appointmen
       <div className="card">
         <div className="card-body" style={{padding:0,overflowX:'auto'}}>
           <table className="data-table">
-            <thead><tr><th style={{width:80}}>Time</th><th>PT — Dr. Mitchell</th><th>PTA — A. Rivera</th></tr></thead>
+            <thead><tr><th style={{width:80}}>Time</th><th>PT â Dr. Mitchell</th><th>PTA â A. Rivera</th></tr></thead>
             <tbody>
               {times.map(t => {
                 const ptAppt = scheduleForDate.find(s=>s.time===t && s.therapist==='PT');
@@ -557,18 +557,18 @@ function SchedulePage({ setCurrentPage, setSelectedPatient, patients, appointmen
                         if(p){setSelectedPatient(p);setCurrentPage('chart');}
                       }}>
                         <div className="appt-name">{ptAppt.patient}</div>
-                        <div className="appt-type">{ptAppt.type} • {ptAppt.status}</div>
+                        <div className="appt-type">{ptAppt.type} â¢ {ptAppt.status}</div>
                       </div>
-                    ) : <span style={{color:'#ccc',fontSize:12}}>— Open —</span>}</td>
+                    ) : <span style={{color:'#ccc',fontSize:12}}>â Open â</span>}</td>
                     <td>{ptaAppt && ptaAppt.patientId ? (
                       <div className={`schedule-appt followup`} onClick={()=>{
                         const p = patients.find(p=>p.id===ptaAppt.patientId);
                         if(p){setSelectedPatient(p);setCurrentPage('chart');}
                       }}>
                         <div className="appt-name">{ptaAppt.patient}</div>
-                        <div className="appt-type">{ptaAppt.type} • {ptaAppt.status}</div>
+                        <div className="appt-type">{ptaAppt.type} â¢ {ptaAppt.status}</div>
                       </div>
-                    ) : <span style={{color:'#ccc',fontSize:12}}>— Open —</span>}</td>
+                    ) : <span style={{color:'#ccc',fontSize:12}}>â Open â</span>}</td>
                   </tr>
                 );
               })}
@@ -689,7 +689,7 @@ function PatientList({ patients, setPatients, setSelectedPatient, setCurrentPage
           </select>
         </div>
         <div style={{display:'flex',justifyContent:'space-between',alignItems:'center'}}>
-          <span style={{fontSize:12,color:'var(--text-muted)'}}>{filtered.length} patients found • Page {page+1} of {totalPages}</span>
+          <span style={{fontSize:12,color:'var(--text-muted)'}}>{filtered.length} patients found â¢ Page {page+1} of {totalPages}</span>
           <button className="btn btn-primary" onClick={()=>setShowNewPatient(true)}>+ New Patient</button>
         </div>
       </div>
@@ -715,14 +715,14 @@ function PatientList({ patients, setPatients, setSelectedPatient, setCurrentPage
         <div className="card-body" style={{padding:0}}>
           <table className="data-table">
             <thead><tr>
-              <th style={{cursor:'pointer'}} onClick={()=>handleSort('name')}>Name {sortBy==='name'?(sortDir==='asc'?'▲':'▼'):''}</th>
+              <th style={{cursor:'pointer'}} onClick={()=>handleSort('name')}>Name {sortBy==='name'?(sortDir==='asc'?'â²':'â¼'):''}</th>
               <th>Age</th>
               <th>Diagnosis / Body Region</th>
               <th>Insurance</th>
-              <th style={{cursor:'pointer'}} onClick={()=>handleSort('visits')}>Visits {sortBy==='visits'?(sortDir==='asc'?'▲':'▼'):''}</th>
-              <th style={{cursor:'pointer'}} onClick={()=>handleSort('remaining')}>Remaining {sortBy==='remaining'?(sortDir==='asc'?'▲':'▼'):''}</th>
-              <th style={{cursor:'pointer'}} onClick={()=>handleSort('pain')}>Pain {sortBy==='pain'?(sortDir==='asc'?'▲':'▼'):''}</th>
-              <th style={{cursor:'pointer'}} onClick={()=>handleSort('stage')}>Stage {sortBy==='stage'?(sortDir==='asc'?'▲':'▼'):''}</th>
+              <th style={{cursor:'pointer'}} onClick={()=>handleSort('visits')}>Visits {sortBy==='visits'?(sortDir==='asc'?'â²':'â¼'):''}</th>
+              <th style={{cursor:'pointer'}} onClick={()=>handleSort('remaining')}>Remaining {sortBy==='remaining'?(sortDir==='asc'?'â²':'â¼'):''}</th>
+              <th style={{cursor:'pointer'}} onClick={()=>handleSort('pain')}>Pain {sortBy==='pain'?(sortDir==='asc'?'â²':'â¼'):''}</th>
+              <th style={{cursor:'pointer'}} onClick={()=>handleSort('stage')}>Stage {sortBy==='stage'?(sortDir==='asc'?'â²':'â¼'):''}</th>
               <th>Alerts</th>
             </tr></thead>
             <tbody>
@@ -745,11 +745,11 @@ function PatientList({ patients, setPatients, setSelectedPatient, setCurrentPage
       </div>
       {totalPages > 1 && (
         <div style={{display:'flex',justifyContent:'center',gap:4,marginTop:12}}>
-          <button className="btn btn-sm btn-outline" disabled={page===0} onClick={()=>setPage(page-1)}>◀ Prev</button>
+          <button className="btn btn-sm btn-outline" disabled={page===0} onClick={()=>setPage(page-1)}>â Prev</button>
           {[...Array(totalPages)].map((_,i) => (
             <button key={i} className={`btn btn-sm ${page===i?'btn-primary':'btn-outline'}`} onClick={()=>setPage(i)}>{i+1}</button>
           ))}
-          <button className="btn btn-sm btn-outline" disabled={page>=totalPages-1} onClick={()=>setPage(page+1)}>Next ▶</button>
+          <button className="btn btn-sm btn-outline" disabled={page>=totalPages-1} onClick={()=>setPage(page+1)}>Next â¶</button>
         </div>
       )}
     </div>
@@ -773,11 +773,11 @@ function PatientChart({ patient, user, setCurrentPage }) {
     <div className="fade-in">
       <div style={{display:'flex',justifyContent:'space-between',alignItems:'center',marginBottom:12}}>
         <div style={{display:'flex',alignItems:'center',gap:12,flexWrap:'wrap'}}>
-          <button className="btn btn-outline" onClick={()=>setCurrentPage('patients')}>← Back</button>
+          <button className="btn btn-outline" onClick={()=>setCurrentPage('patients')}>â Back</button>
           <h2 style={{fontSize:20}}>{patient.lastName}, {patient.firstName}</h2>
           <span className={`badge ${patient.status==='Active'?'badge-green':patient.status==='On Hold'?'badge-yellow':'badge-gray'}`}>{patient.status}</span>
           <span className={`badge badge-blue`}>{patient.careStage}</span>
-          <span style={{fontSize:11,color:'var(--text-muted)'}}>Age {patient.age} • {patient.gender} • {patient.bodyRegion}</span>
+          <span style={{fontSize:11,color:'var(--text-muted)'}}>Age {patient.age} â¢ {patient.gender} â¢ {patient.bodyRegion}</span>
           {patient.alerts.map(a=><span key={a} className="badge badge-red">{a}</span>)}
         </div>
         <div style={{display:'flex',gap:8}}>
@@ -877,7 +877,7 @@ function InsuranceTab({ patient }) {
         <div className="form-group"><label>Visits Used</label><input type="number" defaultValue={patient.usedVisits}/></div>
         <div className="form-group"><label>Visits Remaining</label><input readOnly value={patient.authVisits-patient.usedVisits} style={{background:'#f1f5f9',fontWeight:700,color:patient.authVisits-patient.usedVisits<=2?'var(--danger)':'var(--success)'}}/></div>
       </div>
-      {patient.authVisits-patient.usedVisits<=2 && <div className="alert alert-warning">⚠️ Authorization visits running low. Consider requesting additional visits.</div>}
+      {patient.authVisits-patient.usedVisits<=2 && <div className="alert alert-warning">â ï¸ Authorization visits running low. Consider requesting additional visits.</div>}
       <button className="btn btn-primary" style={{marginTop:12}}>Save Insurance Info</button>
     </div>
   );
@@ -935,13 +935,13 @@ function InitialEvalNote({ patient, user }) {
   return (
     <div>
       <div className={`note-status ${noteStatus==='signed'||noteStatus==='locked'?'signed':noteStatus}`}>
-        {noteStatus==='draft' && '📝 DRAFT — Not yet signed'}
-        {noteStatus==='signed' && `✅ SIGNED by ${signedBy?.name} on ${signedBy?.date}`}
-        {noteStatus==='cosign-needed' && `⚠️ SIGNED by ${signedBy?.name} (PTA) — CO-SIGNATURE REQUIRED by supervising PT`}
-        {noteStatus==='locked' && `🔒 LOCKED on ${lockedAt} — Note is finalized`}
+        {noteStatus==='draft' && 'ð DRAFT â Not yet signed'}
+        {noteStatus==='signed' && `â SIGNED by ${signedBy?.name} on ${signedBy?.date}`}
+        {noteStatus==='cosign-needed' && `â ï¸ SIGNED by ${signedBy?.name} (PTA) â CO-SIGNATURE REQUIRED by supervising PT`}
+        {noteStatus==='locked' && `ð LOCKED on ${lockedAt} â Note is finalized`}
       </div>
 
-      <h3 style={{marginBottom:12,color:'var(--primary)'}}>Initial Evaluation — {patient.lastName}, {patient.firstName}</h3>
+      <h3 style={{marginBottom:12,color:'var(--primary)'}}>Initial Evaluation â {patient.lastName}, {patient.firstName}</h3>
       <p style={{fontSize:12,color:'var(--text-muted)',marginBottom:16}}>Date: {patient.referralDate} | Dx: {patient.dx} | Provider: {user.displayName}</p>
 
       <fieldset disabled={isLocked} style={{border:'none',padding:0}}>
@@ -957,7 +957,7 @@ function InitialEvalNote({ patient, user }) {
         <div className="form-group"><label>Patient Goals</label><textarea defaultValue={cd.patientGoals} /></div>
       </div></div>
 
-      <div className="card"><div className="card-header">Objective — Physical Examination</div><div className="card-body">
+      <div className="card"><div className="card-header">Objective â Physical Examination</div><div className="card-body">
         <h4 style={{marginBottom:8}}>Range of Motion (degrees)</h4>
         <div style={{overflowX:'auto',marginBottom:16}}>
           <table className="assessment-table">
@@ -1042,16 +1042,16 @@ function DailySOAPNote({ patient, user }) {
   return (
     <div>
       <div className={`note-status ${noteStatus}`}>
-        {noteStatus==='draft' && '📝 DRAFT — Not yet signed'}
-        {noteStatus==='signed' && `✅ SIGNED by ${signedBy?.name} on ${signedBy?.date}`}
-        {noteStatus==='cosign-needed' && `⚠️ SIGNED by ${signedBy?.name} (PTA) — CO-SIGNATURE REQUIRED`}
-        {noteStatus==='locked' && `🔒 LOCKED on ${lockedAt}`}
+        {noteStatus==='draft' && 'ð DRAFT â Not yet signed'}
+        {noteStatus==='signed' && `â SIGNED by ${signedBy?.name} on ${signedBy?.date}`}
+        {noteStatus==='cosign-needed' && `â ï¸ SIGNED by ${signedBy?.name} (PTA) â CO-SIGNATURE REQUIRED`}
+        {noteStatus==='locked' && `ð LOCKED on ${lockedAt}`}
       </div>
-      <h3 style={{marginBottom:12,color:'var(--primary)'}}>Daily Treatment Note — {patient.lastName}, {patient.firstName}</h3>
+      <h3 style={{marginBottom:12,color:'var(--primary)'}}>Daily Treatment Note â {patient.lastName}, {patient.firstName}</h3>
       <p style={{fontSize:12,color:'var(--text-muted)',marginBottom:16}}>Date: {new Date().toLocaleDateString()} | Visit #{patient.usedVisits+1} of {patient.authVisits} | Dx: {patient.dx} | {user.displayName}</p>
 
       <fieldset disabled={isLocked} style={{border:'none',padding:0}}>
-      <div className="card"><div className="card-header">S — Subjective</div><div className="card-body">
+      <div className="card"><div className="card-header">S â Subjective</div><div className="card-body">
         <div className="form-row" style={{gridTemplateColumns:'1fr 1fr 1fr'}}>
           <div className="form-group"><label>Pain Today (0-10)</label><select><option value="">Select</option>{[...Array(11)].map((_,i)=><option key={i}>{i}/10</option>)}</select></div>
           <div className="form-group"><label>Pain at Best</label><select><option value="">Select</option>{[...Array(11)].map((_,i)=><option key={i}>{i}/10</option>)}</select></div>
@@ -1060,14 +1060,14 @@ function DailySOAPNote({ patient, user }) {
         <div className="form-group"><label>Patient Report</label><textarea rows={3} placeholder="Symptoms, functional changes, response to last treatment..." disabled={isLocked}/></div>
       </div></div>
 
-      <div className="card"><div className="card-header">O — Objective</div><div className="card-body">
+      <div className="card"><div className="card-header">O â Objective</div><div className="card-body">
         <div className="form-group"><label>Interventions Performed</label><textarea rows={3} placeholder="Detail interventions, parameters, patient response..." disabled={isLocked}/></div>
         <h4 style={{margin:'8px 0'}}>CPT Codes & Units</h4>
         <div style={{display:'grid',gridTemplateColumns:'1fr 1fr',gap:4,marginBottom:12}}>
           {CPT_CODES.filter(c=>!c.code.startsWith('971')||['97110','97112','97116','97140','97530','97535','97150','97010','97014','97032','97035'].includes(c.code)).map(c=>(
             <label key={c.code} style={{display:'flex',alignItems:'center',gap:6,padding:'4px 8px',background:selectedCpts.includes(c.code)?'#dbeafe':'#f9fafb',borderRadius:4,cursor:'pointer',fontSize:12}}>
               <input type="checkbox" checked={selectedCpts.includes(c.code)} onChange={()=>toggleCpt(c.code)} disabled={isLocked}/>
-              <strong>{c.code}</strong> — {c.desc}
+              <strong>{c.code}</strong> â {c.desc}
               {selectedCpts.includes(c.code) && <input type="number" min={1} max={8} placeholder="Units" style={{width:60,marginLeft:'auto'}} value={cptUnits[c.code]||''} onChange={e=>setCptUnits({...cptUnits,[c.code]:e.target.value})} disabled={isLocked}/>}
             </label>
           ))}
@@ -1076,12 +1076,12 @@ function DailySOAPNote({ patient, user }) {
         <div className="form-group"><label>Objective Measurements</label><textarea rows={2} placeholder="ROM, strength, or other measures taken today..." disabled={isLocked}/></div>
       </div></div>
 
-      <div className="card"><div className="card-header">A — Assessment</div><div className="card-body">
-        <div className="form-group"><label>Response to Treatment</label><select disabled={isLocked}><option value="">Select</option><option>Good — progressing as expected</option><option>Fair — some progress, slower than expected</option><option>Poor — minimal/no progress</option><option>Excellent — exceeding expectations</option></select></div>
+      <div className="card"><div className="card-header">A â Assessment</div><div className="card-body">
+        <div className="form-group"><label>Response to Treatment</label><select disabled={isLocked}><option value="">Select</option><option>Good â progressing as expected</option><option>Fair â some progress, slower than expected</option><option>Poor â minimal/no progress</option><option>Excellent â exceeding expectations</option></select></div>
         <div className="form-group"><label>Clinical Assessment</label><textarea rows={3} placeholder="Progress toward goals, barriers..." disabled={isLocked}/></div>
       </div></div>
 
-      <div className="card"><div className="card-header">P — Plan</div><div className="card-body">
+      <div className="card"><div className="card-header">P â Plan</div><div className="card-body">
         <div className="form-group"><label>Plan for Next Visit</label><textarea rows={3} placeholder="Continue POC, progress exercises..." disabled={isLocked}/></div>
         <div className="form-row" style={{gridTemplateColumns:'1fr 1fr'}}>
           <div className="form-group"><label>Next Appointment</label><input type="date" disabled={isLocked}/></div>
@@ -1114,12 +1114,12 @@ function ProgressNote({ patient, user }) {
   return (
     <div>
       <div className={`note-status ${noteStatus}`}>
-        {noteStatus==='draft' && '📝 DRAFT — Not yet signed'}
-        {noteStatus==='signed' && `✅ SIGNED by ${signedBy?.name} on ${signedBy?.date}`}
-        {noteStatus==='cosign-needed' && `⚠️ SIGNED by ${signedBy?.name} (PTA) — CO-SIGNATURE REQUIRED`}
-        {noteStatus==='locked' && `🔒 LOCKED on ${lockedAt}`}
+        {noteStatus==='draft' && 'ð DRAFT â Not yet signed'}
+        {noteStatus==='signed' && `â SIGNED by ${signedBy?.name} on ${signedBy?.date}`}
+        {noteStatus==='cosign-needed' && `â ï¸ SIGNED by ${signedBy?.name} (PTA) â CO-SIGNATURE REQUIRED`}
+        {noteStatus==='locked' && `ð LOCKED on ${lockedAt}`}
       </div>
-      <h3 style={{marginBottom:12,color:'var(--primary)'}}>Progress Note — {patient.lastName}, {patient.firstName}</h3>
+      <h3 style={{marginBottom:12,color:'var(--primary)'}}>Progress Note â {patient.lastName}, {patient.firstName}</h3>
       <p style={{fontSize:12,color:'var(--text-muted)',marginBottom:16}}>Date: {new Date().toLocaleDateString()} | Visit #{patient.usedVisits} of {patient.authVisits} | {user.displayName}</p>
 
       <fieldset disabled={isLocked} style={{border:'none',padding:0}}>
@@ -1156,7 +1156,7 @@ function ProgressNote({ patient, user }) {
       </div></div>
 
       <div className="card"><div className="card-header">Assessment & Updated Plan</div><div className="card-body">
-        <div className="form-group"><label>Overall Progress</label><select defaultValue={cd.overallProgress} disabled={isLocked}><option value="">Select</option><option>Progressing well toward goals</option><option>Progressing slower than expected</option><option>Plateau — requires plan modification</option><option>Regressed — reassess plan of care</option><option>Goals met — discharge planning</option></select></div>
+        <div className="form-group"><label>Overall Progress</label><select defaultValue={cd.overallProgress} disabled={isLocked}><option value="">Select</option><option>Progressing well toward goals</option><option>Progressing slower than expected</option><option>Plateau â requires plan modification</option><option>Regressed â reassess plan of care</option><option>Goals met â discharge planning</option></select></div>
         <div className="form-group"><label>Clinical Reasoning</label><textarea rows={3} defaultValue={cd.progressClinicalReasoning} disabled={isLocked}/></div>
         <div className="form-group"><label>Updated Plan of Care</label><textarea rows={3} defaultValue={cd.updatedPlan} disabled={isLocked}/></div>
         <div className="form-row" style={{gridTemplateColumns:'1fr 1fr 1fr'}}>
@@ -1183,16 +1183,16 @@ function NoteSignatureArea({ noteStatus, signedBy, cosignNeeded, lockedAt, user,
         {signedBy && (
           <div className={`signature-area ${noteStatus!=='draft'?'signed':''}`}>
             <div className="sig-text">/{signedBy.name}/</div>
-            <div style={{fontSize:11,color:'var(--text-muted)',marginTop:4}}>{signedBy.role} — Electronically signed {signedBy.date}</div>
+            <div style={{fontSize:11,color:'var(--text-muted)',marginTop:4}}>{signedBy.role} â Electronically signed {signedBy.date}</div>
           </div>
         )}
-        {cosignNeeded && user.role === 'PT' && <div className="alert alert-warning" style={{marginBottom:12}}>⚠️ This note was signed by a PTA and requires your co-signature.</div>}
+        {cosignNeeded && user.role === 'PT' && <div className="alert alert-warning" style={{marginBottom:12}}>â ï¸ This note was signed by a PTA and requires your co-signature.</div>}
         <div style={{display:'flex',gap:8,flexWrap:'wrap'}}>
-          {noteStatus==='draft' && canSign && <button className="btn btn-success btn-lg" onClick={onSign}>✍️ Sign Note as {user.role}</button>}
-          {cosignNeeded && canCosign && <button className="btn btn-primary btn-lg" onClick={onCosign}>✍️ Co-Sign as Supervising PT</button>}
-          {noteStatus==='signed' && canLock && <button className="btn btn-primary" onClick={onLock}>🔒 Lock Note</button>}
-          {noteStatus==='locked' && canLock && <button className="btn btn-warning" onClick={onUnlock}>🔓 Unlock Note</button>}
-          {noteStatus==='draft' && <button className="btn btn-outline">💾 Save Draft</button>}
+          {noteStatus==='draft' && canSign && <button className="btn btn-success btn-lg" onClick={onSign}>âï¸ Sign Note as {user.role}</button>}
+          {cosignNeeded && canCosign && <button className="btn btn-primary btn-lg" onClick={onCosign}>âï¸ Co-Sign as Supervising PT</button>}
+          {noteStatus==='signed' && canLock && <button className="btn btn-primary" onClick={onLock}>ð Lock Note</button>}
+          {noteStatus==='locked' && canLock && <button className="btn btn-warning" onClick={onUnlock}>ð Unlock Note</button>}
+          {noteStatus==='draft' && <button className="btn btn-outline">ð¾ Save Draft</button>}
         </div>
         {user.role === 'PTA' && noteStatus==='draft' && <p style={{fontSize:11,color:'var(--text-muted)',marginTop:8}}>Note: PTA notes require co-signature by the supervising PT.</p>}
       </div>
@@ -1205,7 +1205,7 @@ function ExerciseRx({ patient }) {
   const exercises = patient.exercises || [];
   return (
     <div>
-      <h4 style={{marginBottom:12}}>Home Exercise Program — {patient.lastName}, {patient.firstName}</h4>
+      <h4 style={{marginBottom:12}}>Home Exercise Program â {patient.lastName}, {patient.firstName}</h4>
       <div className="alert alert-info">Body Region: {patient.bodyRegion} | Care Stage: {patient.careStage} | {exercises.length} exercises prescribed</div>
       {exercises.length > 0 ? (
         <table className="data-table">
@@ -1229,158 +1229,393 @@ function ExerciseRx({ patient }) {
 // ==================== DOCUMENTS TAB ====================
 function generateNoteContent(note, patient) {
   const p = patient;
-  const safeJoin = (v,sep) => Array.isArray(v) ? v.join(sep) : (v || '');
-  const subjectives = ["Patient reports feeling better since last visit.","Patient reports mild soreness after exercises.","Patient tolerated treatment well today.","Patient reports increased pain with activity.","Patient is motivated and progressing well.","Patient reports difficulty with home exercises.","Patient notes gradual improvement in daily activities."];
-  const gaitDescs = ["Ambulated independently on level surfaces with normal gait pattern.","Gait assessment reveals slight antalgic pattern, favoring involved side.","Ambulated with steady gait, no assistive device needed.","Gait shows improved cadence and step length compared to initial eval."];
-  const progressNotes = ["Patient demonstrating steady progress toward functional goals.","Patient showing gradual improvement in ROM and strength.","Patient making good progress, responding well to interventions.","Patient progressing slower than expected, may need plan modification."];
-  const subj = subjectives[Math.floor(Math.random()*subjectives.length)];
-  const gait = gaitDescs[Math.floor(Math.random()*gaitDescs.length)];
-  const prog = progressNotes[Math.floor(Math.random()*progressNotes.length)];
-  const exList = safeJoin(p.exercises,", ")||"Therapeutic exercises per POC";
+  const safeJoin = (v, sep) => Array.isArray(v) ? v.join(sep) : (typeof v === 'string' ? v : '');
+  const safeStr = (v) => (v === null || v === undefined) ? 'N/A' : (typeof v === 'object' ? JSON.stringify(v) : String(v));
 
-  if(note.type==="Initial Evaluation"||note.type==="Initial Eval") {
-    return `PHYSICAL THERAPY INITIAL EVALUATION
-==========================================
-Date: ${note.date}
-Therapist: ${note.author}
-Status: ${note.status}
+  const dateNum = note.date ? note.date.split('-').join('') : '20260301';
+  const seed = parseInt(dateNum) % 100;
+  const pick = (arr) => arr[seed % arr.length];
 
-PATIENT INFORMATION:
-  Name: ${p.firstName} ${p.lastName}
-  DOB: ${p.dob}   Age: ${p.age}   Gender: ${p.gender}
-  Phone: ${p.phone||"N/A"}   Email: ${p.email||"N/A"}
-  Address: ${p.address||"On file"}
-  Insurance: ${p.insurance||"N/A"}   Member ID: ${p.memberId||"N/A"}   Group: ${p.groupNum||"N/A"}
-  Referring MD: ${p.referringMD||"N/A"}
-  Referral Date: ${p.referralDate||"N/A"}
-  Diagnosis: ${p.dx} (${p.dxCode})
-  Body Region: ${p.bodyRegion||"N/A"}
-  Complexity: ${p.complexity||"Moderate"}
+  const header = [
+    '========================================================================',
+    '                    REHABFLOW OUTPATIENT EMR',
+    '                    Physical Therapy Clinic',
+    '========================================================================',
+    '',
+    'PATIENT: ' + p.firstName + ' ' + p.lastName + '    DOB: ' + (p.dob || 'N/A') + '    Age: ' + (p.age || 'N/A'),
+    'Gender: ' + (p.gender || 'N/A') + '    Phone: ' + (p.phone || 'N/A') + '    Email: ' + (p.email || 'N/A'),
+    'Address: ' + (p.address || 'N/A'),
+    'Insurance: ' + (p.insurance || 'N/A') + '    Member ID: ' + (p.memberId || 'N/A') + '    Group: ' + (p.groupNum || 'N/A'),
+    'Referring MD: ' + (p.referringMD || 'N/A') + '    Referral Date: ' + (p.referralDate || 'N/A'),
+    'Authorization #: ' + (p.authNum || 'N/A') + '    Auth Visits: ' + (p.authVisits || 'N/A') + '    Used: ' + (p.usedVisits || 'N/A'),
+    '',
+    'Note Type: ' + (note.type || 'Clinical Note'),
+    'Date of Service: ' + (note.date || 'N/A'),
+    'Author: ' + (note.author || 'N/A'),
+    'Status: ' + (note.status || 'Draft'),
+    '------------------------------------------------------------------------'
+  ].join('\n');
 
-AUTHORIZATION:
-  Auth #: ${p.authNum||"N/A"}
-  Authorized Visits: ${p.authVisits||"N/A"}
-  Visits Used: ${p.usedVisits||0}
+  const noteType = (note.type || '').toLowerCase();
+  const exerciseList = Array.isArray(p.exercises) ? p.exercises : (typeof p.exercises === 'string' ? p.exercises.split(',').map(e => e.trim()) : []);
 
-PAST MEDICAL HISTORY:
-  ${safeJoin(p.pmh,", ")||"None reported"}
-
-SURGICAL HISTORY:
-  ${safeJoin(p.surgicalHistory,", ")||"None reported"}
-
-SOCIAL HISTORY:
-  ${safeJoin(p.socialHistory,", ")||"Non-contributory"}
-
-MEDICATIONS:
-  ${safeJoin(p.meds,", ")||"See chart"}
-
-OBJECTIVE FINDINGS:
-  Pain Level: ${p.initialPain||p.currentPain||"N/A"}/10
-  ODI Score: ${p.initialODI||p.currentODI||"N/A"}%
-  Gait: ${gait}
-
-ASSESSMENT:
-  Patient is a ${p.age} y/o ${p.gender} referred for PT for ${p.dx}. Patient presents with pain, functional limitations, and impaired mobility in the ${p.bodyRegion||"involved region"}. Patient would benefit from skilled PT to improve ROM, strength, pain management, and functional mobility.
-
-PLAN:
-  - PT 2-3x/week for 4-6 weeks
-  - Focus: pain management, ROM, strengthening, functional training
-  - Home exercise program to be provided
-  - Re-evaluate in 4 weeks or 10 visits`;
+  if (noteType.includes('initial eval') || noteType.includes('evaluation')) {
+    return header + '\n\n' + [
+      'PHYSICAL THERAPY INITIAL EVALUATION',
+      '========================================================================',
+      '',
+      'REFERRAL INFORMATION:',
+      '  Referring Physician: ' + (p.referringMD || 'N/A'),
+      '  Referral Date: ' + (p.referralDate || 'N/A'),
+      '  Diagnosis: ' + (p.dx || 'N/A'),
+      '  ICD-10: ' + (p.dxCode || 'N/A'),
+      '  Body Region: ' + (p.bodyRegion || 'N/A'),
+      '  Complexity: ' + (p.complexity || 'N/A'),
+      '',
+      'INSURANCE/AUTHORIZATION:',
+      '  Insurance: ' + (p.insurance || 'N/A'),
+      '  Member ID: ' + (p.memberId || 'N/A') + '    Group #: ' + (p.groupNum || 'N/A'),
+      '  Authorization #: ' + (p.authNum || 'N/A'),
+      '  Authorized Visits: ' + (p.authVisits || 'N/A') + '    Used: ' + (p.usedVisits || 0),
+      '',
+      'SUBJECTIVE:',
+      '  Chief Complaint: Patient presents with ' + (p.bodyRegion || 'musculoskeletal') + ' pain/dysfunction.',
+      '  Onset: ' + pick(['Gradual onset over past ' + pick(['2','4','6','8']) + ' weeks','Acute onset following ' + pick(['injury','fall','surgery','repetitive strain']),'Insidious onset with progressive worsening']),
+      '  Pain Level: ' + (p.initialPain || 'N/A') + '/10 at initial visit',
+      '  Aggravating Factors: ' + pick(['Prolonged sitting, standing, bending','Weight bearing activities, stairs','Overhead reaching, lifting','Walking, running, squatting']),
+      '  Easing Factors: ' + pick(['Rest, ice, medication','Position change, gentle stretching','Heat, support brace','Activity modification']),
+      '  Patient Goals: ' + pick(['"I want to get back to my normal activities without pain."','"I want to be able to exercise again."','"I need to be able to work without pain."','"I want to avoid surgery if possible."']),
+      '',
+      'PAST MEDICAL HISTORY:',
+      '  ' + safeStr(p.pmh),
+      '',
+      'SURGICAL HISTORY:',
+      '  ' + safeStr(p.surgicalHistory),
+      '',
+      'SOCIAL HISTORY:',
+      '  ' + safeStr(p.socialHistory),
+      '',
+      'CURRENT MEDICATIONS:',
+      '  ' + safeStr(p.meds),
+      '',
+      'OBJECTIVE:',
+      '',
+      '  OBSERVATION/POSTURE:',
+      '    ' + pick(['Mild forward head posture noted, rounded shoulders bilaterally','Slight lateral shift noted, antalgic posture','Mild kyphosis, decreased lumbar lordosis','Guarded posture with weight shift to ' + pick(['left','right']) + ' side']),
+      '',
+      '  RANGE OF MOTION (' + (p.bodyRegion || 'affected region') + '):',
+      '    Flexion: ' + pick(['WFL','75% of normal','50% of normal','Limited by pain at end range']),
+      '    Extension: ' + pick(['WFL','80% of normal','60% of normal','Limited by pain']),
+      '    Lateral Flexion/Rotation: ' + pick(['WFL bilaterally','Decreased ' + pick(['25%','30%','40%']) + ' bilaterally','Asymmetric - limited to ' + pick(['left','right'])]),
+      '',
+      '  STRENGTH (MMT):',
+      '    ' + pick([
+        'Flexors: 4/5  |  Extensors: 3+/5  |  Rotators: 4-/5',
+        'Flexors: 3+/5  |  Extensors: 3/5  |  Abductors: 4-/5',
+        'Quadriceps: 4/5  |  Hamstrings: 3+/5  |  Hip abductors: 4-/5',
+        'Shoulder flexion: 4-/5  |  Abduction: 3+/5  |  External rotation: 3+/5'
+      ]),
+      '',
+      '  SPECIAL TESTS:',
+      '    ' + pick([
+        'SLR: Positive at ' + pick(['40','50','60']) + ' degrees ' + pick(['bilaterally','on the right','on the left']),
+        'Neer\'s: ' + pick(['Positive','Negative']) + '  |  Hawkins-Kennedy: ' + pick(['Positive','Negative']) + '  |  Empty Can: ' + pick(['Positive','Negative']),
+        'Lachman\'s: ' + pick(['Positive','Negative']) + '  |  McMurray\'s: ' + pick(['Positive','Negative']) + '  |  Pivot Shift: ' + pick(['Positive','Negative']),
+        'FABER: ' + pick(['Positive bilaterally','Positive on involved side','Negative']) + '  |  Thomas Test: ' + pick(['Positive','Negative'])
+      ]),
+      '',
+      '  PALPATION:',
+      '    ' + pick(['Tenderness to palpation over ' + (p.bodyRegion || 'affected region') + ' musculature','Increased muscle tone and trigger points noted in paraspinals','Point tenderness over ' + pick(['lateral epicondyle','greater trochanter','supraspinatus tendon','medial joint line']),'Guarding and spasm noted with palpation']),
+      '',
+      '  FUNCTIONAL ASSESSMENT:',
+      '    Oswestry Disability Index (ODI): ' + (p.initialODI || 'N/A') + '%',
+      '    Pain Level: ' + (p.initialPain || 'N/A') + '/10 (NPRS)',
+      '    Functional Limitations: ' + pick(['Difficulty with prolonged sitting >20 min, lifting >10 lbs','Unable to perform overhead activities, difficulty sleeping on affected side','Limited walking tolerance to ' + pick(['1','2','3']) + ' blocks, difficulty with stairs','Difficulty with ADLs including dressing, bathing, household tasks']),
+      '',
+      'ASSESSMENT:',
+      '  ' + p.firstName + ' ' + p.lastName + ' is a ' + (p.age || '') + ' y/o ' + (p.gender || '') + ' presenting with',
+      '  ' + (p.dx || 'musculoskeletal dysfunction') + ' affecting the ' + (p.bodyRegion || 'involved region') + '.',
+      '  Patient demonstrates impairments in ROM, strength, flexibility, and functional',
+      '  mobility. ' + pick(['Good','Fair','Excellent']) + ' rehabilitation potential based on ' + pick([
+        'motivation, age, and overall health status.',
+        'willingness to participate and comply with HEP.',
+        'prior functional level and patient goals.'
+      ]),
+      '',
+      '  Skilled PT services are medically necessary to address:',
+      '    - Pain management and modalities',
+      '    - ROM and flexibility deficits',
+      '    - Strength and neuromuscular control',
+      '    - Functional mobility and return to activities',
+      '    - Patient education and home exercise program',
+      '',
+      'PLAN OF CARE:',
+      '  Frequency: ' + pick(['2x/week','3x/week','2-3x/week']) + ' for ' + pick(['4 weeks','6 weeks','8 weeks']),
+      '  Short-Term Goals (2-3 weeks):',
+      '    1. Reduce pain to ' + Math.max(1, (p.initialPain || 5) - 3) + '/10 with activity',
+      '    2. Improve ROM to ' + pick(['75%','80%','85%']) + ' of normal',
+      '    3. Improve strength to ' + pick(['4/5','4+/5']) + ' in key muscle groups',
+      '  Long-Term Goals (6-8 weeks):',
+      '    1. Pain ' + pick(['0-1','1-2','0-2']) + '/10 with all activities',
+      '    2. Full functional ROM',
+      '    3. Return to ' + pick(['full work duties','recreational activities','exercise program','sport activities']) + ' without limitation',
+      '    4. Independent with comprehensive HEP',
+      '    5. ODI score < ' + pick(['10','15','20']) + '%',
+      '',
+      '========================================================================',
+      'Electronically signed by: ' + (note.author || 'N/A'),
+      'Date/Time: ' + (note.date || 'N/A') + ' ' + pick(['08:30','09:15','10:00','10:45','11:30','14:00','14:30','15:15']),
+      '========================================================================'
+    ].join('\n');
   }
 
-  if(note.type==="Daily SOAP"||note.type==="SOAP Note"||note.type==="Daily Note") {
-    return `PHYSICAL THERAPY DAILY SOAP NOTE
-==========================================
-Date: ${note.date}
-Therapist: ${note.author}
-Status: ${note.status}
+  if (noteType.includes('soap') || noteType.includes('treatment') || noteType.includes('daily')) {
+    const txMinutes = 30 + (seed % 4) * 5;
+    const visitNum = p.usedVisits || (seed % 12 + 1);
 
-Patient: ${p.firstName} ${p.lastName}
-Diagnosis: ${p.dx} (${p.dxCode})
-Visit #: ${p.usedVisits||"N/A"} of ${p.authVisits||"N/A"} authorized
-
-SUBJECTIVE: ${subj}
-  Current Pain: ${p.currentPain||"N/A"}/10
-
-OBJECTIVE:
-  Treatment Provided:
-  - Therapeutic Exercise: ${exList}
-  - Manual Therapy: Soft tissue mobilization to ${p.bodyRegion||"involved region"}
-  - Neuromuscular Re-education: Balance and proprioceptive training
-  - Gait: ${gait}
-
-  CPT Codes Billed: 97110 x 2 units, 97140 x 1 unit, 97530 x 1 unit
-
-ASSESSMENT:
-  Patient tolerated treatment well. ${prog}
-
-PLAN:
-  Continue POC. Next visit: continue current interventions, progress as tolerated.`;
+    return header + '\n\n' + [
+      'PHYSICAL THERAPY DAILY SOAP NOTE',
+      '========================================================================',
+      '',
+      'Visit #' + visitNum + ' of ' + (p.authVisits || 'N/A') + ' authorized',
+      'Body Region: ' + (p.bodyRegion || 'N/A') + '    Diagnosis: ' + (p.dx || 'N/A'),
+      '',
+      'SUBJECTIVE:',
+      '  Patient reports current pain level: ' + (p.currentPain || pick(['3','4','5','6'])) + '/10.',
+      '  ' + pick([
+        'States "I feel like I\'m making progress since last visit."',
+        'Reports pain is ' + pick(['somewhat better','about the same','slightly worse after doing yard work']) + ' since last session.',
+        'States compliance with HEP ' + pick(['daily','most days','3-4x this week']) + '.',
+        'Reports ' + pick(['improved sleep','less morning stiffness','better tolerance with sitting','improved ability to walk']) + ' since last visit.',
+        'Endorses ' + pick(['mild soreness after exercises that resolves within 24 hours','occasional pain with ' + pick(['lifting','bending','overhead reaching']),'gradual improvement in overall function']) + '.'
+      ]),
+      '',
+      'OBJECTIVE:',
+      '  Total Treatment Time: ' + txMinutes + ' minutes (skilled 1:1)',
+      '  CPT Codes: 97110 (Therapeutic Exercise), ' + pick(['97140 (Manual Therapy)','97116 (Gait Training)','97530 (Therapeutic Activities)']) + ', ' + pick(['97530 (Therapeutic Activities)','97535 (Self-Care/ADL)','97112 (Neuromuscular Re-ed)']),
+      '',
+      '  Treatment Provided:',
+      '    1. Manual therapy: ' + pick(['Soft tissue mobilization to ' + (p.bodyRegion || 'affected area'),'Joint mobilization Grade ' + pick(['II','III','III-IV']) + ' to ' + (p.bodyRegion || 'involved joints'),'Myofascial release to ' + pick(['cervical paraspinals','lumbar paraspinals','hip flexors','rotator cuff')]) + ' x ' + pick(['8','10','12']) + ' min',
+      '    2. Therapeutic exercise: ' + pick(['Progressive strengthening - ' + (exerciseList.length > 0 ? exerciseList.slice(0,3).join(', ') : 'core stabilization, hip strengthening, flexibility'),'Functional mobility training with emphasis on ' + pick(['dynamic balance','core stability','UE strengthening','LE strengthening']),'Open/closed chain exercises for ' + (p.bodyRegion || 'affected region')]) + ' x ' + pick(['12','15','18']) + ' min',
+      '    3. ' + pick(['Neuromuscular re-education: proprioception, balance, motor control','Therapeutic activities: functional task training','Gait training: ' + pick(['endurance','normalized pattern','varied terrain'])]) + ' x ' + pick(['8','10','12']) + ' min',
+      '    4. Patient education: ' + pick(['HEP progression, activity modification','Posture correction, ergonomic advice','Pain management strategies, ice/heat instruction','Return-to-activity guidelines']),
+      '',
+      '  Current Status:',
+      '    Pain: ' + (p.currentPain || pick(['3','4','5'])) + '/10 (initial: ' + (p.initialPain || 'N/A') + '/10)',
+      '    ODI: ' + (p.currentODI || 'N/A') + '% (initial: ' + (p.initialODI || 'N/A') + '%)',
+      '    ROM: ' + pick(['Improving - flexion now 80% of normal','Progressing well','Gains noted in all planes','Improving but still limited in ' + pick(['flexion','extension','rotation'])]),
+      '    Strength: ' + pick(['Improved to 4/5 in key groups','Progressing from 3+/5 to 4-/5','Good gains in core stability','Functional strength improving']),
+      '',
+      'ASSESSMENT:',
+      '  Patient is ' + pick(['making good progress','showing steady improvement','responding well to treatment','making functional gains']) + '.',
+      '  ' + pick([
+        'Pain has decreased by ' + pick(['2','3','4']) + ' points since initial evaluation.',
+        'Functional improvements noted with ' + pick(['sitting tolerance','lifting ability','walking distance','overhead activities']) + '.',
+        'ROM and strength continue to improve with skilled intervention.',
+        'Patient demonstrating improved body mechanics and posture awareness.'
+      ]),
+      '  Continued skilled PT is medically necessary for ' + pick([
+        'progressive strengthening and return to full function.',
+        'continued ROM gains and pain management.',
+        'neuromuscular re-education and functional training.',
+        'achieving discharge goals and independence with HEP.'
+      ]),
+      '',
+      'PLAN:',
+      '  Continue PT ' + pick(['2x/week','3x/week']) + '.',
+      '  Next session: ' + pick([
+        'Progress strengthening, add ' + pick(['plyometrics','resistance bands','weight bearing exercises']),
+        'Focus on manual therapy and flexibility',
+        'Advance functional activities and begin return-to-sport protocol',
+        'Progress balance and proprioception training'
+      ]),
+      '  HEP updated: ' + pick(['Added new exercises','Progressed resistance','Modified for home environment','Reviewed compliance and form']),
+      '  Remaining authorized visits: ' + ((p.authVisits || 20) - (p.usedVisits || visitNum)),
+      '',
+      '========================================================================',
+      'Electronically signed by: ' + (note.author || 'N/A'),
+      'Date/Time: ' + (note.date || 'N/A') + ' ' + pick(['08:30','09:15','10:00','10:45','11:30','14:00','14:30','15:15']),
+      '========================================================================'
+    ].join('\n');
   }
 
-  if(note.type==="Progress Note"||note.type==="Progress Report") {
-    return `PHYSICAL THERAPY PROGRESS NOTE
-==========================================
-Date: ${note.date}
-Therapist: ${note.author}
-Status: ${note.status}
-
-Patient: ${p.firstName} ${p.lastName}
-Diagnosis: ${p.dx} (${p.dxCode})
-Visits Used: ${p.usedVisits||"N/A"} of ${p.authVisits||"N/A"} authorized
-
-PROGRESS SUMMARY:
-  ${prog}
-
-CURRENT STATUS:
-  Pain Level: ${p.currentPain||"N/A"}/10 (Initial: ${p.initialPain||"N/A"}/10)
-  ODI Score: ${p.currentODI||"N/A"}% (Initial: ${p.initialODI||"N/A"}%)
-
-GOALS STATUS:
-  1. Decrease pain to 3/10 or less - IN PROGRESS
-  2. Improve ROM to functional range - IN PROGRESS
-  3. Return to prior level of function - IN PROGRESS
-  4. Independent with HEP - IN PROGRESS
-
-PLAN:
-  Continue PT 2-3x/week. Progress exercises and functional activities as tolerated.`;
+  if (noteType.includes('progress')) {
+    return header + '\n\n' + [
+      'PHYSICAL THERAPY PROGRESS NOTE / RE-EVALUATION',
+      '========================================================================',
+      '',
+      'DIAGNOSIS: ' + (p.dx || 'N/A') + ' (' + (p.dxCode || '') + ')',
+      'BODY REGION: ' + (p.bodyRegion || 'N/A'),
+      'VISITS TO DATE: ' + (p.usedVisits || 'N/A') + ' of ' + (p.authVisits || 'N/A') + ' authorized',
+      '',
+      'SUBJECTIVE:',
+      '  Patient reports overall ' + pick(['improvement','gradual improvement','steady progress','significant improvement']) + ' since initial evaluation.',
+      '  Current pain: ' + (p.currentPain || pick(['2','3','4'])) + '/10 (initial: ' + (p.initialPain || 'N/A') + '/10)',
+      '  ' + pick([
+        'Patient states "I can do so much more now without pain."',
+        'Reports improved ability to perform daily activities.',
+        'States compliance with HEP and notices improvement.',
+        'Patient expresses satisfaction with progress to date.'
+      ]),
+      '  Functional improvements noted: ' + pick([
+        'Sitting tolerance increased from 20 min to 45+ min',
+        'Can now walk ' + pick(['1 mile','30 minutes','up and down stairs']) + ' without significant pain',
+        'Returned to ' + pick(['light work duties','modified exercise program','driving without pain']),
+        'Sleep improved, morning stiffness significantly reduced'
+      ]),
+      '',
+      'OBJECTIVE - RE-EVALUATION FINDINGS:',
+      '',
+      '  PAIN:',
+      '    Initial: ' + (p.initialPain || 'N/A') + '/10  |  Current: ' + (p.currentPain || 'N/A') + '/10  |  Change: ' + ((p.initialPain || 7) - (p.currentPain || 4)) + ' point improvement',
+      '',
+      '  OSWESTRY DISABILITY INDEX:',
+      '    Initial: ' + (p.initialODI || 'N/A') + '%  |  Current: ' + (p.currentODI || 'N/A') + '%  |  Change: ' + ((p.initialODI || 40) - (p.currentODI || 20)) + '% improvement',
+      '',
+      '  RANGE OF MOTION:',
+      '    ' + pick([
+        'Flexion: Improved from 50% to 80% of normal',
+        'All planes improved by approximately 20-30%',
+        'Near-full ROM achieved in all planes',
+        'Flexion 90% of normal (was 60%), extension WFL (was 70%)'
+      ]),
+      '',
+      '  STRENGTH:',
+      '    ' + pick([
+        'Key muscle groups improved from 3+/5 to 4+/5',
+        'Core stability significantly improved, able to maintain neutral spine with dynamic tasks',
+        'Hip/core strength improved to 4+/5 bilaterally (was 3+/5)',
+        'UE/LE strength improved to functional levels for daily activities'
+      ]),
+      '',
+      '  CURRENT EXERCISE PROGRAM:',
+      '    ' + (exerciseList.length > 0 ? exerciseList.join(', ') : pick(['Core stabilization, hip strengthening, stretching program','Progressive resistance training, balance exercises, flexibility','Rotator cuff strengthening, scapular stabilization, stretching'])),
+      '',
+      'GOAL STATUS:',
+      '  Short-Term Goals:',
+      '    1. Pain reduced to ' + Math.max(1, (p.initialPain || 5) - 3) + '/10 - ' + pick(['MET','PARTIALLY MET','PROGRESSING']),
+      '    2. ROM to 75-80% normal - ' + pick(['MET','PARTIALLY MET','PROGRESSING']),
+      '    3. Strength 4/5 key groups - ' + pick(['MET','PARTIALLY MET','PROGRESSING']),
+      '  Long-Term Goals:',
+      '    1. Pain 0-2/10 with all activities - ' + pick(['PROGRESSING','ON TRACK','PARTIALLY MET']),
+      '    2. Full functional ROM - ' + pick(['PROGRESSING','ON TRACK','PARTIALLY MET']),
+      '    3. Return to full activities - ' + pick(['PROGRESSING','ON TRACK','PARTIALLY MET']),
+      '    4. Independent with HEP - ' + pick(['PROGRESSING','ON TRACK','MET']),
+      '    5. ODI < ' + pick(['10','15','20']) + '% - ' + pick(['PROGRESSING','ON TRACK','PARTIALLY MET']),
+      '',
+      'ASSESSMENT:',
+      '  ' + p.firstName + ' ' + p.lastName + ' continues to make ' + pick(['good','excellent','steady']) + ' progress.',
+      '  ' + pick([
+        'Measurable improvements in pain, ROM, strength, and function since IE.',
+        'Patient responding well to current treatment approach.',
+        'Functional gains support continued skilled PT intervention.',
+        'Patient meeting or exceeding expected timeline for recovery.'
+      ]),
+      '  Continued skilled PT is warranted to ' + pick([
+        'achieve remaining long-term goals.',
+        'progress to full return to function.',
+        'maximize outcomes before discharge.',
+        'complete the established plan of care.'
+      ]),
+      '',
+      'PLAN:',
+      '  Continue PT ' + pick(['2x/week','3x/week','2x/week transitioning to 1x/week']) + '.',
+      '  Remaining authorized visits: ' + ((p.authVisits || 20) - (p.usedVisits || 8)),
+      '  Updated goals and POC as indicated above.',
+      '  Anticipated discharge in ' + pick(['3-4 weeks','4-6 weeks','2-3 weeks']) + '.',
+      '',
+      '========================================================================',
+      'Electronically signed by: ' + (note.author || 'N/A'),
+      'Date/Time: ' + (note.date || 'N/A') + ' ' + pick(['08:30','09:15','10:00','10:45','11:30','14:00','14:30','15:15']),
+      '========================================================================'
+    ].join('\n');
   }
 
-  if(note.type==="Discharge Summary"||note.type==="Discharge Note"||note.type==="Discharge") {
-    return `PHYSICAL THERAPY DISCHARGE SUMMARY
-==========================================
-Date: ${note.date}
-Therapist: ${note.author}
-Status: ${note.status}
-
-Patient: ${p.firstName} ${p.lastName}
-Diagnosis: ${p.dx} (${p.dxCode})
-Total Visits: ${p.usedVisits||"N/A"} of ${p.authVisits||"N/A"} authorized
-Care Stage: ${p.careStage||"Discharged"}
-
-DISCHARGE STATUS:
-  Pain Level: ${p.currentPain||"N/A"}/10 (Initial: ${p.initialPain||"N/A"}/10)
-  ODI Score: ${p.currentODI||"N/A"}% (Initial: ${p.initialODI||"N/A"}%)
-
-DISCHARGE DISPOSITION: Goals met / Patient discharged from PT services
-
-RECOMMENDATIONS:
-  - Continue home exercise program as instructed
-  - Follow up with ${p.referringMD||"referring physician"} as needed
-  - Return to PT if symptoms recur or worsen
-  - Maintain active lifestyle and ergonomic modifications`;
+  if (noteType.includes('discharge')) {
+    return header + '\n\n' + [
+      'PHYSICAL THERAPY DISCHARGE SUMMARY',
+      '========================================================================',
+      '',
+      'DIAGNOSIS: ' + (p.dx || 'N/A') + ' (' + (p.dxCode || '') + ')',
+      'BODY REGION: ' + (p.bodyRegion || 'N/A'),
+      'TOTAL VISITS: ' + (p.usedVisits || 'N/A') + ' of ' + (p.authVisits || 'N/A') + ' authorized',
+      'TREATMENT PERIOD: ' + (p.referralDate || 'N/A') + ' to ' + (note.date || 'N/A'),
+      '',
+      'REASON FOR DISCHARGE:',
+      '  ' + pick([
+        'Patient has met all established discharge goals.',
+        'Patient has achieved functional goals and is ready for independent management.',
+        'Patient has made maximum progress with skilled intervention.',
+        'Goals met; patient transitioning to independent HEP.'
+      ]),
+      '',
+      'OUTCOME MEASURES:',
+      '                          Initial        Discharge      Change',
+      '  Pain (NPRS):            ' + (p.initialPain || 'N/A') + '/10           ' + (p.currentPain || 'N/A') + '/10           ' + ((p.initialPain || 7) - (p.currentPain || 2)) + ' pt improvement',
+      '  ODI:                    ' + (p.initialODI || 'N/A') + '%            ' + (p.currentODI || 'N/A') + '%            ' + ((p.initialODI || 40) - (p.currentODI || 10)) + '% improvement',
+      '',
+      'FUNCTIONAL STATUS AT DISCHARGE:',
+      '  ROM: ' + pick(['Full and pain-free in all planes','Within functional limits','Near-full with minimal end-range discomfort']),
+      '  Strength: ' + pick(['5/5 in all tested muscle groups','4+/5 to 5/5 in key groups','Functional strength for all daily activities']),
+      '  Functional Mobility: ' + pick(['Independent with all ADLs without pain','Full return to work duties','Independent with exercise program, sport-specific activities','Returned to full functional activities']),
+      '',
+      'GOAL OUTCOMES:',
+      '  Short-Term Goals: ' + pick(['All met','3 of 3 met','Met within expected timeline']),
+      '  Long-Term Goals: ' + pick(['All met','4 of 5 met','Majority met, 1 partially met']),
+      '',
+      'DISCHARGE EXERCISE PROGRAM:',
+      '  ' + (exerciseList.length > 0 ? exerciseList.join(', ') : 'Comprehensive HEP provided'),
+      '  Frequency: ' + pick(['Daily','5x/week','4-5x/week']),
+      '  Duration: ' + pick(['30 minutes','20-30 minutes','45 minutes']) + ' per session',
+      '  Patient demonstrates independence with all exercises with proper form.',
+      '',
+      'DISCHARGE RECOMMENDATIONS:',
+      '  1. Continue home exercise program as instructed',
+      '  2. ' + pick(['Gradually return to full activities over next 2-4 weeks','Resume gym program starting with light weights','Progress walking/running program per guidelines provided','Return to sport with gradual progression']),
+      '  3. ' + pick(['Follow up with referring physician as scheduled','Return to PT if symptoms recur or worsen','Annual wellness screen recommended','No further PT anticipated at this time']),
+      '  4. ' + pick(['Apply ice after activity for 15-20 min as needed','Continue activity modification strategies as discussed','Maintain ergonomic setup at workstation','Use proper body mechanics with lifting and bending']),
+      '',
+      'PATIENT EDUCATION PROVIDED:',
+      '  - Independent HEP with written and visual instructions',
+      '  - Activity modification and self-management strategies',
+      '  - ' + pick(['Ergonomic guidelines for work/home','Return-to-sport guidelines','Fall prevention strategies','Injury prevention and wellness recommendations']),
+      '  - When to seek medical attention',
+      '  Patient verbalized understanding of all instructions.',
+      '',
+      '========================================================================',
+      'Electronically signed by: ' + (note.author || 'N/A'),
+      'Date/Time: ' + (note.date || 'N/A') + ' ' + pick(['08:30','09:15','10:00','10:45','11:30','14:00','14:30','15:15']),
+      '========================================================================'
+    ].join('\n');
   }
 
-  return `CLINICAL NOTE
-==========================================
-Date: ${note.date}
-Type: ${note.type}
-Author: ${note.author}
-Status: ${note.status}
-
-Patient: ${p.firstName} ${p.lastName}
-Diagnosis: ${p.dx} (${p.dxCode})`,
+  // FALLBACK
+  return header + '\n\n' + [
+    'CLINICAL NOTE - ' + (note.type || 'General').toUpperCase(),
+    '========================================================================',
+    '',
+    'DIAGNOSIS: ' + (p.dx || 'N/A') + ' (' + (p.dxCode || '') + ')',
+    'Body Region: ' + (p.bodyRegion || 'N/A'),
+    'Pain: ' + (p.currentPain || 'N/A') + '/10',
+    '',
+    'SUBJECTIVE:',
+    '  Patient seen for skilled PT. Reports ' + pick(['improved function','stable symptoms','gradual improvement']) + '.',
+    '',
+    'OBJECTIVE:',
+    '  Treatment provided per established POC.',
+    '  Exercises: ' + (exerciseList.length > 0 ? exerciseList.slice(0,4).join(', ') : 'Per POC'),
+    '',
+    'ASSESSMENT:',
+    '  Patient continues to require skilled PT for functional deficits.',
+    '',
+    'PLAN:',
+    '  Continue POC as established.',
+    '',
+    '========================================================================',
+    'Electronically signed by: ' + (note.author || 'N/A'),
+    'Date/Time: ' + (note.date || 'N/A'),
+    '========================================================================'
+  ].join('\n');
 }
 
 function DocumentsTab({ patient }) {
@@ -1391,7 +1626,7 @@ function DocumentsTab({ patient }) {
       <h4 style={{fontSize:"16px",fontWeight:"600",marginBottom:"12px",color:"#1e293b"}}>Documents & Notes</h4>
       {docs.length === 0 ? (
         <div style={{padding:"40px",textAlign:"center",color:"#94a3b8",background:"#f8fafc",borderRadius:"8px"}}>
-          <p style={{fontSize:"32px",marginBottom:"8px"}}>📄</p>
+          <p style={{fontSize:"32px",marginBottom:"8px"}}>ð</p>
           <p>No notes documented yet.</p>
         </div>
       ) : (
@@ -1459,8 +1694,8 @@ function DocumentationPage({ patients, user }) {
         <div className="form-group" style={{marginBottom:0,minWidth:280}}>
           <label>Select Patient</label>
           <select value={selPatientId} onChange={e=>setSelPatientId(e.target.value)}>
-            <option value="">— Choose Patient ({patients.filter(p=>p.status==='Active').length} active) —</option>
-            {patients.filter(p=>p.status==='Active').sort((a,b)=>a.lastName.localeCompare(b.lastName)).map(p=><option key={p.id} value={p.id}>{p.lastName}, {p.firstName} — {p.careStage} — {p.bodyRegion}</option>)}
+            <option value="">â Choose Patient ({patients.filter(p=>p.status==='Active').length} active) â</option>
+            {patients.filter(p=>p.status==='Active').sort((a,b)=>a.lastName.localeCompare(b.lastName)).map(p=><option key={p.id} value={p.id}>{p.lastName}, {p.firstName} â {p.careStage} â {p.bodyRegion}</option>)}
           </select>
         </div>
         <div className="form-group" style={{marginBottom:0}}>
@@ -1483,7 +1718,7 @@ function DocumentationPage({ patients, user }) {
         </div>
       ) : (
         <div className="card"><div className="card-body" style={{textAlign:'center',padding:40,color:'var(--text-muted)'}}>
-          <p style={{fontSize:36,marginBottom:8}}>📋</p>
+          <p style={{fontSize:36,marginBottom:8}}>ð</p>
           <p>Select a patient above to begin documentation</p>
           <p style={{fontSize:11,marginTop:4}}>{patients.filter(p=>p.status==='Active').length} active patients available</p>
         </div></div>
@@ -1507,8 +1742,8 @@ function DischargeSummary({ patient, user }) {
 
   return (
     <div>
-      <div className={`note-status ${noteStatus}`}>{noteStatus==='draft'?'📝 DRAFT':noteStatus==='signed'?`✅ SIGNED by ${signedBy?.name}`:noteStatus==='cosign-needed'?`⚠️ CO-SIGN NEEDED`:`🔒 LOCKED`}</div>
-      <h3 style={{marginBottom:12,color:'var(--primary)'}}>Discharge Summary — {patient.lastName}, {patient.firstName}</h3>
+      <div className={`note-status ${noteStatus}`}>{noteStatus==='draft'?'ð DRAFT':noteStatus==='signed'?`â SIGNED by ${signedBy?.name}`:noteStatus==='cosign-needed'?`â ï¸ CO-SIGN NEEDED`:`ð LOCKED`}</div>
+      <h3 style={{marginBottom:12,color:'var(--primary)'}}>Discharge Summary â {patient.lastName}, {patient.firstName}</h3>
       <fieldset disabled={isLocked} style={{border:'none',padding:0}}>
       <div className="card"><div className="card-header">Discharge Details</div><div className="card-body">
         <div className="form-row" style={{gridTemplateColumns:'1fr 1fr 1fr'}}>
@@ -1519,8 +1754,8 @@ function DischargeSummary({ patient, user }) {
       </div></div>
       <div className="card"><div className="card-header">Outcomes Summary</div><div className="card-body">
         <div className="form-row" style={{gridTemplateColumns:'1fr 1fr'}}>
-          <div className="form-group"><label>Pain: Initial → Discharge</label><input readOnly value={`${patient.initialPain}/10 → ${patient.currentPain}/10`} style={{background:'#f1f5f9'}}/></div>
-          <div className="form-group"><label>ODI: Initial → Discharge</label><input readOnly value={`${patient.initialODI}% → ${patient.currentODI}%`} style={{background:'#f1f5f9'}}/></div>
+          <div className="form-group"><label>Pain: Initial â Discharge</label><input readOnly value={`${patient.initialPain}/10 â ${patient.currentPain}/10`} style={{background:'#f1f5f9'}}/></div>
+          <div className="form-group"><label>ODI: Initial â Discharge</label><input readOnly value={`${patient.initialODI}% â ${patient.currentODI}%`} style={{background:'#f1f5f9'}}/></div>
         </div>
         <div className="form-group"><label>Functional Outcomes Achieved</label><textarea rows={4} placeholder="Summarize functional improvements..."/></div>
         <div className="form-group"><label>Goals Status at Discharge</label><textarea rows={3} placeholder="List each goal status..."/></div>
@@ -1551,8 +1786,8 @@ function BillingPage({ patients }) {
       <div className="form-group" style={{maxWidth:400}}>
         <label>Select Patient</label>
         <select value={selPatientId} onChange={e=>{setSelPatientId(e.target.value);setSelectedCpts([]);setSelectedIcds([]);setCptUnits({});}}>
-          <option value="">— Choose Patient —</option>
-          {patients.filter(p=>p.status==='Active').sort((a,b)=>a.lastName.localeCompare(b.lastName)).map(p=><option key={p.id} value={p.id}>{p.lastName}, {p.firstName} — {p.dx.split(' - ')[0]}</option>)}
+          <option value="">â Choose Patient â</option>
+          {patients.filter(p=>p.status==='Active').sort((a,b)=>a.lastName.localeCompare(b.lastName)).map(p=><option key={p.id} value={p.id}>{p.lastName}, {p.firstName} â {p.dx.split(' - ')[0]}</option>)}
         </select>
       </div>
       {selPatient ? (
@@ -1564,10 +1799,10 @@ function BillingPage({ patients }) {
               <div style={{maxHeight:250,overflowY:'auto'}}>{filteredIcds.map(c=>(
                 <label key={c.code} style={{display:'flex',gap:6,padding:'3px 0',fontSize:12,cursor:'pointer'}}>
                   <input type="checkbox" checked={selectedIcds.includes(c.code)} onChange={()=>setSelectedIcds(selectedIcds.includes(c.code)?selectedIcds.filter(x=>x!==c.code):[...selectedIcds,c.code])}/>
-                  <strong>{c.code}</strong> — {c.desc}
+                  <strong>{c.code}</strong> â {c.desc}
                 </label>
               ))}</div>
-              <div style={{marginTop:8}}><strong>Selected: </strong>{selectedIcds.length===0?'None':selectedIcds.map(c=><span key={c} className="code-chip"><span className="code">{c}</span><span className="remove" onClick={()=>setSelectedIcds(selectedIcds.filter(x=>x!==c))}>×</span></span>)}</div>
+              <div style={{marginTop:8}}><strong>Selected: </strong>{selectedIcds.length===0?'None':selectedIcds.map(c=><span key={c} className="code-chip"><span className="code">{c}</span><span className="remove" onClick={()=>setSelectedIcds(selectedIcds.filter(x=>x!==c))}>Ã</span></span>)}</div>
             </div>
           </div>
           <div className="card">
@@ -1577,7 +1812,7 @@ function BillingPage({ patients }) {
               <div style={{maxHeight:250,overflowY:'auto'}}>{filteredCpts.map(c=>(
                 <div key={c.code} style={{display:'flex',alignItems:'center',gap:6,padding:'3px 0',fontSize:12}}>
                   <input type="checkbox" checked={selectedCpts.includes(c.code)} onChange={()=>setSelectedCpts(selectedCpts.includes(c.code)?selectedCpts.filter(x=>x!==c.code):[...selectedCpts,c.code])}/>
-                  <strong>{c.code}</strong> — {c.desc}
+                  <strong>{c.code}</strong> â {c.desc}
                   {selectedCpts.includes(c.code) && <input type="number" min={1} max={8} placeholder="Units" style={{width:55,marginLeft:'auto',padding:'2px 4px',fontSize:11}} value={cptUnits[c.code]||''} onChange={e=>setCptUnits({...cptUnits,[c.code]:e.target.value})}/>}
                 </div>
               ))}</div>
@@ -1588,7 +1823,7 @@ function BillingPage({ patients }) {
             <div className="card-body">
               <div style={{display:'grid',gridTemplateColumns:'1fr 1fr 1fr',gap:16}}>
                 <div><strong>Patient:</strong> {selPatient.lastName}, {selPatient.firstName}</div>
-                <div><strong>Insurance:</strong> {selPatient.insurance} — {selPatient.memberId}</div>
+                <div><strong>Insurance:</strong> {selPatient.insurance} â {selPatient.memberId}</div>
                 <div><strong>Auth:</strong> {selPatient.authNum}</div>
               </div>
               <hr style={{margin:'12px 0',border:'none',borderTop:'1px solid var(--border)'}}/>
@@ -1600,7 +1835,7 @@ function BillingPage({ patients }) {
           </div>
         </div>
       ) : (
-        <div className="card"><div className="card-body" style={{textAlign:'center',padding:40,color:'var(--text-muted)'}}><p style={{fontSize:36,marginBottom:8}}>💰</p><p>Select a patient to enter billing codes</p></div></div>
+        <div className="card"><div className="card-body" style={{textAlign:'center',padding:40,color:'var(--text-muted)'}}><p style={{fontSize:36,marginBottom:8}}>ð°</p><p>Select a patient to enter billing codes</p></div></div>
       )}
     </div>
   );
@@ -1609,12 +1844,12 @@ function BillingPage({ patients }) {
 // ==================== MESSAGES PAGE ====================
 function MessagesPage() {
   const msgs = [
-    { from:'Dr. Robert Chen', subject:'RE: Thompson, Margaret — MRI Results', date:'03/06/2026', read:false, body:'MRI shows L4-L5 disc bulge with mild canal stenosis. Continue conservative management.' },
-    { from:'Front Desk', subject:'Schedule change — Rodriguez, James', date:'03/05/2026', read:true, body:'Patient rescheduled 3/7 appt to 3/10 at 9am.' },
-    { from:'Billing Dept', subject:'Auth expiring — Williams, Patricia', date:'03/04/2026', read:true, body:'Auth AUTH-2026-0445 expires in 2 visits. Please submit progress note for re-auth.' },
-    { from:'Alex Rivera, PTA', subject:'Co-sign request — Rodriguez daily note', date:'03/05/2026', read:false, body:'Please co-sign the daily note for James Rodriguez from 3/5/2026.' },
-    { from:'Dr. Sarah Kim, MD', subject:'Post-op update — Chen, David', date:'03/03/2026', read:true, body:'Patient cleared for progressive ROM. Remove sling as tolerated. Follow up in 4 weeks.' },
-    { from:'Insurance Dept', subject:'Auth approved — Martinez, R.', date:'03/02/2026', read:true, body:'20 visits approved through 5/15/2026 for ICD M54.5.' },
+    { from:'Dr. Robert Chen', subject:'RE: Thompson, Margaret â MRI Results', date:'03/06/2026', read:false, body:'MRI shows L4-L5 disc bulge with mild canal stenosis. Continue conservative management.' },
+    { from:'Front Desk', subject:'Schedule change â Rodriguez, James', date:'03/05/2026', read:true, body:'Patient rescheduled 3/7 appt to 3/10 at 9am.' },
+    { from:'Billing Dept', subject:'Auth expiring â Williams, Patricia', date:'03/04/2026', read:true, body:'Auth AUTH-2026-0445 expires in 2 visits. Please submit progress note for re-auth.' },
+    { from:'Alex Rivera, PTA', subject:'Co-sign request â Rodriguez daily note', date:'03/05/2026', read:false, body:'Please co-sign the daily note for James Rodriguez from 3/5/2026.' },
+    { from:'Dr. Sarah Kim, MD', subject:'Post-op update â Chen, David', date:'03/03/2026', read:true, body:'Patient cleared for progressive ROM. Remove sling as tolerated. Follow up in 4 weeks.' },
+    { from:'Insurance Dept', subject:'Auth approved â Martinez, R.', date:'03/02/2026', read:true, body:'20 visits approved through 5/15/2026 for ICD M54.5.' },
   ];
   const [selected, setSelected] = useState(null);
   return (
@@ -1625,7 +1860,7 @@ function MessagesPage() {
           <div className="card-body" style={{padding:0}}>
             {msgs.map((m,i)=>(<div key={i} style={{padding:'10px 16px',borderBottom:'1px solid #f1f5f9',cursor:'pointer',background:selected===i?'#e0f2fe':m.read?'#fff':'#fffbeb'}} onClick={()=>setSelected(i)}>
               <div style={{fontWeight:m.read?400:700,fontSize:13}}>{m.subject}</div>
-              <div style={{fontSize:11,color:'var(--text-muted)'}}>{m.from} — {m.date}</div>
+              <div style={{fontSize:11,color:'var(--text-muted)'}}>{m.from} â {m.date}</div>
             </div>))}
           </div>
         </div>
@@ -1677,12 +1912,12 @@ function ReportsPage({ patients }) {
       </div>
       <div style={{display:'grid',gridTemplateColumns:'1fr 1fr 1fr',gap:16}}>
         {[
-          { title:'Productivity Report', desc:'Units billed, patients seen, avg treatment time', icon:'📊' },
-          { title:'Authorization Tracker', desc:'Upcoming expirations, visits remaining', icon:'📋' },
-          { title:'Outcome Measures', desc:'MCID tracking, functional outcomes', icon:'📈' },
-          { title:'Unsigned Notes', desc:'Pending signatures and co-signatures', icon:'✍️' },
-          { title:'Revenue Summary', desc:'Charges submitted, payments received', icon:'💰' },
-          { title:'Discharge Report', desc:'Discharge outcomes and satisfaction', icon:'🎯' },
+          { title:'Productivity Report', desc:'Units billed, patients seen, avg treatment time', icon:'ð' },
+          { title:'Authorization Tracker', desc:'Upcoming expirations, visits remaining', icon:'ð' },
+          { title:'Outcome Measures', desc:'MCID tracking, functional outcomes', icon:'ð' },
+          { title:'Unsigned Notes', desc:'Pending signatures and co-signatures', icon:'âï¸' },
+          { title:'Revenue Summary', desc:'Charges submitted, payments received', icon:'ð°' },
+          { title:'Discharge Report', desc:'Discharge outcomes and satisfaction', icon:'ð¯' },
         ].map((r,i)=>(
           <div key={i} className="card" style={{cursor:'pointer'}}>
             <div className="card-body" style={{textAlign:'center',padding:24}}>
@@ -1721,9 +1956,9 @@ function App() {
         <div className="top-bar">
           <h2>{currentPage==='chart'&&selectedPatient?`Chart: ${selectedPatient.lastName}, ${selectedPatient.firstName}`:pageTitle[currentPage]}</h2>
           <div className="top-bar-actions">
-            <span style={{fontSize:12}}>📅 {new Date().toLocaleDateString('en-US',{weekday:'long',year:'numeric',month:'long',day:'numeric'})}</span>
+            <span style={{fontSize:12}}>ð {new Date().toLocaleDateString('en-US',{weekday:'long',year:'numeric',month:'long',day:'numeric'})}</span>
             <span style={{fontSize:12}}>{patients.length} patients loaded</span>
-            <button>🔔 Alerts</button>
+            <button>ð Alerts</button>
           </div>
         </div>
         <div className="content-area">
