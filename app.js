@@ -1229,13 +1229,14 @@ function ExerciseRx({ patient }) {
 // ==================== DOCUMENTS TAB ====================
 function generateNoteContent(note, patient) {
   const p = patient;
+  const safeJoin = (v,sep) => Array.isArray(v) ? v.join(sep) : (v || '');
   const subjectives = ["Patient reports feeling better since last visit.","Patient reports mild soreness after exercises.","Patient tolerated treatment well today.","Patient reports increased pain with activity.","Patient is motivated and progressing well.","Patient reports difficulty with home exercises.","Patient notes gradual improvement in daily activities."];
   const gaitDescs = ["Ambulated independently on level surfaces with normal gait pattern.","Gait assessment reveals slight antalgic pattern, favoring involved side.","Ambulated with steady gait, no assistive device needed.","Gait shows improved cadence and step length compared to initial eval."];
   const progressNotes = ["Patient demonstrating steady progress toward functional goals.","Patient showing gradual improvement in ROM and strength.","Patient making good progress, responding well to interventions.","Patient progressing slower than expected, may need plan modification."];
   const subj = subjectives[Math.floor(Math.random()*subjectives.length)];
   const gait = gaitDescs[Math.floor(Math.random()*gaitDescs.length)];
   const prog = progressNotes[Math.floor(Math.random()*progressNotes.length)];
-  const exList = (p.exercises||[]).join(", ")||"Therapeutic exercises per POC";
+  const exList = safeJoin(p.exercises,", ")||"Therapeutic exercises per POC";
 
   if(note.type==="Initial Evaluation"||note.type==="Initial Eval") {
     return `PHYSICAL THERAPY INITIAL EVALUATION
@@ -1262,16 +1263,16 @@ AUTHORIZATION:
   Visits Used: ${p.usedVisits||0}
 
 PAST MEDICAL HISTORY:
-  ${(p.pmh||[]).join(", ")||"None reported"}
+  ${safeJoin(p.pmh,", ")||"None reported"}
 
 SURGICAL HISTORY:
-  ${(p.surgicalHistory||[]).join(", ")||"None reported"}
+  ${safeJoin(p.surgicalHistory,", ")||"None reported"}
 
 SOCIAL HISTORY:
-  ${(p.socialHistory||[]).join(", ")||"Non-contributory"}
+  ${safeJoin(p.socialHistory,", ")||"Non-contributory"}
 
 MEDICATIONS:
-  ${(p.meds||[]).join(", ")||"See chart"}
+  ${safeJoin(p.meds,", ")||"See chart"}
 
 OBJECTIVE FINDINGS:
   Pain Level: ${p.initialPain||p.currentPain||"N/A"}/10
