@@ -2157,8 +2157,7 @@ function WeeklyScheduleView({ patients, selectedDate, setSelectedDate, setSelect
           )
         )
       )
-    )
-  );
+    );
 }
 
 
