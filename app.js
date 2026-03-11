@@ -563,6 +563,7 @@ function SchedulePage({ setCurrentPage, setSelectedPatient, patients, appointmen
         if(p){
           const newAppt = {time:form.time, therapist:form.therapist, patientId:p.id, patient:`${p.lastName}, ${p.firstName}`, type:form.type, status:'Scheduled'};
           if(form.date === new Date().toISOString().split('T')[0]) { setAppointments([...appointments, newAppt]); }
+          setCustomAppointments([].concat(customAppointments||[],[{patientId:p.id,date:form.date,time:form.time,therapist:form.therapist,type:form.type}]));
         }
         setShowNewAppt(false);
       }}/>}
