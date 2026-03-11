@@ -2191,8 +2191,12 @@ function WeeklyScheduleView({ patients, appointments, setSelectedPatient, setCur
   var typeBorders = {'Follow-up':'#3b82f6','Re-eval':'#f59e0b','Treatment':'#22c55e','Discharge':'#ef4444','Initial Eval':'#a855f7'};
   
   var handlePatientClick = function(appt) {
-    if (appt.patient && setSelectedPatient) {
-      setSelectedPatient(appt.patient);
+    if (!setSelectedPatient) return;
+    var pt = null;
+    if (appt.patient && typeof appt.patient === 'object') { pt = appt.patient; }
+    else if (appt.patientId && patients) { pt = patients.find(function(p) { return p.id === appt.patientId; }); }
+    if (pt) {
+      setSelectedPatient(pt);
       if (setNavigationSource) setNavigationSource('schedule');
       setCurrentPage('chart');
     }
@@ -2231,14 +2235,14 @@ function WeeklyScheduleView({ patients, appointments, setSelectedPatient, setCur
                   <td style={{padding:'6px 8px',fontWeight:isHourStart?700:400,fontSize:isHourStart?13:11,color:isHourStart?'#1e293b':'#94a3b8',borderBottom:'1px solid '+(isHourStart?'#cbd5e1':'#f1f5f9'),borderRight:'2px solid #e2e8f0',textAlign:'center',whiteSpace:'nowrap'}}>{slot.label}</td>
                   {weekDays.map((dayDate, di) => {
                     var dayAppts = getApptsForDay(dayDate);
-                    var cellAppts = dayAppts.filter(function(a) { return a.time === slot.label; });
+                    var cellAppts = dayAppts.filter(function(a) { return a.time === slot.label && a.patientId; });
                     return (
                       <td key={di} style={{padding:'3px 4px',borderBottom:'1px solid '+(isHourStart?'#cbd5e1':'#f1f5f9'),borderRight:'1px solid #f1f5f9',verticalAlign:'top',minHeight:36}}>
                         {cellAppts.map((appt, ai) => (
                           <div key={ai} onClick={function(){handlePatientClick(appt);}} style={{padding:'4px 6px',marginBottom:2,borderRadius:4,fontSize:11,cursor:'pointer',background:typeColors[appt.type]||'#f1f5f9',borderLeft:'3px solid '+(typeBorders[appt.type]||'#94a3b8'),lineHeight:1.3,transition:'transform 0.1s',overflow:'hidden'}}
                             onMouseOver={function(e){e.currentTarget.style.transform='scale(1.02)';e.currentTarget.style.boxShadow='0 1px 4px rgba(0,0,0,0.15)';}}
                             onMouseOut={function(e){e.currentTarget.style.transform='scale(1)';e.currentTarget.style.boxShadow='none';}}>
-                            <div style={{fontWeight:700,color:'#1e293b',whiteSpace:'nowrap',overflow:'hidden',textOverflow:'ellipsis'}}>{appt.patient ? appt.patient.lastName + ', ' + appt.patient.firstName.charAt(0) + '.' : '—'}</div>
+                            <div style={{fontWeight:700,color:'#1e293b',whiteSpace:'nowrap',overflow:'hidden',textOverflow:'ellipsis'}}>{appt.patient ? (typeof appt.patient === 'string' ? appt.patient : appt.patient.lastName + ', ' + (appt.patient.firstName || '').charAt(0) + '.') : '—'}</div>
                             <div style={{color:'#64748b',fontSize:10}}>{appt.therapist} • {appt.type}</div>
                           </div>
                         ))}
