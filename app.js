@@ -489,7 +489,7 @@ function SchedulePage({ setCurrentPage, setSelectedPatient, patients, appointmen
         const dateKey = selectedDate.toISOString().split('T')[0];
         customAppointments.forEach(ca => {
           if (ca.date === dateKey) {
-            const pt = patients.find(p => p.id === ca.patientId);
+            const pt = patients.find(p => p.id == ca.patientId);
             if (pt) todayAppts.push({time: ca.time, therapist: ca.therapist, patientId: ca.patientId, patient: pt, type: ca.type, status: 'Scheduled'});
           }
         });
@@ -529,7 +529,7 @@ function SchedulePage({ setCurrentPage, setSelectedPatient, patients, appointmen
       const dateKey = selectedDate.toISOString().split('T')[0];
       customAppointments.forEach(ca => {
         if (ca.date === dateKey) {
-          const pt = patients.find(p => p.id === ca.patientId);
+          const pt = patients.find(p => p.id == ca.patientId);
           if (pt) {
             generated.push({time: ca.time, therapist: ca.therapist, patientId: ca.patientId, patient: pt, type: ca.type, status: 'Scheduled'});
           }
@@ -2179,7 +2179,7 @@ function WeeklyScheduleView({ patients, appointments, setSelectedPatient, setCur
     if (customAppointments) {
       customAppointments.forEach(function(ca) {
         if (ca.date === dateStr) {
-          var pt = patients.find(function(p) { return p.id === ca.patientId; });
+          var pt = patients.find(function(p) { return p.id == ca.patientId; });
           if (pt) generated.push({time: ca.time, therapist: ca.therapist, patientId: ca.patientId, patient: pt, type: ca.type, status: 'Scheduled'});
         }
       });
@@ -2282,7 +2282,7 @@ function AddAppointmentModal({ patients, selectedDate, customAppointments, setCu
   return React.createElement('div',{style:{position:'fixed',top:0,left:0,right:0,bottom:0,background:'rgba(0,0,0,0.5)',display:'flex',alignItems:'center',justifyContent:'center',zIndex:1000}},
     React.createElement('div',{style:{background:'var(--card-bg,#fff)',borderRadius:8,padding:24,width:400,maxWidth:'90%'}},
       React.createElement('h3',{style:{marginBottom:16}},'Add Appointment'),
-      React.createElement('div',{style:{marginBottom:12}},React.createElement('label',null,'Patient'),React.createElement('select',{className:'form-control',value:apptData.patientId,onChange:function(e){setApptData(Object.assign({},apptData,{patientId:e.target.value}))}},patients.map(function(p){return React.createElement('option',{key:p.id,value:p.id},p.lastName+', '+p.firstName)}))),
+      React.createElement('div',{style:{marginBottom:12}},React.createElement('label',null,'Patient'),React.createElement('select',{className:'form-control',value:apptData.patientId,onChange:function(e){setApptData(Object.assign({},apptData,{patientId:parseInt(e.target.value)||e.target.value}))}},patients.map(function(p){return React.createElement('option',{key:p.id,value:p.id},p.lastName+', '+p.firstName)}))),
       React.createElement('div',{style:{marginBottom:12}},React.createElement('label',null,'Date'),React.createElement('input',{type:'date',className:'form-control',value:apptData.date,onChange:function(e){setApptData(Object.assign({},apptData,{date:e.target.value}))}})),
       React.createElement('div',{style:{marginBottom:12}},React.createElement('label',null,'Time'),React.createElement('select',{className:'form-control',value:apptData.time,onChange:function(e){setApptData(Object.assign({},apptData,{time:e.target.value}))}},timeOpts.map(function(t){return React.createElement('option',{key:t,value:t},t)}))),
       React.createElement('div',{style:{marginBottom:12}},React.createElement('label',null,'Therapist'),React.createElement('select',{className:'form-control',value:apptData.therapist,onChange:function(e){setApptData(Object.assign({},apptData,{therapist:e.target.value}))}},React.createElement('option',{value:'PT'},'PT'),React.createElement('option',{value:'PTA'},'PTA'))),
