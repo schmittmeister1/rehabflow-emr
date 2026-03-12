@@ -493,7 +493,7 @@ function SchedulePage({ setCurrentPage, setSelectedPatient, patients, appointmen
             if (pt) {
               // Remove existing open slot for this time+therapist
               for (var oi = todayAppts.length - 1; oi >= 0; oi--) { if (todayAppts[oi].time === ca.time && todayAppts[oi].therapist === ca.therapist && !todayAppts[oi].patientId) todayAppts.splice(oi, 1); }
-              todayAppts.push({time: ca.time, therapist: ca.therapist, patientId: ca.patientId, patient: pt, type: ca.type, status: 'Scheduled'});
+              todayAppts.push({time: ca.time, therapist: ca.therapist, patientId: ca.patientId, patient: pt.lastName + ', ' + pt.firstName, type: ca.type, status: 'Scheduled'});
             }
           }
         });
@@ -537,7 +537,7 @@ function SchedulePage({ setCurrentPage, setSelectedPatient, patients, appointmen
           if (pt) {
               // Remove existing open slot for this time+therapist
               for (var oi = generated.length - 1; oi >= 0; oi--) { if (generated[oi].time === ca.time && generated[oi].therapist === ca.therapist && !generated[oi].patientId) generated.splice(oi, 1); }
-              generated.push({time: ca.time, therapist: ca.therapist, patientId: ca.patientId, patient: pt, type: ca.type, status: 'Scheduled'});
+              generated.push({time: ca.time, therapist: ca.therapist, patientId: ca.patientId, patient: pt.lastName + ', ' + pt.firstName, type: ca.type, status: 'Scheduled'});
             }
         }
       });
@@ -2189,7 +2189,7 @@ function WeeklyScheduleView({ patients, appointments, setSelectedPatient, setCur
           var pt = patients.find(function(p) { return p.id == ca.patientId; });
           if (pt) {
               for (var oi = generated.length - 1; oi >= 0; oi--) { if (generated[oi].time === ca.time && generated[oi].therapist === ca.therapist && !generated[oi].patientId) generated.splice(oi, 1); }
-              generated.push({time: ca.time, therapist: ca.therapist, patientId: ca.patientId, patient: pt, type: ca.type, status: 'Scheduled'});
+              generated.push({time: ca.time, therapist: ca.therapist, patientId: ca.patientId, patient: pt.lastName + ', ' + pt.firstName, type: ca.type, status: 'Scheduled'});
             }
         }
       });
