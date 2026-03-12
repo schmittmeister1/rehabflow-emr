@@ -1802,7 +1802,7 @@ function DocumentsTab({ patient }) {
             <div style={{padding:"20px 24px",borderBottom:"1px solid #e2e8f0",display:"flex",justifyContent:"space-between",alignItems:"center",background:"#f8fafc",borderRadius:"12px 12px 0 0"}}>
               <h3 style={{margin:0,fontSize:"18px",fontWeight:"700",color:"#1e293b"}}>{viewingNote.type}</h3>
               <div style={{display:"flex",gap:"8px"}}>
-                <button onClick={()=>{var w=window.open("","_blank");w.document.write("<pre style=\"font-family:Consolas,monospace;padding:40px;max-width:800px;margin:auto;line-height:1.6\">"+generateNoteContent(viewingNote,patient)+"</pre>");w.document.title=viewingNote.type;}} style={{padding:"6px 14px",fontSize:"12px",border:"none",borderRadius:"6px",background:"#3b82f6",color:"#fff",cursor:"pointer",fontWeight:"500"}}>Print</button>
+                <button onClick={()=>{var nc=generateNoteContent(viewingNote,patient);var w=window.open('','_blank');w.document.write('<!DOCTYPE html><html><head><title>'+viewingNote.type+'</title><style>body{font-family:Consolas,monospace;padding:40px;max-width:800px;margin:auto;line-height:1.8;white-space:pre-wrap;word-wrap:break-word;font-size:13px;}@media print{body{padding:20px;font-size:12px;}}</style></head><body>'+nc+'</body></html>');w.document.close();}} style={{padding:"6px 14px",fontSize:"12px",border:"none",borderRadius:"6px",background:"#3b82f6",color:"#fff",cursor:"pointer",fontWeight:"500"}}>Print</button>
                 <button onClick={()=>setViewingNote(null)} style={{padding:"6px 14px",fontSize:"12px",border:"none",borderRadius:"6px",background:"#ef4444",color:"#fff",cursor:"pointer",fontWeight:"500"}}>Close</button>
               </div>
             </div>
