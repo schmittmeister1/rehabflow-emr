@@ -567,6 +567,54 @@ function genHipEx(side) {
 // Generate the patients
 const SAMPLE_PATIENTS = generatePatients();
 
+// Add Robert Hernandez - CVA Case Study patient
+SAMPLE_PATIENTS.push({
+  id: SAMPLE_PATIENTS.length + 1,
+  firstName: 'Robert',
+  lastName: 'Hernandez',
+  dob: '1961-04-17',
+  age: 64,
+  gender: 'Male',
+  phone: '(555)482-7193',
+  email: 'rhernandez@email.com',
+  ssn: '***-**-4817',
+  address: 'Single-story ranch, 3 steps to enter with railing on R side only',
+  insurance: 'Medicare',
+  memberId: 'MBI-7284910',
+  groupNum: 'N/A',
+  authNum: 'AUTH-2026-3847',
+  authVisits: 36,
+  usedVisits: 0,
+  dx: 'I63.9 - Cerebral infarction (CVA)',
+  dxCode: 'I63.9',
+  bodyRegion: 'Neurological',
+  complexity: 'high',
+  referringMD: 'Dr. Maria Santos, Physiatrist',
+  referralDate: '2026-03-10',
+  status: 'Active',
+  careStage: 'New Eval',
+  alerts: ['Fall precautions','BP monitoring (hold if >180/110)','Hypoglycemia monitoring','Do NOT pull/lift R UE','L ICA stenosis - avoid Valsalva'],
+  pmh: 'HTN (2011, poorly controlled); Type 2 DM (2015, HbA1c 7.8%); Hyperlipidemia; OA bilateral knees (mild-mod); Former smoker (quit 2018, 30 pack-year); No prior stroke/TIA',
+  meds: 'Aspirin 81mg, Atorvastatin 40mg, Lisinopril 20mg, Metformin 1000mg BID, Amlodipine 5mg, Gabapentin 300mg TID',
+  noteHistory: [],
+  initialPain: 6,
+  currentPain: 6,
+  initialODI: 0,
+  currentODI: 0,
+  surgicalHistory: 'L MCA ischemic stroke (01/28/2026) - IV tPA at St. Francis Medical Center; Acute rehab 02/05-02/24/2026',
+  socialHistory: {
+    living: 'Home (with spouse, wife Gloria)',
+    occupation: 'High school custodian (full-time, physically demanding) - currently off work',
+    tobacco: 'Former (quit 2018, 30 pack-year)',
+    alcohol: 'None reported',
+  },
+  exercises: [
+    { name:'Seated Marching', sets:'3', reps:'20', hold:'N/A', notes:'Alternate legs' },
+    { name:'Sit to Stand', sets:'3', reps:'10', hold:'3s', notes:'Min UE assist' },
+    { name:'Standing Weight Shifts', sets:'2', reps:'10 each', hold:'5s', notes:'L/R and A/P' },
+  ],
+});
+
 // Generate a full day schedule from the patient roster
 function generateSchedule(patients) {
   const activePatients = patients.filter(p => p.status === 'Active');
