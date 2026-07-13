@@ -63,6 +63,53 @@
       });
   }
 
+  // ---------------------------------------------------------------------------
+  // Key mapping: camelCase <-> snake_case
+  // ---------------------------------------------------------------------------
+
+  function toSnakeCase(str) {
+    return str.replace(/[A-Z]/g, function (letter) { return '_' + letter.toLowerCase(); });
+  }
+
+  function toCamelCase(str) {
+    return str.replace(/_([a-z])/g, function (_, letter) { return letter.toUpperCase(); });
+  }
+
+  function mapKeysToSnake(obj) {
+    if (!obj || typeof obj !== 'object' || Array.isArray(obj)) return obj;
+    var result = {};
+    Object.keys(obj).forEach(function (key) {
+      result[toSnakeCase(key)] = obj[key];
+    });
+    return result;
+  }
+
+  function mapKeysToCamel(obj) {
+    if (!obj || typeof obj !== 'object' || Array.isArray(obj)) return obj;
+    var result = {};
+    Object.keys(obj).forEach(function (key) {
+      result[toCamelCase(key)] = obj[key];
+    });
+    return result;
+  }
+
+  // Fields that exist in JS but not in the DB schema
+  var JS_ONLY_FIELDS = ['noteHistory'];
+
+  function patientToDb(patient) {
+    var dbObj = {};
+    Object.keys(patient).forEach(function (key) {
+      if (JS_ONLY_FIELDS.indexOf(key) === -1) {
+        dbObj[toSnakeCase(key)] = patient[key];
+      }
+    });
+    return dbObj;
+  }
+
+  function patientFromDb(row) {
+    return mapKeysToCamel(row);
+  }
+
   // =========================================================================
   //  AUTH METHODS
   // =========================================================================
@@ -201,37 +248,55 @@
    * Fetch all patients, ordered by last name.
    */
   async function getPatients() {
-    return safe(
+    var result = await safe(
       sb.from('patients').select('*').order('last_name', { ascending: true })
     );
+    if (result.data) {
+      result.data = result.data.map(patientFromDb);
+    }
+    return result;
   }
 
   /**
    * Fetch a single patient by ID.
    */
   async function getPatient(id) {
-    return safe(sb.from('patients').select('*').eq('id', id).single());
+    var result = await safe(sb.from('patients').select('*').eq('id', id).single());
+    if (result.data) {
+      result.data = patientFromDb(result.data);
+    }
+    return result;
   }
 
   /**
    * Update fields on an existing patient.
    */
   async function updatePatient(id, data) {
-    return safe(
+    var dbData = mapKeysToSnake(data);
+    var result = await safe(
       sb
         .from('patients')
-        .update(data)
+        .update(dbData)
         .eq('id', id)
         .select()
         .single()
     );
+    if (result.data) {
+      result.data = patientFromDb(result.data);
+    }
+    return result;
   }
 
   /**
    * Insert a new patient record.
    */
   async function createPatient(data) {
-    return safe(sb.from('patients').insert(data).select().single());
+    var dbData = patientToDb(data);
+    var result = await safe(sb.from('patients').insert(dbData).select().single());
+    if (result.data) {
+      result.data = patientFromDb(result.data);
+    }
+    return result;
   }
 
   /**
@@ -242,7 +307,12 @@
     if (!Array.isArray(patientsArray) || patientsArray.length === 0) {
       return { data: [], error: null };
     }
-    return safe(sb.from('patients').insert(patientsArray).select());
+    var dbArray = patientsArray.map(patientToDb);
+    var result = await safe(sb.from('patients').insert(dbArray).select());
+    if (result.data) {
+      result.data = result.data.map(patientFromDb);
+    }
+    return result;
   }
 
   // =========================================================================
