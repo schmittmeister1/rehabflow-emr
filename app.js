@@ -2108,13 +2108,61 @@ function App() {
   const [user, setUser] = useState(null);
   const [currentPage, setCurrentPage] = useState('dashboard');
   const [selectedPatient, setSelectedPatient] = useState(null);
-  const [patients, setPatients] = useState(SAMPLE_PATIENTS);
+  const [patients, setPatients] = useState([]);
   const [appointments, setAppointments] = useState(SCHEDULE_DATA);
   const [navigationSource, setNavigationSource] = useState(null);
   const [customAppointments, setCustomAppointments] = useState([]);
   const [sentMessages, setSentMessages] = useState([]);
 
+  const [patientsLoading, setPatientsLoading] = useState(false);
+
+  // Load patients from Supabase after login
+  useEffect(() => {
+    if (!user) return;
+    let cancelled = false;
+    setPatientsLoading(true);
+    (async () => {
+      try {
+        const result = await window.RehabFlowDB.getPatients();
+        if (cancelled) return;
+        if (result.data && result.data.length > 0) {
+          setPatients(result.data);
+        } else {
+          // No patients in DB yet - seed from local sample data
+          const toSeed = (typeof SAMPLE_PATIENTS !== 'undefined' ? SAMPLE_PATIENTS : []).map(function(p) {
+            const copy = Object.assign({}, p);
+            delete copy.id;
+            delete copy.noteHistory;
+            return copy;
+          });
+          if (toSeed.length > 0) {
+            const seedResult = await window.RehabFlowDB.seedPatients(toSeed);
+            if (!cancelled && seedResult.data) {
+              setPatients(seedResult.data);
+            }
+          }
+        }
+      } catch (err) {
+        console.error('[RehabFlow] Failed to load patients:', err);
+        // Fallback to local data
+        if (!cancelled && typeof SAMPLE_PATIENTS !== 'undefined') {
+          setPatients(SAMPLE_PATIENTS);
+        }
+      }
+      if (!cancelled) setPatientsLoading(false);
+    })();
+    return () => { cancelled = true; };
+  }, [user]);
+
   if (!user) return <LoginPage onLogin={setUser} />;
+  if (patientsLoading || (user && patients.length === 0)) return (
+    <div style={{display:'flex',alignItems:'center',justifyContent:'center',height:'100vh',background:'linear-gradient(135deg,#1e3a5f,#2d5f8a)',color:'white',fontSize:'1.2rem'}}>
+      <div style={{textAlign:'center'}}>
+        <div style={{fontSize:'2rem',marginBottom:'1rem'}}>RehabFlow EMR</div>
+        <div>Loading patient data...</div>
+      </div>
+    </div>
+  );
 
   const pageTitle = {
     dashboard:'Dashboard', schedule:'Schedule', patients:`Patient List (${patients.length})`,
