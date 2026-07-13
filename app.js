@@ -1164,7 +1164,6 @@ function InitialEvalNote({ patient, user, onSaveDraft, patientNotes, onSignNote,
   };
   const handleLock = function() { setNoteStatus("locked"); setLockedAt(new Date().toLocaleString()); };
   const handleUnlock = function() { setNoteStatus("signed"); setLockedAt(null); };
-  const handleUnlock = () => { setNoteStatus('signed'); setLockedAt(null); };
 
   const ROM_JOINTS = ['Cervical Flexion','Cervical Extension','Cervical Rotation','Shoulder Flexion','Shoulder Abduction','Shoulder ER','Shoulder IR','Elbow Flexion','Hip Flexion','Hip Extension','Hip Abduction','Knee Flexion','Knee Extension','Ankle DF','Ankle PF'];
   const MMT_GROUPS = ['Shoulder Flexors','Shoulder Abductors','Elbow Flexors','Elbow Extensors','Wrist Extensors','Hip Flexors','Hip Extensors','Hip Abductors','Knee Extensors','Knee Flexors','Ankle DF','Ankle PF'];
