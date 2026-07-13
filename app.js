@@ -296,15 +296,37 @@ function generateClinicalData(patient) {
 
 // ==================== LOGIN ====================
 function LoginPage({ onLogin }) {
-  const [username, setUsername] = useState('');
+  const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
-  const [role, setRole] = useState('PT');
   const [error, setError] = useState('');
+  const [loading, setLoading] = useState(false);
 
-  const handleLogin = (e) => {
+  const handleLogin = async (e) => {
     e.preventDefault();
-    if (!username || !password) { setError('Please enter credentials'); return; }
-    onLogin({ username, role, displayName: role === 'PT' ? 'Dr. Sarah Mitchell, PT, DPT' : role === 'PTA' ? 'Alex Rivera, PTA' : 'Admin User' });
+    if (!email || !password) { setError('Please enter your email and password'); return; }
+    setLoading(true);
+    setError('');
+    try {
+      const result = await window.RehabFlowDB.signIn(email, password);
+      if (result.error) {
+        setError(result.error.message || 'Login failed');
+        setLoading(false);
+        return;
+      }
+      const profile = result.profile || {};
+      onLogin({
+        id: result.user.id,
+        email: result.user.email,
+        role: profile.role === 'admin' ? 'Admin' : profile.credentials === 'PTA' ? 'PTA' : 'PT',
+        displayName: (profile.full_name || email) + (profile.credentials ? ', ' + profile.credentials : ''),
+        supabaseRole: profile.role,
+        credentials: profile.credentials || 'SPT',
+        fullName: profile.full_name || email
+      });
+    } catch (err) {
+      setError(err.message || 'Login failed');
+    }
+    setLoading(false);
   };
 
   return (
@@ -314,19 +336,13 @@ function LoginPage({ onLogin }) {
         <p className="subtitle">Physical Therapy Clinical Training System</p>
         {error && <div className="alert alert-danger">{error}</div>}
         <form onSubmit={handleLogin}>
-          <label>Select Role</label>
-          <div className="login-role">
-            {['PT','PTA','Admin'].map(r => (
-              <button key={r} type="button" className={role===r?'active':''} onClick={()=>setRole(r)}>{r==='PT'?'Physical Therapist':r==='PTA'?'PT Assistant':'Admin'}</button>
-            ))}
-          </div>
-          <label>Username</label>
-          <input value={username} onChange={e=>setUsername(e.target.value)} placeholder="Enter username" />
+          <label>Email</label>
+          <input type="email" value={email} onChange={e=>setEmail(e.target.value)} placeholder="Enter your email" autoComplete="email" />
           <label>Password</label>
-          <input type="password" value={password} onChange={e=>setPassword(e.target.value)} placeholder="Enter password" />
-          <button type="submit">Sign In</button>
+          <input type="password" value={password} onChange={e=>setPassword(e.target.value)} placeholder="Enter your password" autoComplete="current-password" />
+          <button type="submit" disabled={loading}>{loading ? 'Signing in...' : 'Sign In'}</button>
         </form>
-        <p style={{textAlign:'center',marginTop:16,fontSize:11,color:'var(--text-muted)'}}>Training Environment — No Real Patient Data<br/>Use any credentials to log in • 120 sample cases loaded</p>
+        <p style={{textAlign:'center',marginTop:16,fontSize:11,color:'var(--text-muted)'}}>Physical Therapy Training Environment<br/>Contact your instructor for login credentials</p>
       </div>
     </div>
   );
@@ -2108,7 +2124,7 @@ function App() {
 
   return (
     <div className="app-layout">
-      <Sidebar currentPage={currentPage} setCurrentPage={(p)=>{setCurrentPage(p);if(p!=='chart')setSelectedPatient(null);}} user={user} onLogout={()=>setUser(null)} />
+      <Sidebar currentPage={currentPage} setCurrentPage={(p)=>{setCurrentPage(p);if(p!=='chart')setSelectedPatient(null);}} user={user} onLogout={async()=>{await window.RehabFlowDB.signOut();setUser(null);}} />
       <div className="main-content">
         <div className="top-bar">
           <h2>{currentPage==='chart'&&selectedPatient?`Chart: ${selectedPatient.lastName}, ${selectedPatient.firstName}`:pageTitle[currentPage]}</h2>
