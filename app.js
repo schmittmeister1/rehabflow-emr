@@ -748,23 +748,31 @@ function PatientList({ patients, setPatients, setSelectedPatient, setCurrentPage
           <button className="btn btn-primary" onClick={()=>setShowNewPatient(true)}>+ New Patient</button>
         </div>
       </div>
-      {showNewPatient && <NewPatientModal onClose={()=>setShowNewPatient(false)} onSave={(form)=>{
-        const newId = Math.max(...patients.map(p=>p.id)) + 1;
+      {showNewPatient && <NewPatientModal onClose={()=>setShowNewPatient(false)} onSave={async (form)=>{
         const dobDate = new Date(form.dob);
         const age = Math.floor((Date.now() - dobDate.getTime()) / (365.25*24*60*60*1000));
         const newPatient = {
-          id: newId, firstName: form.firstName, lastName: form.lastName, dob: form.dob, age: age,
+          firstName: form.firstName, lastName: form.lastName, dob: form.dob, age: age,
           gender: form.gender, phone: form.phone, email: form.email, address: form.address,
-          referringDoc: form.referringDoc || 'Dr. Pending', referralDate: form.referralDate,
+          referringMD: form.referringDoc || 'Dr. Pending', referralDate: form.referralDate,
           dxCode: form.dxCode, dx: form.dx, bodyRegion: form.bodyRegion,
-          insurance: form.insurance, authVisits: form.authVisits, usedVisits: 0,
+          insurance: form.insurance, authVisits: parseInt(form.authVisits)||0, usedVisits: 0,
           initialPain: 7, currentPain: 7, status: 'Active', careStage: 'New Eval',
-          precautions: [], alerts: [], medHistory: [], medications: []
+          precautions: '', alerts: [], pmh: '', meds: ''
         };
-        setPatients([...patients, newPatient]);
-        setShowNewPatient(false);
-        setSelectedPatient(newPatient);
-        setCurrentPage('chart');
+        try {
+          const result = await window.RehabFlowDB.createPatient(newPatient);
+          if (result.data) {
+            setPatients([...patients, result.data]);
+            setShowNewPatient(false);
+            setSelectedPatient(result.data);
+            setCurrentPage('chart');
+          } else {
+            alert('Error creating patient: ' + (result.error && result.error.message || 'Unknown error'));
+          }
+        } catch(e) {
+          alert('Error creating patient: ' + e.message);
+        }
       }}/>}
       <div className="card">
         <div className="card-body" style={{padding:0}}>
@@ -890,9 +898,9 @@ function PatientChart({ patient, user, setCurrentPage, patients, setPatients, se
           ))}
         </div>
         <div className="card-body">
-          {chartTab==='demographics' && <DemographicsTab patient={patient} />}
-          {chartTab==='insurance' && <InsuranceTab patient={patient} />}
-          {chartTab==='history' && <MedicalHistoryTab patient={patient} />}
+          {chartTab==='demographics' && <DemographicsTab patient={patient} patients={patients} setPatients={setPatients} setSelectedPatient={setSelectedPatient} />}
+          {chartTab==='insurance' && <InsuranceTab patient={patient} patients={patients} setPatients={setPatients} setSelectedPatient={setSelectedPatient} />}
+          {chartTab==='history' && <MedicalHistoryTab patient={patient} patients={patients} setPatients={setPatients} setSelectedPatient={setSelectedPatient} />}
           {chartTab==='evalNote' && <InitialEvalNote patient={patient} user={user} onSaveDraft={handleSaveDraft} />}
           {chartTab==='dailyNote' && <DailySOAPNote patient={patient} user={user} onSaveDraft={handleSaveDraft} />}
           {chartTab==='progressNote' && <ProgressNote patient={patient} user={user} onSaveDraft={handleSaveDraft} />}
@@ -905,81 +913,171 @@ function PatientChart({ patient, user, setCurrentPage, patients, setPatients, se
   );
 }
 
-function DemographicsTab({ patient }) {
+function DemographicsTab({ patient, patients, setPatients, setSelectedPatient }) {
+  const [saving, setSaving] = useState(false);
+  const [saveMsg, setSaveMsg] = useState('');
+  const formRef = React.useRef(null);
+
+  const handleSave = async () => {
+    const f = formRef.current;
+    const inputs = f.querySelectorAll('[data-field]');
+    const changes = {};
+    inputs.forEach(el => { changes[el.getAttribute('data-field')] = el.value; });
+    setSaving(true); setSaveMsg('');
+    try {
+      const result = await window.RehabFlowDB.updatePatient(patient.id, changes);
+      if (result.error) { setSaveMsg('Error: ' + result.error.message); }
+      else if (result.data && patients && setPatients) {
+        const updated = patients.map(p => p.id === patient.id ? Object.assign({}, p, result.data) : p);
+        setPatients(updated);
+        if (setSelectedPatient) setSelectedPatient(updated.find(p => p.id === patient.id));
+        setSaveMsg('Saved successfully!');
+      }
+    } catch(e) { setSaveMsg('Error: ' + e.message); }
+    setSaving(false);
+    setTimeout(() => setSaveMsg(''), 3000);
+  };
+
   return (
-    <div>
+    <div ref={formRef}>
       <div className="form-row" style={{gridTemplateColumns:'1fr 1fr 1fr'}}>
-        <div className="form-group"><label>Last Name</label><input defaultValue={patient.lastName}/></div>
-        <div className="form-group"><label>First Name</label><input defaultValue={patient.firstName}/></div>
-        <div className="form-group"><label>Date of Birth</label><input type="date" defaultValue={patient.dob}/></div>
+        <div className="form-group"><label>Last Name</label><input data-field="lastName" defaultValue={patient.lastName}/></div>
+        <div className="form-group"><label>First Name</label><input data-field="firstName" defaultValue={patient.firstName}/></div>
+        <div className="form-group"><label>Date of Birth</label><input type="date" data-field="dob" defaultValue={patient.dob}/></div>
       </div>
       <div className="form-row" style={{gridTemplateColumns:'1fr 1fr 1fr'}}>
-        <div className="form-group"><label>Gender</label><select defaultValue={patient.gender}><option>Male</option><option>Female</option><option>Other</option></select></div>
-        <div className="form-group"><label>Phone</label><input defaultValue={patient.phone}/></div>
-        <div className="form-group"><label>Email</label><input defaultValue={patient.email}/></div>
+        <div className="form-group"><label>Gender</label><select data-field="gender" defaultValue={patient.gender}><option>Male</option><option>Female</option><option>Other</option></select></div>
+        <div className="form-group"><label>Phone</label><input data-field="phone" defaultValue={patient.phone}/></div>
+        <div className="form-group"><label>Email</label><input data-field="email" defaultValue={patient.email}/></div>
       </div>
-      <div className="form-group"><label>Address</label><input defaultValue={patient.address}/></div>
+      <div className="form-group"><label>Address</label><input data-field="address" defaultValue={patient.address}/></div>
       <div className="form-row" style={{gridTemplateColumns:'1fr 1fr'}}>
-        <div className="form-group"><label>Referring Physician</label><input defaultValue={patient.referringMD}/></div>
-        <div className="form-group"><label>Referral Date</label><input type="date" defaultValue={patient.referralDate}/></div>
+        <div className="form-group"><label>Referring Physician</label><input data-field="referringMD" defaultValue={patient.referringMD}/></div>
+        <div className="form-group"><label>Referral Date</label><input type="date" data-field="referralDate" defaultValue={patient.referralDate}/></div>
       </div>
-      <div className="form-group"><label>Primary Diagnosis</label><input defaultValue={patient.dx}/></div>
+      <div className="form-group"><label>Primary Diagnosis</label><input data-field="dx" defaultValue={patient.dx}/></div>
       <div className="form-row" style={{gridTemplateColumns:'1fr 1fr'}}>
         <div className="form-group"><label>Body Region</label><input readOnly defaultValue={patient.bodyRegion} style={{background:'#f1f5f9'}}/></div>
         <div className="form-group"><label>Complexity</label><input readOnly defaultValue={patient.complexity} style={{background:'#f1f5f9'}}/></div>
       </div>
-      <div style={{marginTop:12}}><button className="btn btn-primary">Save Changes</button></div>
+      <div style={{marginTop:12,display:'flex',alignItems:'center',gap:12}}>
+        <button className="btn btn-primary" onClick={handleSave} disabled={saving}>{saving ? 'Saving...' : 'Save Changes'}</button>
+        {saveMsg && <span style={{color:saveMsg.startsWith('Error')?'var(--danger)':'var(--success)',fontSize:13}}>{saveMsg}</span>}
+      </div>
     </div>
   );
 }
 
-function InsuranceTab({ patient }) {
+function InsuranceTab({ patient, patients, setPatients, setSelectedPatient }) {
+  const [saving, setSaving] = useState(false);
+  const [saveMsg, setSaveMsg] = useState('');
+  const formRef = React.useRef(null);
+
+  const handleSave = async () => {
+    const f = formRef.current;
+    const inputs = f.querySelectorAll('[data-field]');
+    const changes = {};
+    inputs.forEach(el => {
+      const val = el.type === 'number' ? parseInt(el.value, 10) : el.value;
+      changes[el.getAttribute('data-field')] = val;
+    });
+    setSaving(true); setSaveMsg('');
+    try {
+      const result = await window.RehabFlowDB.updatePatient(patient.id, changes);
+      if (result.error) { setSaveMsg('Error: ' + result.error.message); }
+      else if (result.data && patients && setPatients) {
+        const updated = patients.map(p => p.id === patient.id ? Object.assign({}, p, result.data) : p);
+        setPatients(updated);
+        if (setSelectedPatient) setSelectedPatient(updated.find(p => p.id === patient.id));
+        setSaveMsg('Saved successfully!');
+      }
+    } catch(e) { setSaveMsg('Error: ' + e.message); }
+    setSaving(false);
+    setTimeout(() => setSaveMsg(''), 3000);
+  };
+
   return (
-    <div>
+    <div ref={formRef}>
       <h4 style={{marginBottom:12}}>Primary Insurance</h4>
       <div className="form-row" style={{gridTemplateColumns:'1fr 1fr 1fr'}}>
-        <div className="form-group"><label>Insurance Company</label><input defaultValue={patient.insurance}/></div>
-        <div className="form-group"><label>Member ID</label><input defaultValue={patient.memberId}/></div>
-        <div className="form-group"><label>Group Number</label><input defaultValue={patient.groupNum}/></div>
+        <div className="form-group"><label>Insurance Company</label><input data-field="insurance" defaultValue={patient.insurance}/></div>
+        <div className="form-group"><label>Member ID</label><input data-field="memberId" defaultValue={patient.memberId}/></div>
+        <div className="form-group"><label>Group Number</label><input data-field="groupNum" defaultValue={patient.groupNum}/></div>
       </div>
       <h4 style={{margin:'16px 0 12px'}}>Authorization</h4>
       <div className="form-row" style={{gridTemplateColumns:'1fr 1fr 1fr 1fr'}}>
-        <div className="form-group"><label>Auth Number</label><input defaultValue={patient.authNum}/></div>
-        <div className="form-group"><label>Authorized Visits</label><input type="number" defaultValue={patient.authVisits}/></div>
-        <div className="form-group"><label>Visits Used</label><input type="number" defaultValue={patient.usedVisits}/></div>
+        <div className="form-group"><label>Auth Number</label><input data-field="authNum" defaultValue={patient.authNum}/></div>
+        <div className="form-group"><label>Authorized Visits</label><input type="number" data-field="authVisits" defaultValue={patient.authVisits}/></div>
+        <div className="form-group"><label>Visits Used</label><input type="number" data-field="usedVisits" defaultValue={patient.usedVisits}/></div>
         <div className="form-group"><label>Visits Remaining</label><input readOnly value={patient.authVisits-patient.usedVisits} style={{background:'#f1f5f9',fontWeight:700,color:patient.authVisits-patient.usedVisits<=2?'var(--danger)':'var(--success)'}}/></div>
       </div>
       {patient.authVisits-patient.usedVisits<=2 && <div className="alert alert-warning">⚠️ Authorization visits running low. Consider requesting additional visits.</div>}
-      <button className="btn btn-primary" style={{marginTop:12}}>Save Insurance Info</button>
+      <div style={{marginTop:12,display:'flex',alignItems:'center',gap:12}}>
+        <button className="btn btn-primary" onClick={handleSave} disabled={saving}>{saving ? 'Saving...' : 'Save Insurance Info'}</button>
+        {saveMsg && <span style={{color:saveMsg.startsWith('Error')?'var(--danger)':'var(--success)',fontSize:13}}>{saveMsg}</span>}
+      </div>
     </div>
   );
 }
 
-function MedicalHistoryTab({ patient }) {
+function MedicalHistoryTab({ patient, patients, setPatients, setSelectedPatient }) {
+  const [saving, setSaving] = useState(false);
+  const [saveMsg, setSaveMsg] = useState('');
+  const formRef = React.useRef(null);
+
+  const handleSave = async () => {
+    const f = formRef.current;
+    const inputs = f.querySelectorAll('[data-field]');
+    const changes = {};
+    inputs.forEach(el => { changes[el.getAttribute('data-field')] = el.value; });
+    const shFields = f.querySelectorAll('[data-sh]');
+    if (shFields.length > 0) {
+      const sh = {};
+      shFields.forEach(el => { sh[el.getAttribute('data-sh')] = el.value; });
+      changes.socialHistory = sh;
+    }
+    setSaving(true); setSaveMsg('');
+    try {
+      const result = await window.RehabFlowDB.updatePatient(patient.id, changes);
+      if (result.error) { setSaveMsg('Error: ' + result.error.message); }
+      else if (result.data && patients && setPatients) {
+        const updated = patients.map(p => p.id === patient.id ? Object.assign({}, p, result.data) : p);
+        setPatients(updated);
+        if (setSelectedPatient) setSelectedPatient(updated.find(p => p.id === patient.id));
+        setSaveMsg('Saved successfully!');
+      }
+    } catch(e) { setSaveMsg('Error: ' + e.message); }
+    setSaving(false);
+    setTimeout(() => setSaveMsg(''), 3000);
+  };
+
   return (
-    <div>
+    <div ref={formRef}>
       <div className="form-row" style={{gridTemplateColumns:'1fr 1fr'}}>
         <div>
           <h4 style={{marginBottom:8}}>Past Medical History</h4>
-          <div className="form-group"><textarea rows={4} defaultValue={patient.pmh}/></div>
+          <div className="form-group"><textarea rows={4} data-field="pmh" defaultValue={patient.pmh}/></div>
           <h4 style={{marginBottom:8}}>Medications</h4>
-          <div className="form-group"><textarea rows={3} defaultValue={patient.meds}/></div>
+          <div className="form-group"><textarea rows={3} data-field="meds" defaultValue={patient.meds}/></div>
         </div>
         <div>
           <h4 style={{marginBottom:8}}>Surgical History</h4>
-          <div className="form-group"><textarea rows={4} defaultValue={patient.surgicalHistory}/></div>
+          <div className="form-group"><textarea rows={4} data-field="surgicalHistory" defaultValue={patient.surgicalHistory}/></div>
           <h4 style={{marginBottom:8}}>Allergies</h4>
           <div className="form-group"><textarea rows={3} defaultValue={patient.alerts.includes('Latex allergy')?'Latex - causes rash\nPenicillin - anaphylaxis':'NKDA (No Known Drug Allergies)'}/></div>
         </div>
       </div>
       <h4 style={{margin:'12px 0 8px'}}>Social History</h4>
       <div className="form-row" style={{gridTemplateColumns:'1fr 1fr 1fr 1fr'}}>
-        <div className="form-group"><label>Living Situation</label><select defaultValue={patient.socialHistory?.living||'Home (independent)'}><option>Home (independent)</option><option>Home (with spouse)</option><option>Home (with family)</option><option>Assisted living</option><option>Skilled nursing facility</option></select></div>
-        <div className="form-group"><label>Occupation</label><input defaultValue={patient.socialHistory?.occupation||'Unknown'}/></div>
-        <div className="form-group"><label>Tobacco Use</label><select defaultValue={patient.socialHistory?.tobacco||'Never'}><option>Never</option><option>Former</option><option>Current</option></select></div>
-        <div className="form-group"><label>Alcohol Use</label><select defaultValue={patient.socialHistory?.alcohol||'None'}><option>None</option><option>Occasional</option><option>Moderate</option></select></div>
+        <div className="form-group"><label>Living Situation</label><select data-sh="living" defaultValue={patient.socialHistory?.living||'Home (independent)'}><option>Home (independent)</option><option>Home (with spouse)</option><option>Home (with family)</option><option>Assisted living</option><option>Skilled nursing facility</option></select></div>
+        <div className="form-group"><label>Occupation</label><input data-sh="occupation" defaultValue={patient.socialHistory?.occupation||'Unknown'}/></div>
+        <div className="form-group"><label>Tobacco Use</label><select data-sh="tobacco" defaultValue={patient.socialHistory?.tobacco||'Never'}><option>Never</option><option>Former</option><option>Current</option></select></div>
+        <div className="form-group"><label>Alcohol Use</label><select data-sh="alcohol" defaultValue={patient.socialHistory?.alcohol||'None'}><option>None</option><option>Occasional</option><option>Moderate</option></select></div>
       </div>
-      <button className="btn btn-primary" style={{marginTop:12}}>Save Medical History</button>
+      <div style={{marginTop:12,display:'flex',alignItems:'center',gap:12}}>
+        <button className="btn btn-primary" onClick={handleSave} disabled={saving}>{saving ? 'Saving...' : 'Save Medical History'}</button>
+        {saveMsg && <span style={{color:saveMsg.startsWith('Error')?'var(--danger)':'var(--success)',fontSize:13}}>{saveMsg}</span>}
+      </div>
     </div>
   );
 }
