@@ -6,7 +6,7 @@ window.AdminPanel = function AdminPanel(props) {
   var useState = React.useState;
   var useEffect = React.useEffect;
 
-    function getName(u) { if (typeof u.full_name === "object" && u.full_name !== null) return u.full_name.full_name || ""; return u.full_name || ""; }
+    function getName(u) { var n = u.full_name; if (!n) return ""; if (typeof n === "object") return n.full_name || ""; if (typeof n === "string" && n.charAt(0) === "{") { try { return JSON.parse(n).full_name || n; } catch(e) { return n; } } return n; }
 
   var _users = useState([]);
   var users = _users[0]; var setUsers = _users[1];
