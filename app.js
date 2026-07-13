@@ -822,20 +822,80 @@ function PatientList({ patients, setPatients, setSelectedPatient, setCurrentPage
 // ==================== PATIENT CHART ====================
 function PatientChart({ patient, user, setCurrentPage, patients, setPatients, setSelectedPatient, navigationSource, sentMessages, setSentMessages }) {
   const [chartTab, setChartTab] = useState('demographics');
-  const handleSaveDraft = (noteEntry) => {
+  const [patientNotes, setPatientNotes] = useState([]);
+  const [notesLoading, setNotesLoading] = useState(false);
+  useEffect(function() {
+    if (!patient || !patient.id) return;
+    var cancelled = false;
+    setNotesLoading(true);
+    (async function() {
+      try {
+        var result = await window.RehabFlowDB.getNotes(patient.id);
+        if (!cancelled && result.data) setPatientNotes(result.data);
+      } catch(e) { console.error('Load notes err:', e); }
+      if (!cancelled) setNotesLoading(false);
+    })();
+    return function() { cancelled = true; };
+  }, [patient && patient.id]);
+  const handleSaveDraft = async function(noteEntry) {
+    // Persist to Supabase
+    try {
+      var session = await window.RehabFlowDB.getSession();
+      var userId = session.data && session.data.session ? session.data.session.user.id : null;
+      var existingDraft = patientNotes.find(function(n) { return n.note_type === noteEntry.type && n.status === "draft"; });
+      var noteData = { patient_id: patient.id, author_id: userId, note_type: noteEntry.type,
+        content_text: noteEntry.type + " - " + (noteEntry.date || new Date().toISOString().split("T")[0]),
+        status: "draft" };
+      var result;
+      if (existingDraft) {
+        result = await window.RehabFlowDB.updateNote(existingDraft.id, { content_text: noteData.content_text, status: "draft" });
+      } else {
+        result = await window.RehabFlowDB.createNote(noteData);
+      }
+      if (result.data) {
+        if (existingDraft) { setPatientNotes(patientNotes.map(function(n) { return n.id === existingDraft.id ? result.data : n; })); }
+        else { setPatientNotes([result.data].concat(patientNotes)); }
+      }
+    } catch(e) { console.error("Save note error:", e); }
+    // Also update legacy noteHistory for local display
     if (patients && setPatients) {
-      const updated = patients.map(p => {
+      var updated = patients.map(function(p) {
         if (p.id === patient.id) {
           var eh = p.noteHistory || [];
-          var ei = eh.findIndex(n => n.type === noteEntry.type && n.date === noteEntry.date && n.status === 'Draft');
-          if (ei >= 0) { var nh = [...eh]; nh[ei] = noteEntry; return {...p, noteHistory: nh}; }
-          return {...p, noteHistory: [...eh, noteEntry]};
+          var ei = eh.findIndex(function(n) { return n.type === noteEntry.type && n.date === noteEntry.date && n.status === "Draft"; });
+          if (ei >= 0) { var nh = [...eh]; nh[ei] = noteEntry; return Object.assign({}, p, {noteHistory: nh}); }
+          return Object.assign({}, p, {noteHistory: [...eh, noteEntry]});
         }
         return p;
       });
       setPatients(updated);
       if (setSelectedPatient) { var up = updated.find(function(p) { return p.id === patient.id; }); if (up) setSelectedPatient(up); }
     }
+  };
+  const handleSignNote = async function(noteType, signerName, signerCredentials) {
+    try {
+      var draft = patientNotes.find(function(n) { return n.note_type === noteType && (n.status === "draft"); });
+      if (!draft) {
+        var session = await window.RehabFlowDB.getSession();
+        var userId = session.data && session.data.session ? session.data.session.user.id : null;
+        var cr = await window.RehabFlowDB.createNote({ patient_id: patient.id, author_id: userId, note_type: noteType,
+          content_text: noteType + " - " + new Date().toISOString().split("T")[0], status: "draft" });
+        if (cr.data) { draft = cr.data; setPatientNotes([cr.data].concat(patientNotes)); }
+        else return { error: { message: "Could not create note" } };
+      }
+      var result = await window.RehabFlowDB.signNote(draft.id, signerName, signerCredentials);
+      if (result.data) { setPatientNotes(patientNotes.map(function(n) { return n.id === draft.id ? result.data : n; })); }
+      return result;
+    } catch(e) { console.error("Sign note error:", e); return { error: { message: e.message } }; }
+  };
+  const handleCoSignNote = async function(noteType, coSignerName, coSignerCredentials) {
+    try {
+      var note = patientNotes.find(function(n) { return n.note_type === noteType && n.status === "signed"; });
+      if (!note) return { error: { message: "No signed note found to co-sign" } };
+      var result = await window.RehabFlowDB.coSignNote(note.id, coSignerName, coSignerCredentials);
+      if (result.data) { setPatientNotes(patientNotes.map(function(n) { return n.id === note.id ? result.data : n; })); }
+      return result;
+    } catch(e) { console.error("Co-sign error:", e); return { error: { message: e.message } }; }
   };
   const chartTabs = [
     { id:'demographics', label:'Demographics' },
@@ -901,11 +961,11 @@ function PatientChart({ patient, user, setCurrentPage, patients, setPatients, se
           {chartTab==='demographics' && <DemographicsTab patient={patient} patients={patients} setPatients={setPatients} setSelectedPatient={setSelectedPatient} />}
           {chartTab==='insurance' && <InsuranceTab patient={patient} patients={patients} setPatients={setPatients} setSelectedPatient={setSelectedPatient} />}
           {chartTab==='history' && <MedicalHistoryTab patient={patient} patients={patients} setPatients={setPatients} setSelectedPatient={setSelectedPatient} />}
-          {chartTab==='evalNote' && <InitialEvalNote patient={patient} user={user} onSaveDraft={handleSaveDraft} />}
-          {chartTab==='dailyNote' && <DailySOAPNote patient={patient} user={user} onSaveDraft={handleSaveDraft} />}
-          {chartTab==='progressNote' && <ProgressNote patient={patient} user={user} onSaveDraft={handleSaveDraft} />}
+          {chartTab==='evalNote' && <InitialEvalNote patient={patient} user={user} onSaveDraft={handleSaveDraft} patientNotes={patientNotes} onSignNote={handleSignNote} onCoSignNote={handleCoSignNote} />}
+          {chartTab==='dailyNote' && <DailySOAPNote patient={patient} user={user} onSaveDraft={handleSaveDraft} patientNotes={patientNotes} onSignNote={handleSignNote} onCoSignNote={handleCoSignNote} />}
+          {chartTab==='progressNote' && <ProgressNote patient={patient} user={user} onSaveDraft={handleSaveDraft} patientNotes={patientNotes} onSignNote={handleSignNote} onCoSignNote={handleCoSignNote} />}
           {chartTab==='exercises' && <ExerciseRx patient={patient} patients={patients} setPatients={setPatients} setSelectedPatient={setSelectedPatient} />}
-          {chartTab==='documents' && <DocumentsTab patient={patient} />}
+          {chartTab==='documents' && <DocumentsTab patient={patient} patientNotes={patientNotes} notesLoading={notesLoading} />}
           {chartTab==='sendMessage' && <SendMessageFromChart patient={patient} user={user} patients={patients} setPatients={setPatients} setSelectedPatient={setSelectedPatient} sentMessages={sentMessages} setSentMessages={setSentMessages}/>}
         </div>
       </div>
@@ -1083,19 +1143,27 @@ function MedicalHistoryTab({ patient, patients, setPatients, setSelectedPatient 
 }
 
 // ==================== INITIAL EVAL NOTE ====================
-function InitialEvalNote({ patient, user, onSaveDraft }) {
+function InitialEvalNote({ patient, user, onSaveDraft, patientNotes, onSignNote, onCoSignNote }) {
   const [noteStatus, setNoteStatus] = useState(patient.careStage==='New Eval'?'draft':'signed');
   const [signedBy, setSignedBy] = useState(patient.careStage!=='New Eval'?{name:'Dr. Sarah Mitchell, PT, DPT',role:'PT',date:patient.referralDate}:null);
   const [cosignNeeded, setCosignNeeded] = useState(false);
   const [lockedAt, setLockedAt] = useState(patient.careStage!=='New Eval'?patient.referralDate:null);
   const isLocked = noteStatus === 'locked' || (patient.careStage!=='New Eval' && noteStatus==='signed');
 
-  const handleSign = () => {
-    if (user.role === 'PTA') { setNoteStatus('cosign-needed'); setCosignNeeded(true); setSignedBy({ name: user.displayName, role: 'PTA', date: new Date().toLocaleString() }); }
-    else { setNoteStatus('signed'); setSignedBy({ name: user.displayName, role: 'PT', date: new Date().toLocaleString() }); setCosignNeeded(false); }
+  const handleSign = async function() {
+    var sName = user.displayName;
+    var sRole = user.role === "PTA" ? "PTA" : "PT";
+    var sCreds = user.credentials || sRole;
+    if (user.role === "PTA") { setNoteStatus("cosign-needed"); setCosignNeeded(true); setSignedBy({ name: sName, role: "PTA", date: new Date().toLocaleString() }); }
+    else { setNoteStatus("signed"); setSignedBy({ name: sName, role: "PT", date: new Date().toLocaleString() }); setCosignNeeded(false); }
+    if (onSignNote) { await onSignNote("Initial Evaluation", sName, sCreds); }
   };
-  const handleCosign = () => { setNoteStatus('signed'); setCosignNeeded(false); };
-  const handleLock = () => { setNoteStatus('locked'); setLockedAt(new Date().toLocaleString()); };
+  const handleCosign = async function() {
+    setNoteStatus("signed"); setCosignNeeded(false);
+    if (onCoSignNote) { await onCoSignNote("Initial Evaluation", user.displayName, user.credentials || "PT, DPT"); }
+  };
+  const handleLock = function() { setNoteStatus("locked"); setLockedAt(new Date().toLocaleString()); };
+  const handleUnlock = function() { setNoteStatus("signed"); setLockedAt(null); };
   const handleUnlock = () => { setNoteStatus('signed'); setLockedAt(null); };
 
   const ROM_JOINTS = ['Cervical Flexion','Cervical Extension','Cervical Rotation','Shoulder Flexion','Shoulder Abduction','Shoulder ER','Shoulder IR','Elbow Flexion','Hip Flexion','Hip Extension','Hip Abduction','Knee Flexion','Knee Extension','Ankle DF','Ankle PF'];
@@ -1192,7 +1260,7 @@ function InitialEvalNote({ patient, user, onSaveDraft }) {
 }
 
 // ==================== DAILY SOAP NOTE ====================
-function DailySOAPNote({ patient, user, onSaveDraft }) {
+function DailySOAPNote({ patient, user, onSaveDraft, patientNotes, onSignNote, onCoSignNote }) {
   const [noteStatus, setNoteStatus] = useState('draft');
   const [signedBy, setSignedBy] = useState(null);
   const [cosignNeeded, setCosignNeeded] = useState(false);
@@ -1201,13 +1269,18 @@ function DailySOAPNote({ patient, user, onSaveDraft }) {
   const [cptUnits, setCptUnits] = useState({});
   const isLocked = noteStatus === 'locked';
 
-  const handleSign = () => {
-    if (user.role === 'PTA') { setNoteStatus('cosign-needed'); setCosignNeeded(true); setSignedBy({ name: user.displayName, role: 'PTA', date: new Date().toLocaleString() }); }
-    else { setNoteStatus('signed'); setSignedBy({ name: user.displayName, role: 'PT', date: new Date().toLocaleString() }); }
+  const handleSign = async function() {
+    var sName = user.displayName;
+    var sCreds = user.credentials || (user.role === "PTA" ? "PTA" : "PT");
+    if (user.role === "PTA") { setNoteStatus("cosign-needed"); setCosignNeeded(true); setSignedBy({ name: sName, role: "PTA", date: new Date().toLocaleString() }); }
+    else { setNoteStatus("signed"); setSignedBy({ name: sName, role: "PT", date: new Date().toLocaleString() }); }
+    if (onSignNote) { await onSignNote("Daily SOAP Note", sName, sCreds); }
   };
-  const handleCosign = () => { setNoteStatus('signed'); setCosignNeeded(false); };
-  const handleLock = () => { setNoteStatus('locked'); setLockedAt(new Date().toLocaleString()); };
-  const handleUnlock = () => { setNoteStatus('signed'); setLockedAt(null); };
+  const handleCosign = async function() { setNoteStatus("signed"); setCosignNeeded(false);
+    if (onCoSignNote) { await onCoSignNote("Daily SOAP Note", user.displayName, user.credentials || "PT, DPT"); }
+  };
+  const handleLock = function() { setNoteStatus("locked"); setLockedAt(new Date().toLocaleString()); };
+  const handleUnlock = function() { setNoteStatus("signed"); setLockedAt(null); };
   const toggleCpt = (code) => { if (selectedCpts.includes(code)) setSelectedCpts(selectedCpts.filter(c=>c!==code)); else setSelectedCpts([...selectedCpts, code]); };
   const totalUnits = Object.values(cptUnits).reduce((a,b)=>a+(parseInt(b)||0),0);
 
@@ -1272,7 +1345,7 @@ function DailySOAPNote({ patient, user, onSaveDraft }) {
 }
 
 // ==================== PROGRESS NOTE ====================
-function ProgressNote({ patient, user, onSaveDraft }) {
+function ProgressNote({ patient, user, onSaveDraft, patientNotes, onSignNote, onCoSignNote }) {
   const [noteStatus, setNoteStatus] = useState('draft');
   const [signedBy, setSignedBy] = useState(null);
   const [cosignNeeded, setCosignNeeded] = useState(false);
@@ -1280,9 +1353,12 @@ function ProgressNote({ patient, user, onSaveDraft }) {
   const isLocked = noteStatus === 'locked';
   const cd = useMemo(() => generateClinicalData(patient), [patient.id]);
 
-  const handleSign = () => {
-    if (user.role === 'PTA') { setNoteStatus('cosign-needed'); setCosignNeeded(true); setSignedBy({ name:user.displayName, role:'PTA', date:new Date().toLocaleString() }); }
-    else { setNoteStatus('signed'); setSignedBy({ name:user.displayName, role:'PT', date:new Date().toLocaleString() }); }
+  const handleSign = async function() {
+    var sName = user.displayName;
+    var sCreds = user.credentials || (user.role === "PTA" ? "PTA" : "PT");
+    if (user.role === "PTA") { setNoteStatus("cosign-needed"); setCosignNeeded(true); setSignedBy({ name: sName, role: "PTA", date: new Date().toLocaleString() }); }
+    else { setNoteStatus("signed"); setSignedBy({ name: sName, role: "PT", date: new Date().toLocaleString() }); }
+    if (onSignNote) { await onSignNote("Progress Note", sName, sCreds); }
   };
 
   return (
@@ -1869,18 +1945,28 @@ function generateNoteContent(note, patient) {
   ].join('\n');
 }
 
-function DocumentsTab({ patient }) {
+function DocumentsTab({ patient, patientNotes, notesLoading }) {
   const [viewingNote, setViewingNote] = React.useState(null);
-  const docs = patient.noteHistory || [];
+  // Merge Supabase notes with legacy noteHistory
+  var legacyDocs = (patient.noteHistory || []).map(function(n, i) {
+    return { id: "legacy-" + i, noteType: n.type, date: n.date, author: n.author, status: n.status, source: "legacy" };
+  });
+  var dbDocs = (patientNotes || []).map(function(n) {
+    return { id: n.id, noteType: n.note_type, date: n.created_at ? new Date(n.created_at).toLocaleDateString() : "",
+      author: n.signer_name || "Current User", status: n.status === "draft" ? "Draft" : n.status === "signed" ? "Signed" : n.status === "co-signed" ? "Co-Signed" : n.status,
+      signedBy: n.signer_name, signedAt: n.signed_at, coSignedBy: n.co_signer_name, coSignedAt: n.co_signed_at, source: "db", contentText: n.content_text };
+  });
+  var docs = dbDocs.length > 0 ? dbDocs : legacyDocs;
   return (
     <div>
       <h4 style={{fontSize:"16px",fontWeight:"600",marginBottom:"12px",color:"#1e293b"}}>Documents & Notes</h4>
-      {docs.length === 0 ? (
+      {notesLoading && <div style={{padding:"20px",textAlign:"center",color:"#64748b"}}>Loading notes...</div>}
+      {!notesLoading && docs.length === 0 ? (
         <div style={{padding:"40px",textAlign:"center",color:"#94a3b8",background:"#f8fafc",borderRadius:"8px"}}>
           <p style={{fontSize:"32px",marginBottom:"8px"}}>📄</p>
           <p>No notes documented yet.</p>
         </div>
-      ) : (
+      ) : !notesLoading && (
         <table style={{width:"100%",borderCollapse:"collapse",background:"#fff",borderRadius:"8px",overflow:"hidden",boxShadow:"0 1px 3px rgba(0,0,0,0.1)"}}>
           <thead>
             <tr style={{background:"#f1f5f9"}}>
@@ -1888,46 +1974,28 @@ function DocumentsTab({ patient }) {
               <th style={{padding:"10px 12px",textAlign:"left",fontWeight:"600",color:"#475569"}}>Date</th>
               <th style={{padding:"10px 12px",textAlign:"left",fontWeight:"600",color:"#475569"}}>Author</th>
               <th style={{padding:"10px 12px",textAlign:"left",fontWeight:"600",color:"#475569"}}>Status</th>
-              <th style={{padding:"10px 12px",textAlign:"left",fontWeight:"600",color:"#475569"}}>Action</th>
+              <th style={{padding:"10px 12px",textAlign:"left",fontWeight:"600",color:"#475569"}}>Signature</th>
             </tr>
           </thead>
           <tbody>
-            {docs.map((n, i) => (
-              <tr key={i} style={{borderBottom:"1px solid #e2e8f0"}}>
-                <td style={{padding:"10px 12px",fontWeight:"500"}}>{n.type}</td>
+            {docs.map(function(n) { return (
+              <tr key={n.id} style={{borderBottom:"1px solid #e2e8f0"}}>
+                <td style={{padding:"10px 12px",fontWeight:"500"}}>{n.noteType}</td>
                 <td style={{padding:"10px 12px",color:"#64748b"}}>{n.date}</td>
                 <td style={{padding:"10px 12px",color:"#64748b"}}>{n.author}</td>
                 <td style={{padding:"10px 12px"}}>
                   <span style={{padding:"2px 8px",borderRadius:"12px",fontSize:"11px",fontWeight:"500",
-                    background: n.status==="Signed"?"#dcfce7":n.status==="Co-Signed"?"#dbeafe":n.status==="Draft"?"#fef3c7":n.status==="Sent"?"#dbeafe":"#fef9c3",
-                    color: n.status==="Signed"?"#166534":n.status==="Co-Signed"?"#1e40af":n.status==="Draft"?"#92400e":n.status==="Sent"?"#1e40af":"#854d0e"}}>{n.status}</span>
+                    background: n.status==="Signed"?"#dcfce7":n.status==="Co-Signed"?"#dbeafe":n.status==="Draft"?"#fef3c7":"#f1f5f9",
+                    color: n.status==="Signed"?"#166534":n.status==="Co-Signed"?"#1e40af":n.status==="Draft"?"#92400e":"#475569"}}>{n.status}</span>
                 </td>
-                <td style={{padding:"10px 12px"}}>
-                  <button onClick={()=>setViewingNote(n)} style={{padding:"4px 12px",fontSize:"12px",border:"1px solid #3b82f6",borderRadius:"6px",background:"#fff",color:"#3b82f6",cursor:"pointer",fontWeight:"500"}}>View</button>
+                <td style={{padding:"10px 12px",fontSize:"12px",color:"#64748b"}}>
+                  {n.signedBy && <span>Signed: {n.signedBy} {n.signedAt ? "(" + new Date(n.signedAt).toLocaleDateString() + ")" : ""}</span>}
+                  {n.coSignedBy && <span style={{marginLeft:8}}>| Co-signed: {n.coSignedBy}</span>}
                 </td>
               </tr>
-            ))}
+            ); })}
           </tbody>
         </table>
-      )}
-      {viewingNote && (
-        <div style={{position:"fixed",top:0,left:0,right:0,bottom:0,background:"rgba(0,0,0,0.5)",zIndex:10000,display:"flex",alignItems:"center",justifyContent:"center",padding:"20px"}} onClick={()=>setViewingNote(null)}>
-          <div style={{background:"#fff",borderRadius:"12px",width:"100%",maxWidth:"800px",maxHeight:"90vh",display:"flex",flexDirection:"column",boxShadow:"0 25px 50px rgba(0,0,0,0.25)"}} onClick={e=>e.stopPropagation()}>
-            <div style={{padding:"20px 24px",borderBottom:"1px solid #e2e8f0",display:"flex",justifyContent:"space-between",alignItems:"center",background:"#f8fafc",borderRadius:"12px 12px 0 0"}}>
-              <h3 style={{margin:0,fontSize:"18px",fontWeight:"700",color:"#1e293b"}}>{viewingNote.type}</h3>
-              <div style={{display:"flex",gap:"8px"}}>
-                <button onClick={()=>{var nc=generateNoteContent(viewingNote,patient);var w=window.open('','_blank');w.document.write('<!DOCTYPE html><html><head><title>'+viewingNote.type+'</title><style>body{font-family:Consolas,monospace;padding:40px;max-width:800px;margin:auto;line-height:1.8;white-space:pre-wrap;word-wrap:break-word;font-size:13px;}@media print{body{padding:20px;font-size:12px;}}</style></head><body>'+nc+'</body></html>');w.document.close();}} style={{padding:"6px 14px",fontSize:"12px",border:"none",borderRadius:"6px",background:"#3b82f6",color:"#fff",cursor:"pointer",fontWeight:"500"}}>Print</button>
-                <button onClick={()=>setViewingNote(null)} style={{padding:"6px 14px",fontSize:"12px",border:"none",borderRadius:"6px",background:"#ef4444",color:"#fff",cursor:"pointer",fontWeight:"500"}}>Close</button>
-              </div>
-            </div>
-            <div style={{padding:"20px 24px",borderBottom:"1px solid #e2e8f0"}}>
-              <p style={{margin:"4px 0",fontSize:"13px",color:"#64748b"}}>{viewingNote.date} | {viewingNote.author} | {viewingNote.status}</p>
-            </div>
-            <div style={{padding:"24px",overflowY:"auto",flex:1}}>
-              <pre style={{fontFamily:"Consolas,Monaco,monospace",fontSize:"13px",lineHeight:"1.7",whiteSpace:"pre-wrap",wordWrap:"break-word",color:"#1e293b",margin:0,background:"#fafafa",padding:"20px",borderRadius:"8px",border:"1px solid #e2e8f0"}}>{generateNoteContent(viewingNote,patient)}</pre>
-            </div>
-          </div>
-        </div>
       )}
     </div>
   );
