@@ -359,6 +359,7 @@ function Sidebar({ currentPage, setCurrentPage, user, onLogout }) {
     { id:'messages', icon:'✉️', label:'Messages' },
     { id:'reports', icon:'📈', label:'Reports' },
   ];
+  if (user && (user.role === 'admin' || user.role === 'Admin')) navItems.push({ id:'admin', icon:'\u2699', label:'Admin' });
   return (
     <div className="sidebar">
       <div className="sidebar-logo">Rehab<span>Flow</span></div>
@@ -2332,7 +2333,7 @@ function App() {
   const pageTitle = {
     dashboard:'Dashboard', schedule:'Schedule', patients:`Patient List (${patients.length})`,
     chart:'Patient Chart', documentation:'Documentation', billing:'Billing & Coding',
-    messages:'Messages', reports:'Reports'
+    messages:'Messages', reports:'Reports', admin:'Admin Panel'
   };
 
   return (
@@ -2356,6 +2357,7 @@ function App() {
           {currentPage==='billing' && <BillingPage patients={patients}/>}
           {currentPage==='messages' && <MessagesPage patients={patients} sentMessages={sentMessages} setSentMessages={setSentMessages}/>}
           {currentPage==='reports' && <ReportsPage patients={patients}/>}
+          {currentPage==='admin' && window.AdminPanel && React.createElement(window.AdminPanel, {user: user})}
         </div>
       </div>
     </div>
