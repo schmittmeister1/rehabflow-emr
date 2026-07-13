@@ -6,6 +6,8 @@ window.AdminPanel = function AdminPanel(props) {
   var useState = React.useState;
   var useEffect = React.useEffect;
 
+    function getName(u) { if (typeof u.full_name === "object" && u.full_name !== null) return u.full_name.full_name || ""; return u.full_name || ""; }
+
   var _users = useState([]);
   var users = _users[0]; var setUsers = _users[1];
   var _loading = useState(true);
@@ -32,11 +34,7 @@ window.AdminPanel = function AdminPanel(props) {
   function handleCreate() {
     setCreating(true);
     setMessage("");
-    window.RehabFlowDB.createUser(form.email, form.password, {
-      full_name: form.fullName,
-      role: form.role,
-      credentials: form.credentials
-    }).then(function(result) {
+      window.RehabFlowDB.createUser(form.email, form.password, form.fullName, form.role, form.credentials).then(function(result) {
       if (result.error) {
         setMessage("Error: " + result.error.message);
       } else {
@@ -122,7 +120,7 @@ window.AdminPanel = function AdminPanel(props) {
         React.createElement("tbody", null,
           users.map(function(u) {
             return React.createElement("tr", {key:u.id,style:{borderBottom:"1px solid #e2e8f0"}},
-              React.createElement("td", {style:cellStyle}, u.full_name),
+              React.createElement("td", {style:cellStyle}, getName(u)),
               React.createElement("td", {style:cellStyle}, u.email || "\u2014"),
               React.createElement("td", {style:cellStyle},
                 React.createElement("select", {value:u.role,onChange:function(e){handleRoleChange(u.id,e.target.value)},style:{padding:"4px 8px",border:"1px solid #cbd5e0",borderRadius:"4px"}},
