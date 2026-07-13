@@ -68,11 +68,16 @@
   // ---------------------------------------------------------------------------
 
   function toSnakeCase(str) {
-    return str.replace(/[A-Z]/g, function (letter) { return '_' + letter.toLowerCase(); });
+    return str
+      .replace(/([a-z\d])([A-Z])/g, '$1_$2')
+      .replace(/([A-Z]+)([A-Z][a-z])/g, '$1_$2')
+      .toLowerCase();
   }
 
   function toCamelCase(str) {
-    return str.replace(/_([a-z])/g, function (_, letter) { return letter.toUpperCase(); });
+    var result = str.replace(/_([a-z])/g, function (_, letter) { return letter.toUpperCase(); });
+    // Fix known abbreviations that get lowercased
+    return result.replace(/Odi$/g, 'ODI').replace(/Md$/g, 'MD');
   }
 
   function mapKeysToSnake(obj) {
