@@ -321,7 +321,8 @@ function LoginPage({ onLogin }) {
         displayName: (profile.full_name || email) + (profile.credentials ? ', ' + profile.credentials : ''),
         supabaseRole: profile.role,
         credentials: profile.credentials || 'SPT',
-        fullName: profile.full_name || email
+        fullName: profile.full_name || email,
+          must_change_password: profile.must_change_password
       });
     } catch (err) {
       setError(err.message || 'Login failed');
@@ -2270,6 +2271,53 @@ function ReportsPage({ patients }) {
 }
 
 // ==================== MAIN APP ====================
+
+// ==================== PASSWORD CHANGE MODAL ====================
+function PasswordChangeModal({ user, onPasswordChanged }) {
+  const [newPw, setNewPw] = useState('');
+  const [confirmPw, setConfirmPw] = useState('');
+  const [error, setError] = useState('');
+  const [loading, setLoading] = useState(false);
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    setError('');
+    if (newPw.length < 8) { setError('Must be at least 8 characters'); return; }
+    if (newPw !== confirmPw) { setError('Passwords do not match'); return; }
+    setLoading(true);
+    try {
+      const result = await window.RehabFlowDB.changePassword(newPw);
+      if (result.error) { setError(result.error.message || 'Failed to change'); setLoading(false); return; }
+      onPasswordChanged();
+    } catch (err) { setError(err.message); setLoading(false); }
+  };
+
+  return (
+    <div style={{position:'fixed',top:0,left:0,right:0,bottom:0,background:'linear-gradient(135deg,#1e3a5f,#2d5f8a)',display:'flex',alignItems:'center',justifyContent:'center',zIndex:9999}}>
+      <div style={{background:'white',borderRadius:12,padding:40,maxWidth:420,width:'90%',boxShadow:'0 20px 60px rgba(0,0,0,0.3)'}}>
+        <div style={{textAlign:'center',marginBottom:24}}>
+          <div style={{fontSize:'2rem',fontWeight:700,color:'#1e3a5f'}}>Change Your Password</div>
+          <p style={{color:'#666',marginTop:8}}>For security, please set a new password before continuing.</p>
+        </div>
+        <form onSubmit={handleSubmit}>
+          <div style={{marginBottom:16}}>
+            <label style={{display:'block',fontWeight:600,marginBottom:4,color:'#333'}}>New Password</label>
+            <input type="password" value={newPw} onChange={e=>setNewPw(e.target.value)} placeholder="At least 8 characters" style={{width:'100%',padding:'10px 12px',border:'2px solid #ddd',borderRadius:8,fontSize:14,boxSizing:'border-box'}} />
+          </div>
+          <div style={{marginBottom:16}}>
+            <label style={{display:'block',fontWeight:600,marginBottom:4,color:'#333'}}>Confirm Password</label>
+            <input type="password" value={confirmPw} onChange={e=>setConfirmPw(e.target.value)} placeholder="Re-enter new password" style={{width:'100%',padding:'10px 12px',border:'2px solid #ddd',borderRadius:8,fontSize:14,boxSizing:'border-box'}} />
+          </div>
+          {error && <div style={{background:'#fee',color:'#c00',padding:'8px 12px',borderRadius:6,marginBottom:12,fontSize:13}}>{error}</div>}
+          <button type="submit" disabled={loading} style={{width:'100%',padding:'12px',background:loading?'#999':'#1e3a5f',color:'white',border:'none',borderRadius:8,fontSize:16,fontWeight:600,cursor:loading?'not-allowed':'pointer'}}>
+            {loading ? 'Updating...' : 'Set New Password'}
+          </button>
+        </form>
+      </div>
+    </div>
+  );
+}
+
 function App() {
   const [user, setUser] = useState(null);
   const [currentPage, setCurrentPage] = useState('dashboard');
@@ -2321,6 +2369,7 @@ function App() {
   }, [user]);
 
   if (!user) return <LoginPage onLogin={setUser} />;
+  if (user && user.must_change_password) return <PasswordChangeModal user={user} onPasswordChanged={() => setUser({...user, must_change_password: false})} />;
   if (patientsLoading || (user && patients.length === 0)) return (
     <div style={{display:'flex',alignItems:'center',justifyContent:'center',height:'100vh',background:'linear-gradient(135deg,#1e3a5f,#2d5f8a)',color:'white',fontSize:'1.2rem'}}>
       <div style={{textAlign:'center'}}>
