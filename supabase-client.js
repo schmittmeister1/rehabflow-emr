@@ -529,6 +529,23 @@
     }
   }
 
+  // -----------------------------------------------------------------------
+  // Change Password (for first-login password reset)
+  // -----------------------------------------------------------------------
+  async function changePassword(newPassword) {
+    try {
+      var result = await sb.auth.updateUser({ password: newPassword });
+      if (result.error) return { data: null, error: result.error };
+      // Mark password as changed in profile
+      var uid = result.data.user.id;
+      var upd = await sb.from('profiles').update({ must_change_password: false }).eq('id', uid);
+      if (upd.error) console.warn('Profile flag update failed:', upd.error);
+      return { data: result.data, error: null };
+    } catch (err) {
+      return { data: null, error: { message: err.message } };
+    }
+  }
+
   // =========================================================================
   //  PUBLIC API
   // =========================================================================
@@ -544,6 +561,7 @@
     onAuthChange: onAuthChange,
     getProfile: getProfile,
     createUser: createUser,
+    changePassword: changePassword,
 
     // Patients
     getPatients: getPatients,
