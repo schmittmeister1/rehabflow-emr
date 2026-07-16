@@ -967,7 +967,7 @@ function PatientChart({ patient, user, setCurrentPage, patients, setPatients, se
           {chartTab==='dailyNote' && <DailySOAPNote patient={patient} user={user} onSaveDraft={handleSaveDraft} patientNotes={patientNotes} onSignNote={handleSignNote} onCoSignNote={handleCoSignNote} />}
           {chartTab==='progressNote' && <ProgressNote patient={patient} user={user} onSaveDraft={handleSaveDraft} patientNotes={patientNotes} onSignNote={handleSignNote} onCoSignNote={handleCoSignNote} />}
           {chartTab==='exercises' && <ExerciseRx patient={patient} patients={patients} setPatients={setPatients} setSelectedPatient={setSelectedPatient} />}
-          {chartTab==='documents' && <DocumentsTab patient={patient} patientNotes={patientNotes} notesLoading={notesLoading} />}
+          {chartTab==='documents' && <DocumentsTab patient={patient} patientNotes={patientNotes} notesLoading={notesLoading} sentMessages={sentMessages} />}
           {chartTab==='sendMessage' && <SendMessageFromChart patient={patient} user={user} patients={patients} setPatients={setPatients} setSelectedPatient={setSelectedPatient} sentMessages={sentMessages} setSentMessages={setSentMessages}/>}
         </div>
       </div>
@@ -1946,62 +1946,342 @@ function generateNoteContent(note, patient) {
   ].join('\n');
 }
 
-function DocumentsTab({ patient, patientNotes, notesLoading }) {
+// ==================== GENERATE NOTE CONTENT (OUTPATIENT) ====================
+function generateOutpatientNoteContent(note, patient) {
+  var p = patient;
+  var cd = generateClinicalData(patient);
+  var dateStr = note.date || new Date().toISOString().split('T')[0];
+  var authorStr = note.author || 'Unknown';
+
+  var header = [
+    '================================================================',
+    '                    REHABFLOW OUTPATIENT EMR',
+    '               Physical Therapy Department',
+    '================================================================',
+    '',
+    'PATIENT: ' + p.firstName + ' ' + p.lastName + '    DOB: ' + (p.dob || 'N/A'),
+    'Age: ' + p.age + '    Gender: ' + p.gender + '    Body Region: ' + (p.bodyRegion || 'N/A'),
+    'Diagnosis: ' + (p.dx || 'N/A') + '    ICD-10: ' + (p.icd10 || 'N/A'),
+    'Insurance: ' + (p.insurance || 'N/A') + '    Auth Visits: ' + p.usedVisits + '/' + p.authVisits,
+    'Referring MD: ' + (p.referringMD || 'N/A'),
+    '',
+    'Note Type: ' + (note.noteType || note.type || 'Clinical Note'),
+    'Date of Service: ' + dateStr,
+    'Author: ' + authorStr,
+    'Status: ' + (note.status || 'Draft'),
+    ''
+  ].join('\n');
+
+  var noteType = (note.noteType || note.type || '').toLowerCase();
+
+  if (noteType.includes('message')) {
+    return header + [
+      '----------------------------------------------------------------',
+      'PROVIDER MESSAGE',
+      '----------------------------------------------------------------',
+      '',
+      'To: ' + (note.recipient || note.to || 'N/A'),
+      'Subject: ' + (note.subject || 'N/A'),
+      'Date Sent: ' + dateStr,
+      'From: ' + authorStr,
+      '',
+      '----------------------------------------------------------------',
+      'MESSAGE BODY:',
+      '----------------------------------------------------------------',
+      '',
+      (note.body || note.messageBody || note.contentText || 'No message content available.'),
+      '',
+      '----------------------------------------------------------------',
+      'Electronically sent by: ' + authorStr,
+      'Date/Time: ' + dateStr
+    ].join('\n');
+  }
+
+  if (noteType.includes('initial') || noteType.includes('eval')) {
+    var romEntries = [];
+    var ROM_JOINTS = ['Cervical Flexion','Cervical Extension','Shoulder Flexion','Shoulder Abduction','Shoulder ER','Shoulder IR','Elbow Flexion','Hip Flexion','Hip Extension','Hip Abduction','Knee Flexion','Knee Extension','Ankle DF','Ankle PF'];
+    ROM_JOINTS.forEach(function(j) {
+      var r = (cd.romData && cd.romData[j]) || {};
+      if (r.aR || r.aL) romEntries.push('  ' + j + ': Active R=' + (r.aR||'N/T') + ' L=' + (r.aL||'N/T') + '  Passive R=' + (r.pR||'N/T') + ' L=' + (r.pL||'N/T') + (r.wnl ? ' (WNL)' : ''));
+    });
+    var mmtEntries = [];
+    var MMT_GROUPS = ['Shoulder Flexors','Shoulder Abductors','Elbow Flexors','Elbow Extensors','Hip Flexors','Hip Extensors','Knee Extensors','Knee Flexors','Ankle DF','Ankle PF'];
+    MMT_GROUPS.forEach(function(m) {
+      var d = (cd.mmtData && cd.mmtData[m]) || {};
+      if (d.R || d.L) mmtEntries.push('  ' + m + ': R=' + (d.R||'N/T') + ' L=' + (d.L||'N/T') + (d.notes ? ' (' + d.notes + ')' : ''));
+    });
+    return header + [
+      '----------------------------------------------------------------',
+      'INITIAL EVALUATION',
+      '----------------------------------------------------------------',
+      '',
+      'SUBJECTIVE:',
+      '  Chief Complaint: ' + (cd.chiefComplaint || 'N/A'),
+      '  History of Present Illness: ' + (cd.hpi || 'N/A'),
+      '  Pain Level: ' + p.initialPain + '/10',
+      '  Pain Location: ' + (p.bodyRegion || 'N/A'),
+      '  Pain Quality: ' + (cd.painQuality || 'N/A'),
+      '  Prior Level of Function: ' + (cd.plof || 'N/A'),
+      '  Patient Goals: ' + (cd.patientGoals || 'N/A'),
+      '',
+      'OBJECTIVE - PHYSICAL EXAMINATION:',
+      '',
+      '  Range of Motion:',
+      romEntries.length > 0 ? romEntries.join('\n') : '  Not assessed',
+      '',
+      '  Manual Muscle Testing:',
+      mmtEntries.length > 0 ? mmtEntries.join('\n') : '  Not assessed',
+      '',
+      '  Special Tests: ' + (cd.specialTests || 'N/A'),
+      '  Posture/Alignment: ' + (cd.posture || 'N/A'),
+      '  Palpation: ' + (cd.palpation || 'N/A'),
+      '  Gait Analysis: ' + (cd.gait || 'N/A'),
+      '  Balance: ' + (cd.balance || 'N/A'),
+      '  Functional Mobility: ' + (cd.funcMobility || 'N/A'),
+      '',
+      '  Outcome Measures:',
+      '    ODI: ' + (p.initialODI || 'N/A') + '%',
+      '    LEFS: ' + (cd.lefs || 'N/A'),
+      '    NDI: ' + (cd.ndi || 'N/A') + '%',
+      '    DASH: ' + (cd.dash || 'N/A'),
+      '',
+      'ASSESSMENT:',
+      '  Clinical Assessment: ' + (cd.assessment || 'N/A'),
+      '  PT Diagnosis: ' + (cd.ptDiagnosis || 'N/A'),
+      '  Problem List: ' + (cd.problemList || 'N/A'),
+      '',
+      'PLAN OF CARE:',
+      '  Frequency: ' + (cd.frequency || '2-3x/week'),
+      '  Duration: ' + (cd.duration || '6-8 weeks'),
+      '  Treatment Plan: ' + (cd.treatmentPlan || 'Therapeutic exercise, manual therapy, modalities as indicated'),
+      '',
+      'GOALS:',
+      '  Short-Term (2-4 weeks): ' + (cd.stGoals || 'Reduce pain, improve ROM, begin functional activities'),
+      '  Long-Term (6-8 weeks): ' + (cd.ltGoals || 'Return to prior level of function, independent HEP'),
+      '',
+      '----------------------------------------------------------------',
+      'Electronically signed by: ' + authorStr,
+      'Date/Time: ' + dateStr
+    ].join('\n');
+  }
+
+  if (noteType.includes('soap') || noteType.includes('daily') || noteType.includes('follow')) {
+    var seed = (p.id * 31 + 7) % 100;
+    var painNow = Math.max(1, p.currentPain - Math.floor(seed % 3));
+    return header + [
+      '----------------------------------------------------------------',
+      'DAILY SOAP NOTE',
+      '----------------------------------------------------------------',
+      '',
+      'SUBJECTIVE:',
+      '  Patient reports pain at ' + painNow + '/10 today (was ' + p.currentPain + '/10 last visit).',
+      '  ' + (seed % 2 === 0 ? 'Patient states: "I feel like I am making progress with the exercises."' : 'Patient reports improved tolerance to activities since last session.'),
+      '  Sleep: ' + (seed % 3 === 0 ? 'Interrupted by pain' : 'Adequate') + '. Medications: ' + (seed % 2 === 0 ? 'Taking as prescribed' : 'No changes'),
+      '  Compliance with HEP: ' + (seed % 4 === 0 ? 'Partial' : 'Good') + '. Functional changes: ' + (seed % 2 === 0 ? 'Improved sit-to-stand' : 'Improved walking tolerance'),
+      '',
+      'OBJECTIVE:',
+      '  Vitals: HR within normal limits. No acute distress.',
+      '  Observation: ' + (seed % 2 === 0 ? 'Antalgic gait pattern, improving' : 'Gait pattern normalized'),
+      '  AROM: Improving in ' + (p.bodyRegion || 'affected region') + ' compared to initial eval.',
+      '  Strength: ' + (seed % 2 === 0 ? '4/5 in primary movers, improving' : '4+/5 in primary movers'),
+      '  Palpation: ' + (seed % 2 === 0 ? 'Decreased tenderness noted' : 'Mild tenderness remains over ' + (p.bodyRegion || 'affected area')),
+      '',
+      '  Treatment Provided:',
+      '    - Therapeutic Exercise: 15 min (stretching, strengthening, functional training)',
+      '    - Manual Therapy: 10 min (' + (seed % 2 === 0 ? 'joint mobilization, soft tissue mobilization' : 'myofascial release, stretching') + ')',
+      '    - Neuromuscular Re-education: 10 min (balance, proprioception)',
+      '    - ' + (seed % 3 === 0 ? 'Modalities: Ultrasound to ' + (p.bodyRegion || 'affected area') + ' x 8 min' : 'Gait Training: 10 min on varied surfaces'),
+      '    - Patient Education: HEP review and progression',
+      '',
+      '  CPT Codes: 97110 x 2 units, 97140 x 1 unit, 97530 x 1 unit' + (seed % 3 === 0 ? ', 97035 x 1 unit' : ''),
+      '  Total Treatment Time: 45 minutes',
+      '',
+      'ASSESSMENT:',
+      '  Patient is making ' + (seed % 3 === 0 ? 'good' : 'steady') + ' progress toward goals.',
+      '  Pain decreased from ' + p.initialPain + '/10 to ' + painNow + '/10.',
+      '  ODI: ' + p.currentODI + '% (initial: ' + p.initialODI + '%)',
+      '  Continue current POC.',
+      '',
+      'PLAN:',
+      '  - Continue ' + (cd.frequency || '2-3x/week') + ' visits.',
+      '  - Progress strengthening and functional activities as tolerated.',
+      '  - Visits remaining: ' + (p.authVisits - p.usedVisits) + '/' + p.authVisits,
+      '',
+      '----------------------------------------------------------------',
+      'Electronically signed by: ' + authorStr,
+      'Date/Time: ' + dateStr
+    ].join('\n');
+  }
+
+  if (noteType.includes('progress')) {
+    var seed2 = (p.id * 17 + 3) % 100;
+    var painImproved = Math.max(1, p.initialPain - Math.floor(seed2 % 4) - 2);
+    var odiImproved = Math.max(5, p.initialODI - Math.floor(seed2 % 15) - 10);
+    return header + [
+      '----------------------------------------------------------------',
+      'PROGRESS NOTE / RE-EVALUATION',
+      '----------------------------------------------------------------',
+      '',
+      'REASON FOR PROGRESS NOTE:',
+      '  ' + (seed2 % 2 === 0 ? 'Required progress report per insurance authorization.' : '30-day re-evaluation per plan of care.'),
+      '  Visits completed: ' + p.usedVisits + ' of ' + p.authVisits + ' authorized.',
+      '',
+      'SUBJECTIVE:',
+      '  Patient reports overall ' + (seed2 % 3 === 0 ? 'significant improvement' : 'gradual improvement') + ' since initial evaluation.',
+      '  Current pain: ' + painImproved + '/10 (initial: ' + p.initialPain + '/10)',
+      '  Functional improvements: ' + (seed2 % 2 === 0 ? 'Improved sitting tolerance, walking distance, and stair navigation.' : 'Improved ability to perform ADLs, work tasks, and recreational activities.'),
+      '',
+      'OBJECTIVE - PROGRESS MEASUREMENTS:',
+      '',
+      '  Outcome Measures Comparison:',
+      '    ODI:  Initial: ' + p.initialODI + '%  ->  Current: ' + odiImproved + '%  (Change: -' + (p.initialODI - odiImproved) + '%)',
+      '    Pain: Initial: ' + p.initialPain + '/10  ->  Current: ' + painImproved + '/10  (Change: -' + (p.initialPain - painImproved) + ')',
+      '',
+      '  ROM: ' + (seed2 % 2 === 0 ? 'Improved toward WNL in all planes.' : 'Within functional limits, improved from initial.'),
+      '  Strength: ' + (seed2 % 2 === 0 ? 'Improved to 4+/5 in key muscle groups.' : '4/5 to 5/5 in primary movers, improving.'),
+      '  Functional Status: ' + (seed2 % 2 === 0 ? 'Independent with basic mobility. Modified independent with advanced activities.' : 'Improved tolerance to prolonged positions and dynamic activities.'),
+      '',
+      'GOAL STATUS:',
+      '  Short-Term Goals:',
+      '    1. Reduce pain to ' + Math.max(1, p.initialPain - 3) + '/10 -- ' + (painImproved <= p.initialPain - 3 ? 'MET' : 'PROGRESSING'),
+      '    2. Improve ROM to WFL -- ' + (seed2 % 2 === 0 ? 'MET' : 'PROGRESSING'),
+      '    3. Improve strength to 4/5 -- ' + (seed2 % 3 === 0 ? 'MET' : 'PROGRESSING'),
+      '  Long-Term Goals:',
+      '    1. Return to prior level of function -- PROGRESSING',
+      '    2. Independent with HEP -- ' + (seed2 % 2 === 0 ? 'MET' : 'PROGRESSING'),
+      '',
+      'ASSESSMENT:',
+      '  Patient has made ' + (seed2 % 3 === 0 ? 'excellent' : 'good') + ' progress since initial evaluation.',
+      '  Skilled PT services remain medically necessary to achieve remaining goals.',
+      '',
+      'PLAN:',
+      '  Continue PT ' + (cd.frequency || '2-3x/week') + ' for ' + (seed2 % 2 === 0 ? '4 more weeks' : '6 more weeks') + '.',
+      '  Progress treatment program: advance strengthening, increase functional demands.',
+      '',
+      '----------------------------------------------------------------',
+      'Electronically signed by: ' + authorStr,
+      'Date/Time: ' + dateStr
+    ].join('\n');
+  }
+
+  return header + [
+    '----------------------------------------------------------------',
+    'CLINICAL NOTE',
+    '----------------------------------------------------------------',
+    '',
+    'Note Type: ' + (note.noteType || note.type || 'N/A'),
+    'Date: ' + dateStr,
+    'Author: ' + authorStr,
+    'Status: ' + (note.status || 'N/A'),
+    '',
+    note.contentText || note.content_text || 'Note content available in chart.',
+    '',
+    '----------------------------------------------------------------',
+    'Electronically signed by: ' + authorStr,
+    'Date/Time: ' + dateStr
+  ].join('\n');
+}
+
+function DocumentsTab({ patient, patientNotes, notesLoading, sentMessages }) {
   const [viewingNote, setViewingNote] = React.useState(null);
-  // Merge Supabase notes with legacy noteHistory
+
   var legacyDocs = (patient.noteHistory || []).map(function(n, i) {
-    return { id: "legacy-" + i, noteType: n.type, date: n.date, author: n.author, status: n.status, source: "legacy" };
+    return { id: 'legacy-'+i, noteType: n.type, date: n.date, author: n.author, status: n.status, source: 'legacy', recipient: n.recipient, subject: n.subject, body: n.body, messageBody: n.messageBody };
   });
+
   var dbDocs = (patientNotes || []).map(function(n) {
-    return { id: n.id, noteType: n.note_type, date: n.created_at ? new Date(n.created_at).toLocaleDateString() : "",
-      author: n.signer_name || "Current User", status: n.status === "draft" ? "Draft" : n.status === "signed" ? "Signed" : n.status === "co-signed" ? "Co-Signed" : n.status,
-      signedBy: n.signer_name, signedAt: n.signed_at, coSignedBy: n.co_signer_name, coSignedAt: n.co_signed_at, source: "db", contentText: n.content_text };
+    return { id: n.id, noteType: n.note_type, date: n.created_at ? new Date(n.created_at).toLocaleDateString() : '',
+      author: n.signer_name || 'Current User', status: n.status === 'draft' ? 'Draft' : n.status === 'signed' ? 'Signed' : n.status === 'co-signed' ? 'Co-Signed' : n.status,
+      signedBy: n.signer_name, signedAt: n.signed_at, coSignedBy: n.co_signer_name, coSignedAt: n.co_signed_at, source: 'db', contentText: n.content_text };
   });
-  var docs = dbDocs.length > 0 ? dbDocs : legacyDocs;
+
+  var messageDocs = (sentMessages || []).filter(function(m) {
+    return m.patientRef === (patient.firstName + ' ' + patient.lastName) || m.patientId === patient.id;
+  }).map(function(m, i) {
+    return { id: 'msg-'+i, noteType: 'Message', date: m.date ? new Date(m.date).toLocaleDateString() : '', author: m.from, status: 'Sent', recipient: m.to, subject: m.subject, body: m.body, source: 'message' };
+  });
+
+  var docs = (dbDocs.length > 0 ? dbDocs : legacyDocs).concat(messageDocs);
+  docs.sort(function(a, b) { return (b.date || '').localeCompare(a.date || ''); });
+
+  var handlePrint = function() {
+    if (!viewingNote) return;
+    var nc = generateOutpatientNoteContent(viewingNote, patient);
+    var w = window.open('', '_blank');
+    w.document.write('<html><head><title>' + (viewingNote.noteType || 'Note') + '<\/title><style>body{font-family:Consolas,monospace;padding:40px;max-width:800px;margin:auto;line-height:1.8;white-space:pre-wrap;word-wrap:break-word;font-size:13px;}@media print{body{padding:20px;font-size:12px;}}<\/style><\/head><body>' + nc.replace(/</g,'&lt;').replace(/>/g,'&gt;') + '<\/body><\/html>');
+    w.document.close();
+  };
+
   return (
     <div>
-      <h4 style={{fontSize:"16px",fontWeight:"600",marginBottom:"12px",color:"#1e293b"}}>Documents & Notes</h4>
-      {notesLoading && <div style={{padding:"20px",textAlign:"center",color:"#64748b"}}>Loading notes...</div>}
-      {!notesLoading && docs.length === 0 ? (
-        <div style={{padding:"40px",textAlign:"center",color:"#94a3b8",background:"#f8fafc",borderRadius:"8px"}}>
-          <p style={{fontSize:"32px",marginBottom:"8px"}}>📄</p>
-          <p>No notes documented yet.</p>
+      <h4 style={{fontSize:16,fontWeight:600,marginBottom:12,color:'#1e293b'}}>Documents & Notes</h4>
+      {notesLoading && <div style={{padding:20,textAlign:'center',color:'#64748b'}}>Loading notes...</div>}
+      {!notesLoading && docs.length === 0 && (
+        <div style={{padding:40,textAlign:'center',color:'#94a3b8',background:'#f8fafc',borderRadius:8}}>
+          <p style={{fontSize:32,marginBottom:8}}>{String.fromCodePoint(0x1F4C4)}</p>
+          <p>No notes documented yet</p>
         </div>
-      ) : !notesLoading && (
-        <table style={{width:"100%",borderCollapse:"collapse",background:"#fff",borderRadius:"8px",overflow:"hidden",boxShadow:"0 1px 3px rgba(0,0,0,0.1)"}}>
+      )}
+      {!notesLoading && docs.length > 0 && (
+        <table style={{width:'100%',borderCollapse:'collapse',background:'#fff',borderRadius:8,overflow:'hidden',boxShadow:'0 1px 3px rgba(0,0,0,0.1)'}}>
           <thead>
-            <tr style={{background:"#f1f5f9"}}>
-              <th style={{padding:"10px 12px",textAlign:"left",fontWeight:"600",color:"#475569"}}>Type</th>
-              <th style={{padding:"10px 12px",textAlign:"left",fontWeight:"600",color:"#475569"}}>Date</th>
-              <th style={{padding:"10px 12px",textAlign:"left",fontWeight:"600",color:"#475569"}}>Author</th>
-              <th style={{padding:"10px 12px",textAlign:"left",fontWeight:"600",color:"#475569"}}>Status</th>
-              <th style={{padding:"10px 12px",textAlign:"left",fontWeight:"600",color:"#475569"}}>Signature</th>
+            <tr style={{background:'#f1f5f9'}}>
+              <th style={{padding:'10px 12px',textAlign:'left',fontWeight:600,color:'#475569'}}>Type</th>
+              <th style={{padding:'10px 12px',textAlign:'left',fontWeight:600,color:'#475569'}}>Date</th>
+              <th style={{padding:'10px 12px',textAlign:'left',fontWeight:600,color:'#475569'}}>Author</th>
+              <th style={{padding:'10px 12px',textAlign:'left',fontWeight:600,color:'#475569'}}>Status</th>
+              <th style={{padding:'10px 12px',textAlign:'left',fontWeight:600,color:'#475569'}}>Details</th>
+              <th style={{padding:'10px 12px',textAlign:'left',fontWeight:600,color:'#475569'}}>Action</th>
             </tr>
           </thead>
           <tbody>
             {docs.map(function(n) { return (
-              <tr key={n.id} style={{borderBottom:"1px solid #e2e8f0"}}>
-                <td style={{padding:"10px 12px",fontWeight:"500"}}>{n.noteType}</td>
-                <td style={{padding:"10px 12px",color:"#64748b"}}>{n.date}</td>
-                <td style={{padding:"10px 12px",color:"#64748b"}}>{n.author}</td>
-                <td style={{padding:"10px 12px"}}>
-                  <span style={{padding:"2px 8px",borderRadius:"12px",fontSize:"11px",fontWeight:"500",
-                    background: n.status==="Signed"?"#dcfce7":n.status==="Co-Signed"?"#dbeafe":n.status==="Draft"?"#fef3c7":"#f1f5f9",
-                    color: n.status==="Signed"?"#166534":n.status==="Co-Signed"?"#1e40af":n.status==="Draft"?"#92400e":"#475569"}}>{n.status}</span>
+              <tr key={n.id} style={{borderBottom:'1px solid #e2e8f0'}}>
+                <td style={{padding:'10px 12px',fontWeight:500}}>{n.noteType}</td>
+                <td style={{padding:'10px 12px',color:'#64748b'}}>{n.date}</td>
+                <td style={{padding:'10px 12px',color:'#64748b'}}>{n.author}</td>
+                <td style={{padding:'10px 12px'}}>
+                  <span style={{padding:'2px 8px',borderRadius:12,fontSize:11,fontWeight:500,
+                    background: n.status==='Signed'||n.status==='Signed & Locked' ? '#dcfce7' : n.status==='Co-Signed' ? '#dbeafe' : n.status==='Draft' ? '#fef3c7' : n.status==='Sent' ? '#e0e7ff' : '#f1f5f9',
+                    color: n.status==='Signed'||n.status==='Signed & Locked' ? '#166534' : n.status==='Co-Signed' ? '#1e40af' : n.status==='Draft' ? '#92400e' : n.status==='Sent' ? '#3730a3' : '#475569'
+                  }}>{n.status}</span>
                 </td>
-                <td style={{padding:"10px 12px",fontSize:"12px",color:"#64748b"}}>
-                  {n.signedBy && <span>Signed: {n.signedBy} {n.signedAt ? "(" + new Date(n.signedAt).toLocaleDateString() + ")" : ""}</span>}
-                  {n.coSignedBy && <span style={{marginLeft:8}}>| Co-signed: {n.coSignedBy}</span>}
+                <td style={{padding:'10px 12px',fontSize:12,color:'#64748b'}}>
+                  {n.signedBy && <span>Signed: {n.signedBy}{n.signedAt ? ' ('+new Date(n.signedAt).toLocaleDateString()+')' : ''}</span>}
+                  {n.coSignedBy && <span style={{marginLeft:8}}>Co-signed: {n.coSignedBy}</span>}
+                  {n.recipient && <span>To: {n.recipient}</span>}
+                </td>
+                <td style={{padding:'10px 12px'}}>
+                  <button onClick={function(){setViewingNote(n);}} style={{padding:'4px 12px',fontSize:12,border:'1px solid #3b82f6',borderRadius:6,background:'#fff',color:'#3b82f6',cursor:'pointer',fontWeight:500}}>View</button>
                 </td>
               </tr>
             ); })}
           </tbody>
         </table>
       )}
+
+      {viewingNote && (
+        <div style={{position:'fixed',top:0,left:0,right:0,bottom:0,background:'rgba(0,0,0,0.5)',zIndex:10000,display:'flex',alignItems:'center',justifyContent:'center',padding:20}} onClick={function(){setViewingNote(null);}}>
+          <div style={{background:'#fff',borderRadius:12,width:'100%',maxWidth:800,maxHeight:'90vh',display:'flex',flexDirection:'column',boxShadow:'0 25px 50px rgba(0,0,0,0.25)'}} onClick={function(e){e.stopPropagation();}}>
+            <div style={{padding:'20px 24px',borderBottom:'1px solid #e2e8f0',display:'flex',justifyContent:'space-between',alignItems:'center',background:'#f8fafc',borderRadius:'12px 12px 0 0'}}>
+              <h3 style={{margin:0,fontSize:18,fontWeight:700,color:'#1e293b'}}>{viewingNote.noteType || viewingNote.type}</h3>
+              <div style={{display:'flex',gap:8}}>
+                <button onClick={handlePrint} style={{padding:'6px 14px',fontSize:12,border:'1px solid #3b82f6',borderRadius:6,background:'#fff',color:'#3b82f6',cursor:'pointer',fontWeight:500}}>Print</button>
+                <button onClick={function(){setViewingNote(null);}} style={{padding:'6px 14px',fontSize:12,border:'none',borderRadius:6,background:'#ef4444',color:'#fff',cursor:'pointer',fontWeight:500}}>Close</button>
+              </div>
+            </div>
+            <div style={{padding:'20px 24px',borderBottom:'1px solid #e2e8f0'}}>
+              <p style={{margin:'4px 0',fontSize:13,color:'#64748b'}}>{viewingNote.date} | {viewingNote.author} | {viewingNote.status}</p>
+            </div>
+            <div style={{padding:24,overflowY:'auto',flex:1}}>
+              <pre style={{fontFamily:'Consolas, Monaco, monospace',fontSize:13,lineHeight:1.7,whiteSpace:'pre-wrap',wordWrap:'break-word',color:'#1e293b',margin:0,background:'#fafafa',padding:20,borderRadius:8,border:'1px solid #e2e8f0'}}>{generateOutpatientNoteContent(viewingNote, patient)}</pre>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
-
 // ==================== DOCUMENTATION PAGE ====================
 function DocumentationPage({ patients, user }) {
   const [noteType, setNoteType] = useState('daily');
